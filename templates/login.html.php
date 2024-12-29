@@ -2,7 +2,7 @@
 <h1>Login</h1>
 
 <?php if ($error) { ?>
-    <p><?= esc($error->getMessageKey()); ?></p>
+    <p><?= esc($error); ?></p>
 <?php } ?>
 
 <form method="post" action="">

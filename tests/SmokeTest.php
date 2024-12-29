@@ -5,7 +5,10 @@ namespace App\Tests;
 use App\Database;
 use App\Repository\UserRepository;
 use App\Security\User;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\BrowserKit\CookieJar;
 
 class SmokeTest extends WebTestCase
 {
@@ -45,11 +48,22 @@ class SmokeTest extends WebTestCase
      */
     public function testProtectedPageIsSuccessful($url): void
     {
+        /** @var KernelBrowser $client */
         $client = self::createClient();
-        /** @var \App\Repository\UserRepository $db */
+        /** @var \App\Repository\UserRepository $repo */
         $repo = self::getContainer()->get(UserRepository::class);
         $user = $repo->getByEmail('hi@dvk.co');
-        $client->loginUser($user);
+
+        // authenticate user, taken from KernelBrowser::loginUser
+        $session = self::getContainer()->get('session.factory')->createSession();
+        $session->set('user', $user);
+        $session->save();
+        $domains = array_unique(array_map(fn (Cookie $cookie) => $cookie->getName() === $session->getName() ? $cookie->getDomain() : '', $client->getCookieJar()->all())) ?: [''];
+        foreach ($domains as $domain) {
+            $cookie = new Cookie($session->getName(), $session->getId(), null, null, $domain);
+            $client->getCookieJar()->set($cookie);
+        }
+
         $client->request('GET', $url);
         $this->assertResponseIsSuccessful();
     }

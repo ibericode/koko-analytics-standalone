@@ -2,10 +2,7 @@
 
 namespace App\Security;
 
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User
 {
     private $id;
     private $email;
@@ -26,32 +23,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->email = $email;
 
         return $this;
-    }
-
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
-    public function getRoles(): array
-    {
-        $roles = [ 'ROLE_USER' ];
-
-        if ($this->role === 'admin') {
-            $roles[] = 'ROLE_ADMIN';
-        }
-
-        return $roles;
     }
 
     /**
