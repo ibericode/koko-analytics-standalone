@@ -13,12 +13,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 abstract class Controller extends AbstractController {
     protected function render(string $template, array $parameters = [], ?Response $response = null): Response {
 
-        $templateDir = $this->container->get('parameter_bag')->get('template_dir');
         extract($parameters);
-        require __DIR__ . '/../template-functions.php';
+        require_once __DIR__ . '/../template-functions.php';
 
         ob_start();
-        require $templateDir . $template;
+        require __DIR__ . '/../../templates/' . $template;
         $content = ob_get_clean();
 
         $response ??= new Response();

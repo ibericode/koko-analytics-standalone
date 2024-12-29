@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Database;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
 
-    public function __construct(protected Database $db) {}
+    public function __construct(protected UserRepository $userRepo) {}
 
     /**
      * Symfony calls this method for the login_form
@@ -22,15 +23,12 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
      */
     public function loadUserByIdentifier($identifier): UserInterface
     {
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = :email LIMIT 1;");
-        $stmt->execute(["email" => $identifier]);
-        $obj = $stmt->fetchObject(User::class);
-
-        if (!$obj) {
+        $user = $this->userRepo->getByEmail($identifier);
+        if (!$user) {
             throw new UserNotFoundException();
         }
 
-        return $obj;
+        return $user;
     }
 
     /**
@@ -50,14 +48,12 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', $user::class));
         }
 
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE id = :id LIMIT 1;");
-        $stmt->execute(["id" => $user->getId()]);
-        $obj = $stmt->fetchObject(User::class);
-        if ($obj) return $obj;
+        $user = $this->userRepo->getByEmail($user->getEmail());
+        if (!$user) {
+            throw new UserNotFoundException();
+        }
 
-        // Return a User object after making sure its data is "fresh".
-        // Or throw a UsernameNotFoundException if the user no longer exists.
-        throw new \Exception('Trying to refresh non-existing user from session');
+        return $user;
     }
 
     /**
