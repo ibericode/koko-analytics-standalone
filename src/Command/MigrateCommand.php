@@ -31,9 +31,6 @@ class MigrateCommand extends Command
         foreach ($migration_files as $migration_file) {
             // extract migration version from filename
             $migration_filename = basename($migration_file);
-            if (!str_contains($migration_filename, '-') || !is_numeric($migration_filename[0])) {
-                throw new Exception("Migration filename '$migration_filename' does not match expected format: <version>-<description>.php.");
-            }
             $migration_version = (int) explode("-", $migration_filename)[0];
 
             // skip migration if already executed
@@ -42,11 +39,10 @@ class MigrateCommand extends Command
             }
 
             // execute migration
-            $fn = require $migration_file;
-            $fn($this->db);
+            (require $migration_file)($this->db);
 
             // mark migration as completed
-            $stmt->execute(["version" => $migration_version, "timestamp" => (new \DateTimeImmutable())->format('Y-m-d H:i:s')]);
+            $stmt->execute(["version" => $migration_version, "timestamp" => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
 
             $output->writeln("Executed migration file '$migration_file'");
         }

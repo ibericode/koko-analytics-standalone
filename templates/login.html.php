@@ -1,4 +1,6 @@
-<?php require __DIR__ . '/_header.html.php'; ?>
+<?php
+$title = 'Login - Koko Analytics';
+require __DIR__ . '/_header.html.php'; ?>
 <h1>Login</h1>
 
 <?php if ($error) { ?>
