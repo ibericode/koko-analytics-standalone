@@ -28,6 +28,25 @@ class StatRepository {
         return SiteStats::fromArray($stmt->fetch(\PDO::FETCH_ASSOC) ?: []);
     }
 
+    public function getGroupedTotalsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT
+                date,
+                SUM(visitors) AS visitors,
+                SUM(pageviews) AS pageviews
+            FROM koko_analytics_site_stats
+            WHERE date BETWEEN :start AND :end
+            GROUP BY DATE_FORMAT(date, '%Y-%m-%d');
+        ");
+        $stmt->execute([
+            'start' => $start->format('Y-m-d'),
+            'end' => $end->format('Y-m-d'),
+        ]);
+
+        return array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
     public function getPageStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end)
     {
         $stmt = $this->db->prepare("

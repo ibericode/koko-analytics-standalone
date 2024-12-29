@@ -1,6 +1,52 @@
 <?php
+
+/**
+ * @var \DateTimeInterface $date_start
+ * @var \DateTimeInterface $date_end
+ * @var string $date_range
+ * @var string[] $date_ranges
+ * @var \App\Entity\SiteStats $totals
+ * @var \App\Entity\SiteStats $totals_previous
+ * @var \App\Entity\PageStats[] $pages
+ * @var \App\Entity\ReferrerStats[] $referrers
+ */
+
 $title = 'Koko Analytics';
 require __DIR__ . '/_header.html.php'; ?>
+
+<?php /* Datepicker */ ?>
+
+<details class="datepicker">
+    <summary><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
+
+    <form>
+        <div>
+            <label for="date-preset-input">Date range</label>
+            <select name="date-range" id="date-range-input" onchange="document.getElementById('date-start-input').disabled = true; document.getElementById('date-end-input').disabled = true; this.form.submit();">
+                <option value="custom" disabled="">Custom</option>
+                <?php foreach ($date_ranges as $value => $label) : ?>
+                    <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div style="display: flex; margin-top: 12px;">
+            <div>
+                <label for="date-start-input">Start date</label>
+                <input type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
+
+                &nbsp;&mdash;&nbsp;
+            </div>
+
+            <div>
+                <label for="date-end-input">End date</label>
+                <input type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
+            </div>
+        </div>
+        <div>
+            <button type="submit">View</button>
+        </div>
+    </form>
+</details>
 
 
 <?php /* Site wide totals */ ?>
@@ -8,14 +54,31 @@ require __DIR__ . '/_header.html.php'; ?>
     <tbody>
     <tr>
         <th>Total visitors</th>
-        <td><?= number_format($totals->visitors); ?></td>
+        <td class="amount"><?= number_format($totals->visitors); ?></td>
+        <td class="subtext">
+            <?= number_format(abs($totals->visitors - $totals_previous->visitors)); ?>
+            <?= $totals->visitors > $totals_previous->visitors ? 'more' : 'less'; ?>
+            than in previous period
+        </td>
     </tr>
     <tr>
         <th>Total pageviews</th>
-        <td><?= number_format($totals->pageviews); ?></td>
+        <td class="amount"><?= number_format($totals->pageviews); ?></td>
+        <td class="subtext">
+            <?= number_format(abs($totals->pageviews - $totals_previous->pageviews)); ?>
+            <?= $totals->pageviews > $totals_previous->pageviews ? 'more' : 'less'; ?>
+            than in previous period
+        </td>
     </tr>
     </tbody>
 </table>
+
+<?php // Chart ?>
+<div class="box" style="padding: 16px;">
+    <div class="ka-chart">
+        <?php new \App\Chart($chart, $date_start, $date_end); ?>
+    </div>
+</div>
 
 <div class="boxes">
     <?php /* Page stats */ ?>
@@ -38,6 +101,11 @@ require __DIR__ . '/_header.html.php'; ?>
                     <td><?= number_format($p->pageviews); ?></td>
                 </tr>
             <?php endforeach; ?>
+            <?php if (empty($pages)) : ?>
+                <tr>
+                    <td colspan="4">There is nothing here. Yet!</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
     </div>
@@ -62,10 +130,17 @@ require __DIR__ . '/_header.html.php'; ?>
                     <td><?= number_format($p->pageviews); ?></td>
                 </tr>
             <?php endforeach; ?>
+            <?php if (empty($referrers)) : ?>
+                <tr>
+                    <td colspan="4">There is nothing here. Yet!</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
     </div>
 </div>
+
+<script src="/chart.js"></script>
 
 <?php require __DIR__ . '/_footer.html.php'; ?>
 
