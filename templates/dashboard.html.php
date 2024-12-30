@@ -146,7 +146,7 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
             <?php foreach ($referrers as $rank => $p) : ?>
                 <tr>
                     <td><?= $rank + 1; ?></td>
-                    <td><a href="<?= esc($p->url); ?>"><?= esc($p->url); ?></a></td>
+                    <td><a href="<?= esc($p->url); ?>"><?= get_referrer_url_label(esc($p->url)); ?></a></td>
                     <td><?= number_format($p->visitors); ?></td>
                     <td><?= number_format($p->pageviews); ?></td>
                 </tr>
