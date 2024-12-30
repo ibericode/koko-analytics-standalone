@@ -98,8 +98,7 @@ class Aggregator {
     private function commitSiteStats(string $date): void
     {
         // upsert site stats
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES(:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)");
-        $stmt->execute([
+        $this->db->prepare("INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES(:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute([
             'date' => $date,
             'visitors' => $this->site_stats->visitors,
             'pageviews' => $this->site_stats->pageviews,
@@ -132,15 +131,36 @@ class Aggregator {
         $column_count = 4;
         $placeholders = rtrim(str_repeat('?,', $column_count), ',');
         $placeholders = rtrim(str_repeat("($placeholders),", count($values) / $column_count), ',');
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)");
-        $stmt->execute($values);
+        $this->db->prepare("INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
     }
 
     private function commitReferrerStats(string $date): void
     {
         if (empty($this->referrer_stats)) return;
 
-        // TODO: Fill method
+        // insert all page urls
+        $values = array_keys($this->referrer_stats);
+        $placeholders = rtrim(str_repeat('(?),', count($values)), ',');
+        $this->db->prepare("INSERT IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}")->execute($values);
+
+        // select and map page url to id
+        $placeholders = rtrim(str_repeat('?,', count($values)), ',');
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls WHERE url IN ({$placeholders})");
+        $stmt->execute($values);
+        $url_ids = [];
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $url_ids[$row['url']] = $row['id'];
+        }
+
+        // build final upsert query for page stats
+        $values = [];
+        foreach ($this->referrer_stats as $url => $stats) {
+            array_push($values, $date, $url_ids[$url], $stats->visitors, $stats->pageviews);
+        }
+        $column_count = 4;
+        $placeholders = rtrim(str_repeat('?,', $column_count), ',');
+        $placeholders = rtrim(str_repeat("($placeholders),", count($values) / $column_count), ',');
+        $this->db->prepare("INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
     }
 
     private function ignore_referrer_url(string $url): bool

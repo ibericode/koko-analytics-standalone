@@ -35,7 +35,7 @@ class CollectController
         // validate params
         $new_visitor = \filter_var($new_visitor, FILTER_VALIDATE_INT);
         $unique_pageview = \filter_var($unique_pageview, FILTER_VALIDATE_INT);
-        $referrer = $referrer === '' ? '' : \filter_var($unique_pageview, FILTER_VALIDATE_URL);
+        $referrer = $referrer === '' ? '' : \filter_var($referrer, FILTER_VALIDATE_URL);
         if ($new_visitor === false || $unique_pageview === false || $referrer === false) {
             return new Response('Bad request', 400, $headers);
         }
