@@ -20,6 +20,15 @@ class SeedCommand extends Command
     {
         $date_start = new \DateTimeImmutable('-730 days');
         $date_now = new \DateTimeImmutable('now');
+
+        $this->seedSiteStats($date_start, $date_now);
+        $this->seedPageStats($date_start, $date_now);
+        $this->seedReferrerStats($date_start, $date_now);
+        return Command::SUCCESS;
+    }
+
+    private function seedSiteStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    {
         $date_cur = $date_start;
 
         // populate site stats
@@ -34,7 +43,10 @@ class SeedCommand extends Command
             ]);
             $date_cur = $date_cur->modify('+1 day');
         }
+    }
 
+    private function seedPageStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    {
         // create page URL's
         $page_urls = [
             '/',
@@ -57,7 +69,7 @@ class SeedCommand extends Command
         while ($date_cur < $date_now) {
             foreach ($page_url_ids as $url => $id) {
                 $visitors = random_int(5, 50);
-                $pageviews = $visitors + random_int(10, 100);
+                $pageviews = $visitors + random_int(5, 50);
                 $stmt->execute([
                     'date' => $date_cur->format('Y-m-d'),
                     'id' => $id,
@@ -68,7 +80,43 @@ class SeedCommand extends Command
 
             $date_cur = $date_cur->modify('+1 day');
         }
+    }
 
-        return Command::SUCCESS;
+    private function seedReferrerStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    {
+        // create referrer URL's
+        $referrer_urls = [
+            'https://www.kokoanalytics.com/',
+            'https://www.github.com/',
+            'https://sr.ht/',
+            'https://mastodon.social/',
+            'https://duckduckgo.com/',
+            'https://www.dannyvankooten.com/',
+            'https://www.bing.com/',
+            'https://www.yahoo.com/',
+        ];
+        $referrer_url_ids = [];
+        $stmt = $this->db->prepare('INSERT INTO koko_analytics_referrer_urls (url) VALUES (:url);');
+        foreach ($referrer_urls as $url) {
+            $stmt->execute([ 'url' => $url ]);
+            $referrer_url_ids[$url] = $this->db->lastInsertId();
+        }
+
+        $date_cur = $date_start;
+        $stmt = $this->db->prepare('INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);');
+        while ($date_cur < $date_now) {
+            foreach ($referrer_url_ids as $url => $id) {
+                $visitors = random_int(1, 10);
+                $pageviews = $visitors + random_int(1, 10);
+                $stmt->execute([
+                    'date' => $date_cur->format('Y-m-d'),
+                    'id' => $id,
+                    'visitors' => $visitors,
+                    'pageviews' => $pageviews,
+                ]);
+            }
+
+            $date_cur = $date_cur->modify('+1 day');
+        }
     }
 }
