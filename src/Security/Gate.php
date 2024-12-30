@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EventListener;
+namespace App\Security;
 
 use App\Repository\UserRepository;
 use App\Security\User;
@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-class RequestListener
+class Gate
 {
     public function __construct(protected UserRepository $userRepository) {}
 
@@ -21,8 +21,12 @@ class RequestListener
         }
 
         // don't do anything if request is not for a protected URL path
+        $public_access_urls = [
+            '/login',
+            '/collect'
+        ];
         $request = $event->getRequest();
-        if ($request->getRequestUri() === '/login') {
+        if (\in_array($request->getRequestUri(), $public_access_urls, true)) {
             return;
         }
 
