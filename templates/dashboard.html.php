@@ -18,44 +18,60 @@ require __DIR__ . '/_header.html.php'; ?>
 
 <details class="datepicker">
     <summary><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
-
-    <form>
-        <div>
-            <label for="date-preset-input">Date range</label>
-            <select name="date-range" id="date-range-input" onchange="document.getElementById('date-start-input').disabled = true; document.getElementById('date-end-input').disabled = true; this.form.submit();">
-                <option value="custom" disabled="">Custom</option>
-                <?php foreach ($date_ranges as $value => $label) : ?>
-                    <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
-                <?php endforeach; ?>
-            </select>
+    <div class="datepicker-dropdown">
+        <div class="datepicker-title">
+        <?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?>
         </div>
-        <div style="display: flex; margin-top: 12px;">
-            <div>
-                <label for="date-start-input">Start date</label>
-                <input type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
+        <div class="datepicker-inner">
+            <form>
+                <div>
+                    <label for="date-range-input">Date range</label>
+                    <select name="date-range" id="date-range-input">
+                        <option value="custom" disabled="">Custom</option>
+                        <?php foreach ($date_ranges as $value => $label) : ?>
+                            <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div style="display: flex; margin-top: 12px;">
+                    <div>
+                        <label for="date-start-input">Start date</label>
+                        <input type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
 
-                &nbsp;&mdash;&nbsp;
-            </div>
+                        &nbsp;&mdash;&nbsp;
+                    </div>
 
-            <div>
-                <label for="date-end-input">End date</label>
-                <input type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
-            </div>
+                    <div>
+                        <label for="date-end-input">End date</label>
+                        <input type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit">View</button>
+                </div>
+            </form>
         </div>
-        <div>
-            <button type="submit">View</button>
-        </div>
-    </form>
+    </div>
 </details>
 
 
-<?php /* Site wide totals */ ?>
+<?php
+/* Site wide totals */
+$visitors_change = $totals_previous->visitors == 0 ? 0 : ($totals->visitors / $totals_previous->visitors) - 1;
+$pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews / $totals_previous->pageviews) - 1;
+?>
 <table class="totals">
     <tbody>
+
     <tr>
         <th>Total visitors</th>
-        <td class="amount"><?= number_format($totals->visitors); ?></td>
-        <td class="subtext">
+        <td class="totals-amount">
+            <?= number_format($totals->visitors); ?>
+            <span class="totals-change <?php echo $visitors_change > 0 ? 'up' : 'down'; ?>">
+                <?php echo percent_format($visitors_change); ?>
+            </span>
+        </td>
+        <td class="totals-subtext">
             <?= number_format(abs($totals->visitors - $totals_previous->visitors)); ?>
             <?= $totals->visitors > $totals_previous->visitors ? 'more' : 'less'; ?>
             than in previous period
@@ -63,8 +79,13 @@ require __DIR__ . '/_header.html.php'; ?>
     </tr>
     <tr>
         <th>Total pageviews</th>
-        <td class="amount"><?= number_format($totals->pageviews); ?></td>
-        <td class="subtext">
+        <td class="totals-amount">
+            <?= number_format($totals->pageviews); ?>
+            <span class="totals-change <?php echo $pageviews_change > 0 ? 'up' : 'down'; ?>">
+                <?php echo percent_format($pageviews_change); ?>
+            </span>
+        </td>
+        <td class="totals-subtext">
             <?= number_format(abs($totals->pageviews - $totals_previous->pageviews)); ?>
             <?= $totals->pageviews > $totals_previous->pageviews ? 'more' : 'less'; ?>
             than in previous period
