@@ -4,9 +4,9 @@ namespace App\Entity;
 
 class ReferrerStats {
     public ?\DateTimeInterface $date;
-    public int $visitors;
-    public int $pageviews;
-    public string $url;
+    public int $visitors = 0;
+    public int $pageviews = 0;
+    public string $url = '';
 
     public static function fromArray(array $data): self
     {

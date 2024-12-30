@@ -40,7 +40,8 @@ class CollectController
             return new Response('Bad request', 400, $headers);
         }
 
-        // limit referrer URL to 255 chars
+        // limit path and referrer URL to a maximum of 255 chars
+        $path = substr($path, 0, 255);
         $referrer = substr($referrer, 0, 255);
 
         // write to buffer file

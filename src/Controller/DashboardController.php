@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Aggregator;
 use App\Database;
 use App\Repository\StatRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,8 +13,11 @@ use Symfony\Component\Routing\Attribute\Route;
 class DashboardController extends Controller
 {
     #[Route('/', name: 'app_dashboard', methods: ['GET'])]
-    public function index(Request $request, StatRepository $statsRepository): Response
+    public function index(Request $request, StatRepository $statsRepository, Aggregator $aggregator): Response
     {
+        // run the aggregator whenever the dashboard is loaded
+        $aggregator->run();
+
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'));
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'));

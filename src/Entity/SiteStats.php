@@ -4,8 +4,8 @@ namespace App\Entity;
 
 class SiteStats {
     public ?\DateTimeInterface $date;
-    public int $visitors;
-    public int $pageviews;
+    public int $visitors = 0;
+    public int $pageviews = 0;
 
     public static function fromArray(array $data): self
     {

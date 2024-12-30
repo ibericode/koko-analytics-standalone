@@ -1,0 +1,134 @@
+<?php
+
+namespace App;
+
+use App\Entity\PageStats;
+use App\Entity\ReferrerStats;
+use App\Entity\SiteStats;
+use DateTimeImmutable;
+use Exception;
+
+class Aggregator {
+
+    protected $site_stats;
+    protected $page_stats = [];
+    protected $referrer_stats = [];
+
+    public function __construct(protected Database $db)
+    {
+        $this->site_stats = new SiteStats;
+    }
+
+    public function run(): void
+    {
+        $filename = __DIR__ . '/../var/buffer.json';
+        if (!\is_file($filename)) {
+            // buffer file does not exist, meaning no new data since last aggregation
+            return;
+        }
+
+        // rename file to something temporary
+        $tmp_filename = \dirname($filename) . '/buffer-' . time() . '.json';
+        $renamed = \rename($filename, $tmp_filename);
+        if (!$renamed) throw new Exception("Error renaming buffer file");
+
+        $fh = \fopen($tmp_filename, 'r');
+        if (!$fh) throw new Exception("Error opening buffer file for reading");
+
+        // read file line by line
+        while (($line = \fgets($fh, 1024)) !== false) {
+            $line = \trim($line);
+
+            // skip empty line
+            if ($line === '') {
+                continue;
+            }
+
+            $data = json_decode($line);
+            $this->add_data($data);
+        }
+
+        // close file & remove it from filesystem
+        \fclose($fh);
+        \unlink($tmp_filename);
+
+        $this->commit();
+    }
+
+    private function add_data(array $data): void
+    {
+        [$path, $new_visitor, $unique_pageview, $referrer_url] = $data;
+
+        // if referrer is on blocklist, ignore entire line
+        if ($this->ignore_referrer_url($referrer_url)) {
+            return;
+        }
+
+        // increment site stats
+        $this->site_stats->pageviews++;
+        $this->site_stats->visitors += $new_visitor ? 1 : 0;
+
+        // increment page stats
+        $this->page_stats[$path] ??= new PageStats;
+        $this->page_stats[$path]->pageviews++;
+        $this->page_stats[$path]->visitors += $unique_pageview ? 1 : 0;
+
+        // increment referrer stats
+        if ($referrer_url !== '') {
+            $this->referrer_stats[$referrer_url] ??= new ReferrerStats;
+            $this->referrer_stats[$referrer_url]->pageviews++;
+            $this->referrer_stats[$referrer_url]->visitors += $unique_pageview ? 1 : 0;
+        }
+    }
+
+    private function commit(): void
+    {
+        // return early if no new data came in
+        if ($this->site_stats->pageviews === 0) return;
+
+        // TODO: Use configurable timezone here
+        $now = new DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $date = $now->format('Y-m-d');
+
+        // upsert site stats
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES(:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)");
+        $stmt->execute([
+            'date' => $date,
+            'visitors' => $this->site_stats->visitors,
+            'pageviews' => $this->site_stats->pageviews,
+        ]);
+
+        // TODO: upsert page stats
+        $stmt_insert = $this->db->prepare("INSERT IGNORE INTO koko_analytics_page_urls (url) VALUES (:url)");
+        $stmt_select = $this->db->prepare("SELECT id FROM koko_analytics_page_urls WHERE url = :url LIMIT 1");
+        $page_url_ids = [];
+        $values = [];
+        foreach ($this->page_stats as $url => $stats) {
+            $stmt_insert->execute(['url' => $url]);
+            $stmt_select->execute(['url' => $url]);
+            $id = $stmt_select->fetchColumn();
+            $page_url_ids[$url] = $id;
+            array_push($values, $date, $id, $stats->visitors, $stats->pageviews);
+        }
+
+        $column_count = 4;
+        $placeholders = rtrim(str_repeat('?,', $column_count), ',');
+        $placeholders = rtrim(str_repeat("($placeholders),", count($values) / $column_count), ',');
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)");
+        $stmt->execute($values);
+
+
+
+
+        // TODO: upsert referrer stats
+
+    }
+
+    private function ignore_referrer_url(string $url): bool
+    {
+        if ($url === '') return false;
+
+        // TODO: Read blocklist, determine if referrer URL should be blocked
+        return false;
+    }
+}
