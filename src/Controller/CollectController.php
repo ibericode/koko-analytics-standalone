@@ -41,8 +41,8 @@ class CollectController
         }
 
         // limit path and referrer URL to a maximum of 255 chars
-        $path = substr($path, 0, 255);
-        $referrer = substr($referrer, 0, 255);
+        $path = strtolower(substr($path, 0, 255));
+        $referrer = strtolower(substr($referrer, 0, 255));
 
         // write to buffer file
         // TODO: Get projectRootDir() from Kernel instead of using a relative path here
