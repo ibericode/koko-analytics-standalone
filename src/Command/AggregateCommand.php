@@ -3,8 +3,6 @@
 namespace App\Command;
 
 use App\Aggregator;
-use App\Database;
-use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

@@ -44,8 +44,8 @@ class Aggregator {
                 continue;
             }
 
-            $data = json_decode($line);
-            $this->add_data($data);
+            $data = \json_decode($line);
+            $this->addData($data);
         }
 
         // close file & remove it from filesystem
@@ -55,12 +55,12 @@ class Aggregator {
         $this->commit();
     }
 
-    private function add_data(array $data): void
+    private function addData(array $data): void
     {
         [$path, $new_visitor, $unique_pageview, $referrer_url] = $data;
 
         // if referrer is on blocklist, ignore entire line
-        if ($this->ignore_referrer_url($referrer_url)) {
+        if ($this->isReferrerUrlOnBlocklist($referrer_url)) {
             return;
         }
 
@@ -110,12 +110,12 @@ class Aggregator {
         if (empty($this->page_stats)) return;
 
         // insert all page urls
-        $values = array_keys($this->page_stats);
-        $placeholders = rtrim(str_repeat('(?),', count($values)), ',');
+        $values = \array_keys($this->page_stats);
+        $placeholders = \rtrim(\str_repeat('(?),', count($values)), ',');
         $this->db->prepare("INSERT IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}")->execute($values);
 
         // select and map page url to id
-        $placeholders = rtrim(str_repeat('?,', count($values)), ',');
+        $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls WHERE url IN ({$placeholders})");
         $stmt->execute($values);
         $page_url_ids = [];
@@ -126,11 +126,11 @@ class Aggregator {
         // build final upsert query for page stats
         $values = [];
         foreach ($this->page_stats as $url => $stats) {
-            array_push($values, $date, $page_url_ids[$url], $stats->visitors, $stats->pageviews);
+            \array_push($values, $date, $page_url_ids[$url], $stats->visitors, $stats->pageviews);
         }
         $column_count = 4;
-        $placeholders = rtrim(str_repeat('?,', $column_count), ',');
-        $placeholders = rtrim(str_repeat("($placeholders),", count($values) / $column_count), ',');
+        $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
+        $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
         $this->db->prepare("INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
     }
 
@@ -139,12 +139,12 @@ class Aggregator {
         if (empty($this->referrer_stats)) return;
 
         // insert all page urls
-        $values = array_keys($this->referrer_stats);
-        $placeholders = rtrim(str_repeat('(?),', count($values)), ',');
+        $values = \array_keys($this->referrer_stats);
+        $placeholders = \rtrim(str_repeat('(?),', count($values)), ',');
         $this->db->prepare("INSERT IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}")->execute($values);
 
         // select and map page url to id
-        $placeholders = rtrim(str_repeat('?,', count($values)), ',');
+        $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls WHERE url IN ({$placeholders})");
         $stmt->execute($values);
         $url_ids = [];
@@ -155,19 +155,30 @@ class Aggregator {
         // build final upsert query for page stats
         $values = [];
         foreach ($this->referrer_stats as $url => $stats) {
-            array_push($values, $date, $url_ids[$url], $stats->visitors, $stats->pageviews);
+            \array_push($values, $date, $url_ids[$url], $stats->visitors, $stats->pageviews);
         }
         $column_count = 4;
-        $placeholders = rtrim(str_repeat('?,', $column_count), ',');
-        $placeholders = rtrim(str_repeat("($placeholders),", count($values) / $column_count), ',');
+        $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
+        $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
         $this->db->prepare("INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
     }
 
-    private function ignore_referrer_url(string $url): bool
+    private function isReferrerUrlOnBlocklist(string $url): bool
     {
         if ($url === '') return false;
 
-        // TODO: Read blocklist, determine if referrer URL should be blocked
+        static $blocklist;
+        if ($blocklist === null) {
+            $blocklist = \file(__DIR__ . '/../var/blocklist.txt', FILE_IGNORE_NEW_LINES);
+            $blocklist = $blocklist ?: [];
+        }
+
+        foreach ($blocklist as $blocklisted_domain) {
+            if (\str_contains($url, $blocklisted_domain)) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
