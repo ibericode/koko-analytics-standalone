@@ -9,6 +9,7 @@ use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(name: 'app:database:seed', description: 'Populates the database with some sample data')]
@@ -18,9 +19,16 @@ class DatabaseSeedCommand extends Command
         parent::__construct();
     }
 
+    public function configure(): void
+    {
+        $this
+            ->addOption('months', 'm', InputOption::VALUE_REQUIRED, 'Amount of months to create sample data for', '13');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $date_start = new \DateTimeImmutable('-13 months', new \DateTimeZone('UTC'));
+        $months = (int) $input->getOption('months');
+        $date_start = new \DateTimeImmutable("-{$months} months", new \DateTimeZone('UTC'));
         $date_now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         $this->seedUsers();

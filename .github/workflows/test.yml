@@ -1,0 +1,12 @@
+name: Build and test
+on: push
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: checkout repo
+        uses: actions/checkout@v3
+      - run: composer install
+      - run: APP_ENV=test php bin/console app:database:migrate
+      - run: APP_ENV=test php bin/console app:database:seed --months=1
+      - run: APP_ENV=test php bin/phpunit
