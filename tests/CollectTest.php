@@ -2,9 +2,6 @@
 
 namespace App\Tests;
 
-use App\Database;
-use App\Repository\UserRepository;
-use App\Security\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
