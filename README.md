@@ -55,9 +55,9 @@ To start collecting visitor statistics for any website, deploy this application 
 
 ```html
 <script>
-((ka, cnf) => {
+(function(ka, cnf) {
   window[ka] = cnf;
-  let s = document.createElement('script');
+  var s = document.createElement('script');
   s.defer = true;
   s.src = [cnf.url, '/', ka, '.js'].join('');
 document.body.appendChild(s)
