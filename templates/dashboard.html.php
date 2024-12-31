@@ -16,7 +16,6 @@ $title = 'Koko Analytics';
 require __DIR__ . '/_header.html.php'; ?>
 
 <?php /* Datepicker */ ?>
-
 <details class="datepicker">
     <summary><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
     <div class="datepicker-dropdown">
@@ -28,7 +27,7 @@ require __DIR__ . '/_header.html.php'; ?>
                 <div>
                     <label for="date-range-input">Date range</label>
                     <select name="date-range" id="date-range-input">
-                        <option value="custom" disabled="">Custom</option>
+                        <option value="custom" <?= $date_range === 'custom' ? 'selected' : ''; ?> disabled>Custom</option>
                         <?php foreach ($date_ranges as $value => $label) : ?>
                             <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
                         <?php endforeach; ?>

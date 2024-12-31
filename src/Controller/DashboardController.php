@@ -26,8 +26,8 @@ class DashboardController extends Controller
             $end = new \DateTimeImmutable('now');
         }
 
-        $date_range = $request->query->get('date-range', '');
-        if ($date_range) {
+        $date_range = $request->query->get('date-range', 'custom');
+        if ($date_range !== 'custom') {
             [$start, $end] = $this->get_dates_from_range($date_range);
         }
 
