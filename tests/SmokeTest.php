@@ -15,13 +15,19 @@ class SmokeTest extends WebTestCase
     public function provideUrlsWithoutAuthentication(): \Generator
     {
         yield ['/login'];
-        // ...
     }
 
     public function provideUrlsWithAuthentication(): \Generator
     {
         yield ['/'];
-        // ...
+        yield ['/?date-start=2024-01-01&date-end=2024-12-31'];
+        yield ['/?date-range=today'];
+        yield ['/?date-range=this_week'];
+        yield ['/?date-range=last_week'];
+        yield ['/?date-range=this_month'];
+        yield ['/?date-range=last_month'];
+        yield ['/?date-range=this_year'];
+        yield ['/?date-range=last_year'];
     }
 
     /**
