@@ -27,8 +27,9 @@ First, read through [deploying a Symfony application](https://symfony.com/doc/cu
 1. Use Composer to install dependencies: `composer install --no-dev --optimize-autoloader`
 1. Create a local configuration file: `cp .env .env.local`
 1. In `.env.local`, update `APP_SECRET` and the various `DATABASE_` entries.
-1. Run `php bin/migrate` to initialize the database.
+1. Run `php bin/console app:database:migrate` to initialize the database.
 1. Configure your webserver to point all requests to `public/index.php`
+1. Run `php bin/console app:user:create <email> <password>` to register a new user.
 
 
 ## Tracking snippet

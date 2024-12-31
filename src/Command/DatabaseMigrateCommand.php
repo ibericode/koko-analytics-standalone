@@ -9,8 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:migrate', description: 'Upgrades the database schema to the latest code version')]
-class MigrateCommand extends Command
+#[AsCommand(name: 'app:database:migrate', description: 'Upgrades the database schema to the latest code version')]
+class DatabaseMigrateCommand extends Command
 {
     public function __construct(protected Database $db) {
         parent::__construct();

@@ -9,8 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:seed', description: 'Populates the database with some sample data')]
-class SeedCommand extends Command
+#[AsCommand(name: 'app:database:seed', description: 'Populates the database with some sample data')]
+class DatabaseSeedCommand extends Command
 {
     public function __construct(protected Database $db) {
         parent::__construct();
