@@ -62,7 +62,8 @@ To start collecting visitor statistics for any website, deploy this application 
   s.src = [cnf.url, '/', ka, '.js'].join('');
 document.body.appendChild(s)
 })('ka', {
-  url: 'http://localhost:8000', /* the URL to your Koko Analytics application instance */
+  url: 'http://localhost:8000',   /* the URL to your Koko Analytics application instance */
+  cookie: 'koko_analytics',       /* name of the cookie to use or empty for no cookie */
 })
 </script>
 ```
