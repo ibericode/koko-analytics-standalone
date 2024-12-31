@@ -1,10 +1,10 @@
 # Koko Analytics
 
-Open-source, self-hosted and privacy-friendly website analytics.
+> This project is still in early development and a stable version has not yet been released.
 
-> This project is still in development and a stable version has not yet been released. We expect to be able to release our first stable version in Q2 of 2025.
+Koko Analytics is a PHP application that you can self-host to provide you with simple, open-source, lightweight (< 850 bytes) and privacy-friendly website analytics.
 
-This repository is a ported version of the [Koko Analytics plugin for WordPress](https://www.kokoanalytics.com/), but built on top of Symfony framework.
+It aims to be a simple alternative to Google Analytics that respects the privacy of your visitors. Nothing visitor specific is tracked, only aggregated counts.
 
 <figure>
   <img src="https://raw.githubusercontent.com/koko-analytics/standalone/main/public/screenshot.png" alt="Screenshot of the Koko Analytics dashboard" loading="lazy" width="830">
@@ -12,14 +12,31 @@ This repository is a ported version of the [Koko Analytics plugin for WordPress]
 </figure>
 
 
-## Requirements
+## Features
+
+- Compliance: GDPR and CCPA Compliant by design.
+- Local: No external services.
+- Anonymous: No personal information or anything visitor specific is tracked.
+- Cookieless: Option to not use any cookies.
+- Fast: Handles thousands of daily visitors or sudden bursts of traffic without breaking a sweat.
+- Lightweight: The tracking script is < 1 kB.
+- Storage efficient: A year worth of data takes up less than 5 MB of database storage.
+- Cached: Fully compatible with pages served from server or browser caches.
+- Open-source: GNU AGPLv3 licensed.
+
+
+## Installation
+
+To install Koko Analytics you will need a server with at least the following requirements:
+
+
+### Requirements
 
 - PHP 8.2 or higher.
 - MySQL compatible database.
 
-## Deployment
 
-This application is still undergoing heavy development, so expect things to change and documentation to be sparse. That said, here are some pointers in case you do already want to play around with it on a server of your own.
+### Deployment
 
 First, read through [deploying a Symfony application](https://symfony.com/doc/current/deployment.html) for a general overview on what to expect in deploying Koko Analytics.
 
@@ -32,7 +49,7 @@ First, read through [deploying a Symfony application](https://symfony.com/doc/cu
 1. Run `php bin/console app:user:create <email> <password>` to register a new user.
 
 
-## Tracking snippet
+### Tracking snippet
 
 To start collecting visitor statistics for any website, deploy this application to a suitable location and then add the following tracking snippet to your pages.
 

@@ -58,6 +58,7 @@ class StatRepository {
             JOIN koko_analytics_page_urls p ON p.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
+            LIMIT 0, 20
         ");
         $stmt->execute([
             'start' => $start->format('Y-m-d'),
@@ -78,6 +79,7 @@ class StatRepository {
             JOIN koko_analytics_referrer_urls r ON r.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
+            LIMIT 0, 20
         ");
         $stmt->execute([
             'start' => $start->format('Y-m-d'),
@@ -93,7 +95,7 @@ class StatRepository {
             SELECT SUM(count)
             FROM koko_analytics_realtime_count
             WHERE timestamp >= ?");
-        $stmt->execute([ (new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') ]);
+        $stmt->execute([(new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
         return (int) $stmt->fetchColumn();
     }
 }
