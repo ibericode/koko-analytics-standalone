@@ -33,7 +33,7 @@ To install Koko Analytics you will need a server with at least the following req
 ### Requirements
 
 - PHP 8.2 or higher.
-- MySQL compatible database.
+- SQLite or MySQL database.
 
 
 ### Deployment

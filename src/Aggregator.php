@@ -110,8 +110,14 @@ class Aggregator {
 
     private function commitSiteStats(string $date): void
     {
-        // upsert site stats
-        $this->db->prepare("INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES(:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute([
+        // TODO: Abstract away in a different class: SQLiteCommitter
+        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
+            $query = "INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        } else {
+            $query = "INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
+        }
+
+        $this->db->prepare($query)->execute([
             'date' => $date,
             'visitors' => $this->site_stats->visitors,
             'pageviews' => $this->site_stats->pageviews,
@@ -125,7 +131,12 @@ class Aggregator {
         // insert all page urls
         $values = \array_keys($this->page_stats);
         $placeholders = \rtrim(\str_repeat('(?),', count($values)), ',');
-        $this->db->prepare("INSERT IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}")->execute($values);
+        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
+            $query = "INSERT OR IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}";
+        } else {
+            $query = "INSERT IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}";
+        }
+        $this->db->prepare($query)->execute($values);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
@@ -144,7 +155,13 @@ class Aggregator {
         $column_count = 4;
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        $this->db->prepare("INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
+
+        if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
+            $query = "INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        } else {
+            $query = "INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
+        }
+        $this->db->prepare($query)->execute($values);
     }
 
     private function commitReferrerStats(string $date): void
@@ -154,7 +171,12 @@ class Aggregator {
         // insert all page urls
         $values = \array_keys($this->referrer_stats);
         $placeholders = \rtrim(str_repeat('(?),', count($values)), ',');
-        $this->db->prepare("INSERT IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}")->execute($values);
+        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
+            $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}";
+        } else {
+            $query = "INSERT IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}";
+        }
+        $this->db->prepare($query)->execute($values);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
@@ -173,7 +195,12 @@ class Aggregator {
         $column_count = 4;
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        $this->db->prepare("INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
+        if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
+            $query = "INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        } else {
+            $query = "INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
+        }
+        $this->db->prepare($query)->execute($values);
     }
 
     private function commitRealtimePageviewCount(): void

@@ -18,12 +18,19 @@ class DatabaseMigrateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $migration_files = glob("migrations/*-*.php");
+        $driver = $this->db->getDriverName();
+        $migration_files = glob("migrations/{$driver}/*-*.php");
         try {
             $version = $this->db->query('SELECT MAX(version) FROM koko_analytics_migrations')->fetchColumn(0);
         } catch (Exception $e) {
-            // in case table does not yet exist, we should start at earliest possible migration
-            $version = 0;
+            $this->db->exec(
+                "CREATE TABLE koko_analytics_migrations (
+                      version INT UNSIGNED NOT NULL PRIMARY KEY,
+                      timestamp DATETIME NOT NULL
+                )"
+           );
+
+           $version = 0;
         }
 
         $stmt = $this->db->prepare("INSERT INTO koko_analytics_migrations (version, timestamp) VALUES (:version, :timestamp);");

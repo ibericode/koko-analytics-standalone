@@ -37,7 +37,7 @@ class StatRepository {
                 SUM(pageviews) AS pageviews
             FROM koko_analytics_site_stats
             WHERE date BETWEEN :start AND :end
-            GROUP BY DATE_FORMAT(date, '%Y-%m-%d');
+            GROUP BY DATE(date);
         ");
         $stmt->execute([
             'start' => $start->format('Y-m-d'),

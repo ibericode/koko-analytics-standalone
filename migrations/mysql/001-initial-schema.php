@@ -4,12 +4,6 @@ use App\Database;
 
 return function(Database $db) {
     $db->exec(
-        "CREATE TABLE koko_analytics_migrations (
-              version INT UNSIGNED NOT NULL PRIMARY KEY,
-              timestamp DATETIME NOT NULL
-        ) ENGINE=INNODB CHARACTER SET=ascii"
-    );
-    $db->exec(
         "CREATE TABLE koko_analytics_site_stats (
               date DATE PRIMARY KEY NOT NULL,
               visitors SMALLINT UNSIGNED NOT NULL,

@@ -10,9 +10,33 @@ use PDO;
 #[Autoconfigure(lazy: true)]
 class Database extends PDO
 {
-    public function __construct(string $host, string $name, string $username, string $password)
+    const DRIVER_SQLITE = 'sqlite';
+    const DRIVER_MYSQL = 'mysql';
+
+    private string $driverName = '';
+
+    public function __construct(string $dsn, ?string $username = null, ?string $password = null)
     {
-        parent::__construct("mysql:host={$host};dbname={$name}", $username, $password);
-        $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->driverName = substr($dsn, 0, strpos($dsn, ':'));
+
+        // create absolute path from project root dir if we're given a relative path in dsn
+        // TODO: Write tests for this
+        if ($this->driverName === self::DRIVER_SQLITE) {
+            $database = substr($dsn, strlen($this->driverName) + 1);
+            if ($database[0] !== ':' && $database[0] !== '/') {
+                $database = __DIR__ . '/../' . $database;
+                $dsn = $this->driverName . ':' . $database;
+            }
+        }
+
+        parent::__construct($dsn, $username, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]);
+    }
+
+    public function getDriverName(): string
+    {
+        return $this->driverName;
     }
 }
+
