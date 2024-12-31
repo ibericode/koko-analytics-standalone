@@ -86,4 +86,14 @@ class StatRepository {
 
         return array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
+
+    public function getRealtimeCount(): int
+    {
+        $stmt = $this->db->prepare("
+            SELECT SUM(count)
+            FROM koko_analytics_realtime_count
+            WHERE timestamp >= ?");
+        $stmt->execute([ (new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') ]);
+        return (int) $stmt->fetchColumn();
+    }
 }

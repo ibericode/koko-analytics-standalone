@@ -9,6 +9,7 @@
  * @var \App\Entity\SiteStats $totals_previous
  * @var \App\Entity\PageStats[] $pages
  * @var \App\Entity\ReferrerStats[] $referrers
+ * @var int $realtime_count
  */
 
 $title = 'Koko Analytics';
@@ -37,7 +38,6 @@ require __DIR__ . '/_header.html.php'; ?>
                     <div>
                         <label for="date-start-input">Start date</label>
                         <input type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
-
                         &nbsp;&mdash;&nbsp;
                     </div>
 
@@ -89,6 +89,15 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
             <?= number_format(abs($totals->pageviews - $totals_previous->pageviews)); ?>
             <?= $totals->pageviews > $totals_previous->pageviews ? 'more' : 'less'; ?>
             than in previous period
+        </td>
+    </tr>
+    <tr>
+        <th>Realtime pageviews</th>
+        <td class="totals-amount">
+            <?= number_format($realtime_count); ?>
+        </td>
+        <td class="totals-subtext">
+            pageviews in the last hour
         </td>
     </tr>
     </tbody>

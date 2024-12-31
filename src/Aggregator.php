@@ -93,6 +93,19 @@ class Aggregator {
         $this->commitSiteStats($date);
         $this->commitPageStats($date);
         $this->commitReferrerStats($date);
+        $this->commitRealtimePageviewCount();
+        $this->reset();
+    }
+
+    /**
+     * Resets the object properties to their initial state.
+     * This protects against calling run() twice on the same class instance, committing data twice.
+     */
+    private function reset(): void
+    {
+        $this->site_stats = new SiteStats;
+        $this->page_stats = [];
+        $this->referrer_stats = [];
     }
 
     private function commitSiteStats(string $date): void
@@ -161,6 +174,19 @@ class Aggregator {
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
         $this->db->prepare("INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute($values);
+    }
+
+    private function commitRealtimePageviewCount(): void
+    {
+        // insert pageviews since last aggregation run
+        $this->db
+            ->prepare("INSERT INTO koko_analytics_realtime_count (timestamp, count) VALUES (?, ?)")
+            ->execute([(new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') , $this->site_stats->pageviews]);
+
+        // remove pageviews older than 3 hours
+        $this->db
+            ->prepare("DELETE FROM koko_analytics_realtime_count WHERE timestamp < ?")
+            ->execute([ (new \DateTimeImmutable('-3 hours'))->format('Y-m-d H:i:s')]);
     }
 
     private function isReferrerUrlOnBlocklist(string $url): bool

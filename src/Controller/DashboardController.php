@@ -37,6 +37,8 @@ class DashboardController extends Controller
         $chart = $statsRepository->getGroupedTotalsBetween($start, $end);
         $pages = $statsRepository->getPageStatsBetween($start, $end);
         $referrers = $statsRepository->getReferrerStatsBetween($start, $end);
+        $realtime_count = $statsRepository->getRealtimeCount();
+
         return $this->render("dashboard.html.php", [
             'date_start' => $start,
             'date_end' => $end,
@@ -45,6 +47,7 @@ class DashboardController extends Controller
             'chart' => $chart,
             'pages' => $pages,
             'referrers' => $referrers,
+            'realtime_count' => $realtime_count,
             'date_range' => $date_range,
             'date_ranges' => $this->get_date_ranges(),
         ]);
