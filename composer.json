@@ -1,4 +1,6 @@
 {
+    "name": "koko-analytics/koko-analytics",
+    "description": "Open-source and privacy friendly website analytics",
     "type": "project",
     "license": "AGPL-3.0-or-later",
     "minimum-stability": "stable",
