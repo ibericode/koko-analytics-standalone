@@ -52,4 +52,4 @@ document.body.appendChild(s)
 
 ## License
 
-GPL 2.0 or later.
+Koko Analytics is open-source software using the GNU AGPLv3 license.
