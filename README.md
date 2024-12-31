@@ -55,12 +55,12 @@ To start collecting visitor statistics for any website, deploy this application 
 
 ```html
 <script>
-(function(ka, cnf) {
-  window[ka] = cnf;
+(function(o, c) {
+  window[o] = c;
   var s = document.createElement('script');
   s.defer = true;
-  s.src = [cnf.url, '/', ka, '.js'].join('');
-document.body.appendChild(s)
+  s.src = [c.url, '/', o, '.js'].join('');
+  document.body.appendChild(s);
 })('ka', {
   url: 'http://localhost:8000',   /* the URL to your Koko Analytics application instance */
   cookie: 'koko_analytics',       /* name of the cookie to use or empty for no cookie */

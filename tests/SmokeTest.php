@@ -58,7 +58,7 @@ class SmokeTest extends WebTestCase
         $client = self::createClient();
         /** @var \App\Repository\UserRepository $repo */
         $repo = self::getContainer()->get(UserRepository::class);
-        $user = $repo->getByEmail('hi@dvk.co');
+        $user = $repo->getByEmail('test@kokoanalytics.com');
 
         // authenticate user, taken from KernelBrowser::loginUser
         $session = self::getContainer()->get('session.factory')->createSession();

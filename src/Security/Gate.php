@@ -40,7 +40,7 @@ class Gate
 
         // abort session if user credentials changed
         $user2 = $this->userRepository->getByEmail($user->getEmail());
-        if ($user->getEmail() !== $user2->getEmail() || $user->getPassword() !== $user2->getPassword()) {
+        if (!$user2 || $user->getEmail() !== $user2->getEmail() || $user->getPassword() !== $user2->getPassword()) {
             $session->remove('user');
             $session->invalidate();
             $event->setResponse(new RedirectResponse('/login'));

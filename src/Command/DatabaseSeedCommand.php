@@ -3,6 +3,8 @@
 namespace App\Command;
 
 use App\Database;
+use App\Repository\UserRepository;
+use App\Security\User;
 use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -12,22 +14,31 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:database:seed', description: 'Populates the database with some sample data')]
 class DatabaseSeedCommand extends Command
 {
-    public function __construct(protected Database $db) {
+    public function __construct(protected Database $db, protected UserRepository $userRepository) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $date_start = new \DateTimeImmutable('-730 days');
-        $date_now = new \DateTimeImmutable('now');
+        $date_start = new \DateTimeImmutable('-13 months', new \DateTimeZone('UTC'));
+        $date_now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
+        $this->seedUsers();
         $this->seedSiteStats($date_start, $date_now);
         $this->seedPageStats($date_start, $date_now);
         $this->seedReferrerStats($date_start, $date_now);
         return Command::SUCCESS;
     }
 
-    private function seedSiteStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    private function seedUsers(): void
+    {
+        $user = new User();
+        $user->setEmail('test@kokoanalytics.com');
+        $user->setPassword(password_hash('password', PASSWORD_DEFAULT));
+        $this->userRepository->save($user);
+    }
+
+    private function seedSiteStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now): void
     {
         $date_cur = $date_start;
 
@@ -45,7 +56,7 @@ class DatabaseSeedCommand extends Command
         }
     }
 
-    private function seedPageStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    private function seedPageStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now): void
     {
         // create page URL's
         $page_urls = [
@@ -82,7 +93,7 @@ class DatabaseSeedCommand extends Command
         }
     }
 
-    private function seedReferrerStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now)
+    private function seedReferrerStats(\DateTimeImmutable $date_start, \DateTimeImmutable $date_now): void
     {
         // create referrer URL's
         $referrer_urls = [
