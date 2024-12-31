@@ -17,21 +17,28 @@ class Database extends PDO
 
     public function __construct(string $dsn, ?string $username = null, ?string $password = null)
     {
-        $this->driverName = substr($dsn, 0, strpos($dsn, ':'));
+        $this->driverName = \substr($dsn, 0, strpos($dsn, ':'));
 
-        // create absolute path from project root dir if we're given a relative path in dsn
-        // TODO: Write tests for this
-        if ($this->driverName === self::DRIVER_SQLITE) {
-            $database = substr($dsn, strlen($this->driverName) + 1);
-            if ($database[0] !== ':' && $database[0] !== '/') {
-                $database = __DIR__ . '/../' . $database;
-                $dsn = $this->driverName . ':' . $database;
-            }
-        }
-
-        parent::__construct($dsn, $username, $password, [
+        parent::__construct($this->makeDatabasePathAbsolute($dsn), $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
+    }
+
+    private function makeDatabasePathAbsolute(string $dsn): string
+    {
+        // do nothing if not using sqlite driver
+        if (!\str_starts_with($dsn, 'sqlite:')) {
+            return $dsn;
+        }
+
+        // return unmodified if already absolute
+        if (\str_starts_with($dsn, 'sqlite:/') || \str_starts_with($dsn, 'sqlite::memory:')) {
+            return $dsn;
+        }
+
+        $root = \dirname(__DIR__) . DIRECTORY_SEPARATOR;
+        $database = \substr($dsn, \strlen('sqlite:'));
+        return "sqlite:{$root}{$database}";
     }
 
     public function getDriverName(): string

@@ -18,7 +18,9 @@ class DownloadReferrerBlocklistCommand extends Command
             return Command::FAILURE;
         }
 
-        file_put_contents(__DIR__ . '/../../var/blocklist.txt', $blocklist);
+        $filename = dirname(__DIR__, 2) . '/var/blocklist.txt';
+        file_put_contents($filename, $blocklist);
+        $output->writeln("Downloaded blocklist to '$filename'");
         return Command::SUCCESS;
     }
 }

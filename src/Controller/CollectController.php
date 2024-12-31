@@ -45,8 +45,8 @@ class CollectController
         $referrer = \strtolower(\substr($referrer, 0, 255));
 
         // write to buffer file
-        // TODO: Get projectRootDir() from Kernel instead of using a relative path here
-        \file_put_contents(__DIR__ . '/../../var/buffer.json', \json_encode([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
+        // TODO: Get projectRootDir() from Kernel instead of using a relative path here?
+        \file_put_contents(\dirname(__DIR__, 2) . '/var/buffer.json', \json_encode([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
 
         return new Response('', 200, $headers);
     }

@@ -12,16 +12,16 @@ class Chart
 {
     public function __construct(array $data, \DateTimeInterface $date_start, \DateTimeInterface $date_end, int $height = 280)
     {
-        $n = count($data);
+        $n = \count($data);
         $tick_width = $n > 0 ? 100.0 / (float) $n : 100.0;
         $y_max = 0;
         foreach ($data as $tick) {
-            $y_max = max($y_max, $tick->pageviews);
+            $y_max = \max($y_max, $tick->pageviews);
         }
         $y_max_nice = $this->get_magnitude($y_max);
         $padding_top = 6;
         $padding_bottom = 24;
-        $padding_left = 4 + strlen(number_format($y_max_nice)) * 8;
+        $padding_left = 4 + \strlen(\number_format($y_max_nice)) * 8;
         $inner_height = $height - $padding_top - $padding_bottom;
         $height_modifier = $y_max_nice > 0 ? $inner_height / $y_max_nice : 1;
         $dateFormat =  'Y-m-d';

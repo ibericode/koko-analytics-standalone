@@ -21,7 +21,7 @@ class Aggregator {
 
     public function run(): void
     {
-        $filename = __DIR__ . '/../var/buffer.json';
+        $filename = \dirname(__DIR__) . '/var/buffer.json';
         if (!\is_file($filename)) {
             // buffer file does not exist, meaning no new data since last aggregation
             return;
@@ -170,7 +170,7 @@ class Aggregator {
 
         // insert all page urls
         $values = \array_keys($this->referrer_stats);
-        $placeholders = \rtrim(str_repeat('(?),', count($values)), ',');
+        $placeholders = \rtrim(\str_repeat('(?),', \count($values)), ',');
         if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
             $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}";
         } else {
@@ -222,7 +222,7 @@ class Aggregator {
 
         static $blocklist;
         if ($blocklist === null) {
-            $blocklist_filename = __DIR__ . '/../var/blocklist.txt';
+            $blocklist_filename = \dirname(__DIR__) . '/var/blocklist.txt';
             if (\is_file($blocklist_filename)) {
                 $blocklist = \file($blocklist_filename, FILE_IGNORE_NEW_LINES);
             }

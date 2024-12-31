@@ -14,11 +14,11 @@ abstract class Controller extends AbstractController {
     protected function render(string $template, array $parameters = [], ?Response $response = null): Response {
 
         extract($parameters);
-        require_once __DIR__ . '/../template-functions.php';
+        require_once dirname(__DIR__) . '/template-functions.php';
 
         ob_start();
-        require __DIR__ . '/../../templates/' . $template;
-        $content = ob_get_clean();
+        require \dirname(__DIR__, 2) . "/templates/{$template}";
+        $content = \ob_get_clean();
 
         $response ??= new Response();
         $response->setContent($content);
