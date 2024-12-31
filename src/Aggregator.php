@@ -222,7 +222,10 @@ class Aggregator {
 
         static $blocklist;
         if ($blocklist === null) {
-            $blocklist = \file(__DIR__ . '/../var/blocklist.txt', FILE_IGNORE_NEW_LINES);
+            $blocklist_filename = __DIR__ . '/../var/blocklist.txt';
+            if (\is_file($blocklist_filename)) {
+                $blocklist = \file($blocklist_filename, FILE_IGNORE_NEW_LINES);
+            }
             $blocklist = $blocklist ?: [];
         }
 
