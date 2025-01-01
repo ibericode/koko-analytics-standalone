@@ -18,7 +18,7 @@ It aims to be an alternative to Google Analytics for a lot of websites, providin
 - Compliance: GDPR and CCPA Compliant by design.
 - Local: No external services.
 - Anonymous: No personal information or anything visitor specific is tracked.
-- Cookieless: Option to not use any cookies.
+- No cookies: No cookies or other identifiers are used and/or stored.
 - Fast: Handles thousands of daily visitors or sudden bursts of traffic without breaking a sweat.
 - Lightweight: The tracking script is < 1 kB.
 - Storage efficient: A year worth of data takes up less than 5 MB of database storage.
@@ -65,8 +65,7 @@ To start collecting visitor statistics for any website, deploy this application 
   s.src = [c.url, '/', o, '.js'].join('');
   document.body.appendChild(s);
 })('ka', {
-  url: 'http://localhost:8000',   /* the URL to your Koko Analytics application instance */
-  cookie: 'koko_analytics',       /* name of the cookie to use or empty for no cookie */
+  url: 'http://localhost:8000'   /* the URL to your Koko Analytics application instance */
 })
 </script>
 ```

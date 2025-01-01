@@ -90,6 +90,7 @@ h3,
 .box {
     margin:0 0 16px;
 }
+.box.chart { padding: 16px; }
 .boxes {
   grid-gap: 16px;
 }

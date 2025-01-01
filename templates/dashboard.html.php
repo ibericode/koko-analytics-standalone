@@ -102,11 +102,9 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
     </tbody>
 </table>
 
-<?php // Chart ?>
-<div class="box" style="padding: 16px;">
-    <div class="ka-chart">
-        <?php new \App\Chart($chart, $date_start, $date_end); ?>
-    </div>
+<?php /* Chart */ ?>
+<div class="box chart">
+    <?php new \App\Chart($chart, $date_start, $date_end); ?>
 </div>
 
 <div class="boxes">
@@ -169,6 +167,6 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
     </div>
 </div>
 
-<script src="/chart.js"></script>
+<script src="/dashboard.js"></script>
 
 <?php require __DIR__ . '/_footer.html.php'; ?>

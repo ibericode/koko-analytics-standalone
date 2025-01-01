@@ -23,31 +23,71 @@ class CollectController
         }
 
         $path = $request->query->get('p');
-        $new_visitor = $request->query->get('v');
-        $unique_pageview = $request->query->get('pv');
         $referrer = $request->query->getString('r', '');
 
         // do nothing if required param is missing
-        if ($path === null || $new_visitor === null || $unique_pageview === null) {
+        if ($path === null) {
             return new Response('Bad request', 400, $headers);
         }
 
         // validate params
-        $new_visitor = \filter_var($new_visitor, FILTER_VALIDATE_INT);
-        $unique_pageview = \filter_var($unique_pageview, FILTER_VALIDATE_INT);
         $referrer = $referrer === '' ? '' : \filter_var($referrer, FILTER_VALIDATE_URL);
-        if ($new_visitor === false || $unique_pageview === false || $referrer === false) {
+        if ($referrer === false) {
             return new Response('Bad request', 400, $headers);
+        }
+
+        $ip_address = $request->getClientIp();
+        $id = hash("xxh64", "{$user_agent}-{$ip_address}", false);
+        $filename = dirname(__DIR__, 2) . "/var/{$id}";
+        $pages_visited = [];
+        if (\is_file($filename)) {
+            if (\filemtime($filename) > time() - 6*3600) {
+                $pages_visited = \file($filename, FILE_IGNORE_NEW_LINES);
+            } else {
+                // if file is older than 6 hours, remove it
+                unlink($filename);
+            }
         }
 
         // limit path and referrer URL to a maximum of 255 chars
         $path = \strtolower(\substr($path, 0, 255));
         $referrer = \strtolower(\substr($referrer, 0, 255));
 
+        // determine uniqueness of request to this path
+        [$new_visitor, $unique_pageview ] = $this->determineUniqueness($request, $path);
+
         // write to buffer file
-        // TODO: Get projectRootDir() from Kernel instead of using a relative path here?
         \file_put_contents(\dirname(__DIR__, 2) . '/var/buffer.json', \json_encode([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
 
         return new Response('', 200, $headers);
     }
+
+    private function determineUniqueness(Request $request, string $path): array {
+        $user_agent = $request->headers->get('User-Agent', '');
+        $ip_address = $request->getClientIp();
+        $id = hash("xxh64", "{$user_agent}-{$ip_address}", false);
+        $filename = dirname(__DIR__, 2) . "/var/{$id}";
+        if (! \is_file($filename)) {
+            return [true, true];
+        }
+
+        if (\filemtime($filename) < time() - 6*3600) {
+             // if file is older than 6 hours, remove it
+            // TODO: Clean-up files periodically
+            unlink($filename);
+            return [true, true];
+        }
+
+        $pages_visited = \file($filename, FILE_IGNORE_NEW_LINES);
+        $new_visitor = count($pages_visited) === 0 ? 1 : 0;
+        $unique_pageview = in_array($path, $pages_visited, true) ? 0 : 1;
+
+        // write path to session file
+        if ($unique_pageview) {
+            \file_put_contents($filename, $path . PHP_EOL, FILE_APPEND);
+        }
+
+        return [$new_visitor, $unique_pageview];
+    }
+
 }

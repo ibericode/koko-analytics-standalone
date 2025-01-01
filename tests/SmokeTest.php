@@ -12,12 +12,16 @@ use Symfony\Component\BrowserKit\CookieJar;
 
 class SmokeTest extends WebTestCase
 {
-    public function provideUrlsWithoutAuthentication(): \Generator
+    public function testLoginpage(): void
     {
-        yield ['/login'];
+        $client = self::createClient();
+        $client->request('GET', '/login');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('form button[type="submit"]');
+        $this->assertSelectorExists('h1');
     }
 
-    public function provideUrlsWithAuthentication(): \Generator
+    public function provideDashboardUrls(): \Generator
     {
         yield ['/'];
         yield ['/?date-start=2024-01-01&date-end=2024-12-31'];
@@ -31,17 +35,7 @@ class SmokeTest extends WebTestCase
     }
 
     /**
-     * @dataProvider provideUrlsWithoutAuthentication
-     */
-    public function testPageIsSuccessful($url): void
-    {
-        $client = self::createClient();
-        $client->request('GET', $url);
-        $this->assertResponseIsSuccessful();
-    }
-
-    /**
-     * @dataProvider provideUrlsWithAuthentication
+     * @dataProvider provideDashboardUrls
      */
     public function testUnauthenticatedUserRedirects($url) {
         $client = self::createClient();
@@ -50,7 +44,7 @@ class SmokeTest extends WebTestCase
     }
 
     /**
-     * @dataProvider provideUrlsWithAuthentication
+     * @dataProvider provideDashboardUrls
      */
     public function testProtectedPageIsSuccessful($url): void
     {
@@ -71,7 +65,12 @@ class SmokeTest extends WebTestCase
         }
 
         $client->request('GET', $url);
+
         $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('.chart');
+        $this->assertSelectorExists('.totals');
+        $this->assertSelectorExists('.datepicker');
+        $this->assertSelectorExists('.table');
     }
 
 
