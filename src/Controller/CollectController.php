@@ -36,19 +36,6 @@ class CollectController
             return new Response('Bad request', 400, $headers);
         }
 
-        $ip_address = $request->getClientIp();
-        $id = hash("xxh64", "{$user_agent}-{$ip_address}", false);
-        $filename = dirname(__DIR__, 2) . "/var/{$id}";
-        $pages_visited = [];
-        if (\is_file($filename)) {
-            if (\filemtime($filename) > time() - 6*3600) {
-                $pages_visited = \file($filename, FILE_IGNORE_NEW_LINES);
-            } else {
-                // if file is older than 6 hours, remove it
-                unlink($filename);
-            }
-        }
-
         // limit path and referrer URL to a maximum of 255 chars
         $path = \strtolower(\substr($path, 0, 255));
         $referrer = \strtolower(\substr($referrer, 0, 255));
@@ -57,7 +44,7 @@ class CollectController
         [$new_visitor, $unique_pageview ] = $this->determineUniqueness($request, $path);
 
         // write to buffer file
-        \file_put_contents(\dirname(__DIR__, 2) . '/var/buffer.json', \json_encode([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
+        \file_put_contents(\dirname(__DIR__, 2) . '/var/buffer', \serialize([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
 
         return new Response('', 200, $headers);
     }

@@ -21,14 +21,14 @@ class Aggregator {
 
     public function run(): void
     {
-        $filename = \dirname(__DIR__) . '/var/buffer.json';
+        $filename = \dirname(__DIR__) . '/var/buffer';
         if (!\is_file($filename)) {
             // buffer file does not exist, meaning no new data since last aggregation
             return;
         }
 
         // rename file to something temporary
-        $tmp_filename = \dirname($filename) . '/buffer-' . time() . '.json';
+        $tmp_filename = \dirname($filename) . '/buffer-' . \time();
         $renamed = \rename($filename, $tmp_filename);
         if (!$renamed) throw new Exception("Error renaming buffer file");
 
@@ -44,7 +44,7 @@ class Aggregator {
                 continue;
             }
 
-            $data = \json_decode($line);
+            $data = \unserialize($line);
             $this->addData($data);
         }
 
