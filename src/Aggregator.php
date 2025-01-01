@@ -95,6 +95,8 @@ class Aggregator {
         $this->commitReferrerStats($date);
         $this->commitRealtimePageviewCount();
         $this->reset();
+
+        (new SessionCleaner)();
     }
 
     /**

@@ -52,16 +52,13 @@ class CollectController
     private function determineUniqueness(Request $request, string $path): array {
         $user_agent = $request->headers->get('User-Agent', '');
         $ip_address = $request->getClientIp();
-        $id = hash("xxh64", "{$user_agent}-{$ip_address}", false);
-        $filename = dirname(__DIR__, 2) . "/var/{$id}";
-        if (! \is_file($filename)) {
-            return [true, true];
-        }
+        $id = \hash("xxh64", "{$user_agent}-{$ip_address}", false);
+        $filename = \dirname(__DIR__, 2) . "/var/sessions/{$id}";
 
-        if (\filemtime($filename) < time() - 6*3600) {
-             // if file is older than 6 hours, remove it
-            // TODO: Clean-up files periodically
-            unlink($filename);
+        // if file does not yet exist or is old, treat as new visitor and unique pageview
+        // we only have to write path to the file (making sure not to append)
+        if (! \is_file($filename) || \filemtime($filename) < \time() - 6*3600) {
+            \file_put_contents($filename, $path . PHP_EOL);
             return [true, true];
         }
 
