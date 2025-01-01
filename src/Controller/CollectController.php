@@ -53,22 +53,28 @@ class CollectController
         $user_agent = $request->headers->get('User-Agent', '');
         $ip_address = $request->getClientIp();
         $id = \hash("xxh64", "{$user_agent}-{$ip_address}", false);
-        $filename = \dirname(__DIR__, 2) . "/var/sessions/{$id}";
+
+        // TODO: We can get rid of this check by creating dir separately (ie during app seed)
+        $session_directory = \dirname(__DIR__, 2) . '/var/sessions';
+        if (!\is_dir($session_directory)) {
+            \mkdir($session_directory, 0755);
+        }
+        $session_filename = "{$session_directory}/{$id}";
 
         // if file does not yet exist or is old, treat as new visitor and unique pageview
         // we only have to write path to the file (making sure not to append)
-        if (! \is_file($filename) || \filemtime($filename) < \time() - 6*3600) {
-            \file_put_contents($filename, $path . PHP_EOL);
+        if (! \is_file($session_filename) || \filemtime($session_filename) < \time() - 6*3600) {
+            \file_put_contents($session_filename, $path . PHP_EOL);
             return [true, true];
         }
 
-        $pages_visited = \file($filename, FILE_IGNORE_NEW_LINES);
+        $pages_visited = \file($session_filename, FILE_IGNORE_NEW_LINES);
         $new_visitor = count($pages_visited) === 0 ? 1 : 0;
         $unique_pageview = in_array($path, $pages_visited, true) ? 0 : 1;
 
         // write path to session file
         if ($unique_pageview) {
-            \file_put_contents($filename, $path . PHP_EOL, FILE_APPEND);
+            \file_put_contents($session_filename, $path . PHP_EOL, FILE_APPEND);
         }
 
         return [$new_visitor, $unique_pageview];
