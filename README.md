@@ -1,13 +1,14 @@
 # Koko Analytics
 
-> This project is still in early development and a stable version has not yet been released.
+> [!NOTE]
+> This project is still in early development and probably not suitable for use in production.
 
-Koko Analytics is a PHP application that you can self-host to provide you with simple, open-source, lightweight (< 850 bytes) and privacy-friendly website analytics.
+Koko Analytics is a PHP application that you can self-host to provide you with simple, open-source, lightweight (< 1 KB) and privacy-friendly website analytics.
 
-It aims to be a simple alternative to Google Analytics that respects the privacy of your visitors. Nothing visitor specific is tracked, only aggregated counts.
+It aims to be an alternative to Google Analytics for a lot of websites, providing you with the most important metrics while respecting the privacy of your visitors. Nothing about individual visitors is tracked, only aggregated counts.
 
 <figure>
-  <img src="https://raw.githubusercontent.com/koko-analytics/standalone/main/public/screenshot.png" alt="Screenshot of the Koko Analytics dashboard" loading="lazy" width="830">
+  <img src="https://raw.githubusercontent.com/koko-analytics/standalone/main/public/screenshot.png" alt="Screenshot of the Koko Analytics standalone dashboard" loading="lazy" width="830">
   <figcaption>Screenshot of the Koko Analytics dashboard.</figcaption>
 </figure>
 
@@ -24,6 +25,8 @@ It aims to be a simple alternative to Google Analytics that respects the privacy
 - Cached: Fully compatible with pages served from server or browser caches.
 - Open-source: GNU AGPLv3 licensed.
 
+> [!TIP]
+>  There is a WordPress plugin which offers a lof of the same functionality as this project: https://github.com/ibericode/koko-analytics
 
 ## Installation
 
