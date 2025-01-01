@@ -7,6 +7,14 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v3
       - run: composer install
-      - run: APP_ENV=test php bin/console app:database:migrate
-      - run: APP_ENV=test php bin/console app:database:seed --months=1
-      - run: APP_ENV=test php bin/phpunit
+
+      # Test app against SQLite database
+      - run: APP_ENV=test DATABASE_DSN="sqlite:var/db_test.sqlite" php bin/console app:database:migrate
+      - run: APP_ENV=test DATABASE_DSN="sqlite:var/db_test.sqlite" php bin/console app:database:seed --months=1
+      - run: APP_ENV=test DATABASE_DSN="sqlite:var/db_test.sqlite" php bin/phpunit
+
+      # Test app against MySQL database
+      - run: sudo mysql -uroot -proot -e 'CREATE DATABASE koko_analytics_test;'
+      - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/console app:database:migrate
+      - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/console app:database:seed --months=1
+      - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/phpunit
