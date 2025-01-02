@@ -42,10 +42,17 @@ class CollectController
             return new Response('Bad request', 400, $headers);
         }
 
+
         // limit string inputs to a maximum of 255 chars
         $path = \strtolower(\substr($path, 0, 255));
         $referrer = \strtolower(\substr($referrer, 0, 255));
         $domain = \substr($domain, 0, 255);
+
+        // validate domain param
+        if (\preg_match('/[^a-zA-Z0-9\.\-]/', $domain)) {
+            return new Response('Bad request', 400, $headers);
+        }
+
         $buffer_filename = \dirname(__DIR__, 2) . "/var/buffer-{$domain}";
 
         // if filename does not exist: domain is invalid

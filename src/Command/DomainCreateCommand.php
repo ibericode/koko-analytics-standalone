@@ -27,6 +27,11 @@ class DomainCreateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
+        if (\preg_match('/[^a-zA-Z0-9\.\-]/', $name)) {
+            $output->writeln("Name of domain can only contain alphanumeric characters, hyphens and dots.");
+            return Command::FAILURE;
+        }
+
         $domain = new Domain;
         $domain->setName($name);
         $this->domainRepository->save($domain);
