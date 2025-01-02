@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Database;
+use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\SiteStats;
 
@@ -11,13 +12,13 @@ class StatRepository {
         protected Database $db
     ) {}
 
-    public function getTotalsBetween(\DateTimeInterface $start, \DateTimeInterface $end): SiteStats
+    public function getTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): SiteStats
     {
         $stmt = $this->db->prepare("
             SELECT
                 SUM(visitors) AS visitors,
                 SUM(pageviews) AS pageviews
-            FROM koko_analytics_site_stats
+            FROM koko_analytics_site_stats_{$domain->id}
             WHERE date BETWEEN :start AND :end
         ");
         $stmt->execute([
@@ -28,14 +29,14 @@ class StatRepository {
         return SiteStats::fromArray($stmt->fetch(\PDO::FETCH_ASSOC) ?: []);
     }
 
-    public function getGroupedTotalsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    public function getGroupedTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
             SELECT
                 date,
                 SUM(visitors) AS visitors,
                 SUM(pageviews) AS pageviews
-            FROM koko_analytics_site_stats
+            FROM koko_analytics_site_stats_{$domain->id}
             WHERE date BETWEEN :start AND :end
             GROUP BY date;
         ");
@@ -47,15 +48,15 @@ class StatRepository {
         return array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getPageStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    public function getPageStatsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
             SELECT
                 p.url AS url,
                 SUM(s.visitors) AS visitors,
                 SUM(s.pageviews) AS pageviews
-            FROM koko_analytics_page_stats s
-            JOIN koko_analytics_page_urls p ON p.id = s.id
+            FROM koko_analytics_page_stats_{$domain->id} s
+            JOIN koko_analytics_page_urls_{$domain->id} p ON p.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
             LIMIT 0, 20
@@ -68,15 +69,15 @@ class StatRepository {
         return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getReferrerStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
+    public function getReferrerStatsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
             SELECT
                 r.url AS url,
                 SUM(s.visitors) AS visitors,
                 SUM(s.pageviews) AS pageviews
-            FROM koko_analytics_referrer_stats s
-            JOIN koko_analytics_referrer_urls r ON r.id = s.id
+            FROM koko_analytics_referrer_stats_{$domain->id} s
+            JOIN koko_analytics_referrer_urls_{$domain->id} r ON r.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
             LIMIT 0, 20
@@ -89,11 +90,11 @@ class StatRepository {
         return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getRealtimeCount(): int
+    public function getRealtimeCount(Domain $domain, ): int
     {
         $stmt = $this->db->prepare("
             SELECT SUM(count)
-            FROM koko_analytics_realtime_count
+            FROM koko_analytics_realtime_count_{$domain->id}
             WHERE timestamp >= ?");
         $stmt->execute([(new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
         return (int) $stmt->fetchColumn();

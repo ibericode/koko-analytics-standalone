@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
@@ -10,27 +11,36 @@ use Exception;
 
 class Aggregator {
 
-    protected $site_stats;
-    protected $page_stats = [];
-    protected $referrer_stats = [];
+    protected SiteStats $site_stats;
+    protected array $page_stats = [];
+    protected array $referrer_stats = [];
+    protected Domain $domain;
 
-    public function __construct(protected Database $db)
-    {
+    public function __construct(
+        protected Database $db
+    ) {
         $this->site_stats = new SiteStats;
     }
 
-    public function run(): void
+    public function run(Domain $domain): void
     {
-        $filename = \dirname(__DIR__) . '/var/buffer';
+        $this->domain = $domain;
+
+        $filename = \dirname(__DIR__) . "/var/buffer-{$this->domain->domain}";
         if (!\is_file($filename)) {
-            // buffer file does not exist, meaning no new data since last aggregation
+            // buffer file for this domain does not exist, meaning no new data since last aggregation
+            // we still create the file, because we use this to validate domain on /collect requests
+            \touch($filename);
             return;
         }
 
         // rename file to something temporary
-        $tmp_filename = \dirname($filename) . '/buffer-' . \time();
+        $tmp_filename = $filename . '-' . \time();
         $renamed = \rename($filename, $tmp_filename);
         if (!$renamed) throw new Exception("Error renaming buffer file");
+
+        // put empty file into place
+        \touch($filename);
 
         $fh = \fopen($tmp_filename, 'r');
         if (!$fh) throw new Exception("Error opening buffer file for reading");
@@ -114,9 +124,9 @@ class Aggregator {
     {
         // TODO: Abstract away in a different class: SQLiteCommitter
         if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+            $query = "INSERT INTO koko_analytics_site_stats_{$this->domain->id} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
         } else {
-            $query = "INSERT INTO koko_analytics_site_stats(date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
+            $query = "INSERT INTO koko_analytics_site_stats_{$this->domain->id} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
         }
 
         $this->db->prepare($query)->execute([
@@ -134,15 +144,15 @@ class Aggregator {
         $values = \array_keys($this->page_stats);
         $placeholders = \rtrim(\str_repeat('(?),', count($values)), ',');
         if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT OR IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}";
+            $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$this->domain->id} (url) VALUES {$placeholders}";
         } else {
-            $query = "INSERT IGNORE INTO koko_analytics_page_urls (url) VALUES {$placeholders}";
+            $query = "INSERT IGNORE INTO koko_analytics_page_urls_{$this->domain->id} (url) VALUES {$placeholders}";
         }
         $this->db->prepare($query)->execute($values);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$this->domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($values);
         $page_url_ids = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -159,9 +169,9 @@ class Aggregator {
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
 
         if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+            $query = "INSERT INTO koko_analytics_page_stats_{$this->domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
         } else {
-            $query = "INSERT INTO koko_analytics_page_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
+            $query = "INSERT INTO koko_analytics_page_stats_{$this->domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
         }
         $this->db->prepare($query)->execute($values);
     }
@@ -174,15 +184,15 @@ class Aggregator {
         $values = \array_keys($this->referrer_stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($values)), ',');
         if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}";
+            $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls_{$this->domain->id} (url) VALUES {$placeholders}";
         } else {
-            $query = "INSERT IGNORE INTO koko_analytics_referrer_urls (url) VALUES {$placeholders}";
+            $query = "INSERT IGNORE INTO koko_analytics_referrer_urls_{$this->domain->id} (url) VALUES {$placeholders}";
         }
         $this->db->prepare($query)->execute($values);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$this->domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($values);
         $url_ids = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -198,9 +208,9 @@ class Aggregator {
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
         if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+            $query = "INSERT INTO koko_analytics_referrer_stats_{$this->domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
         } else {
-            $query = "INSERT INTO koko_analytics_referrer_stats (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
+            $query = "INSERT INTO koko_analytics_referrer_stats_{$this->domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
         }
         $this->db->prepare($query)->execute($values);
     }
@@ -209,12 +219,12 @@ class Aggregator {
     {
         // insert pageviews since last aggregation run
         $this->db
-            ->prepare("INSERT INTO koko_analytics_realtime_count (timestamp, count) VALUES (?, ?)")
+            ->prepare("INSERT INTO koko_analytics_realtime_count_{$this->domain->id} (timestamp, count) VALUES (?, ?)")
             ->execute([(new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') , $this->site_stats->pageviews]);
 
         // remove pageviews older than 3 hours
         $this->db
-            ->prepare("DELETE FROM koko_analytics_realtime_count WHERE timestamp < ?")
+            ->prepare("DELETE FROM koko_analytics_realtime_count_{$this->domain->id} WHERE timestamp < ?")
             ->execute([ (new \DateTimeImmutable('-3 hours', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
     }
 

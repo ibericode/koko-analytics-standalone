@@ -23,15 +23,15 @@ class SmokeTest extends WebTestCase
 
     public function provideDashboardUrls(): \Generator
     {
-        yield ['/'];
-        yield ['/?date-start=2024-01-01&date-end=2024-12-31'];
-        yield ['/?date-range=today'];
-        yield ['/?date-range=this_week'];
-        yield ['/?date-range=last_week'];
-        yield ['/?date-range=this_month'];
-        yield ['/?date-range=last_month'];
-        yield ['/?date-range=this_year'];
-        yield ['/?date-range=last_year'];
+        yield ['/website.com'];
+        yield ['/website.com?date-start=2024-01-01&date-end=2024-12-31'];
+        yield ['/website.com?date-range=today'];
+        yield ['/website.com?date-range=this_week'];
+        yield ['/website.com?date-range=last_week'];
+        yield ['/website.com?date-range=this_month'];
+        yield ['/website.com?date-range=last_month'];
+        yield ['/website.com?date-range=this_year'];
+        yield ['/website.com?date-range=last_year'];
     }
 
     /**

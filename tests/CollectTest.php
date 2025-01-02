@@ -2,6 +2,8 @@
 
 namespace App\Tests;
 
+use App\Aggregator;
+use App\Entity\Domain;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
@@ -12,10 +14,10 @@ class CollectTest extends WebTestCase
     public function testValidRequest(): void
     {
         $client = self::createClient();
-        $client->request('GET', '/collect?p=/about');
+        $client->request('GET', '/collect?d=website.com&p=/about');
         self::assertResponseIsSuccessful();
 
-        $client->request('GET', '/collect?p=/about&r=https://www.kokoanalytics.com/');
+        $client->request('GET', '/collect?d=website.com&p=/about&r=https://www.kokoanalytics.com/');
         self::assertResponseIsSuccessful();
     }
 
@@ -26,18 +28,37 @@ class CollectTest extends WebTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
-    public function testRequestWithMissingQueryParameters(): void
+    public function provideMissingQueryParameters(): \Generator
+    {
+        yield ['/collect?r=https://www.kokoanalytics.com'];
+        yield ['/collect?p=/r=https://www.kokoanalytics.com'];
+        yield ['/collect?d=website.com&r=https://www.kokoanalytics.com'];
+    }
+
+    /**
+     * @dataProvider provideMissingQueryParameters
+     */
+    public function testRequestWithMissingQueryParameters(string $url): void
     {
         $client = self::createClient();
-        $client->request('GET', '/collect?r=https://www.kokoanalytics.com');
+        $client->request('GET', $url);
         self::assertResponseStatusCodeSame(400);
     }
 
 
-    public function testRequestWithInvalidQueryParameters(): void
+    public function provideInvalidQueryParameters(): \Generator
+    {
+        yield ['/collect?d=website.com&p=/&r=not-an-url'];
+        yield ['/collect?d=unexisting-domain.com&p=/'];
+    }
+
+    /**
+     * @dataProvider provideInvalidQueryParameters
+     */
+    public function testRequestWithInvalidQueryParameters(string $url): void
     {
         $client = self::createClient();
-        $client->request('GET', '/collect?p=/&r=not-an-url');
+        $client->request('GET', $url);
         self::assertResponseStatusCodeSame(400);
     }
 

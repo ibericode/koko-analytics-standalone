@@ -4,21 +4,44 @@ namespace App\Controller;
 
 use App\Aggregator;
 use App\Database;
+use App\Entity\Domain;
+use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends Controller
 {
-    #[Route('/', name: 'app_dashboard', methods: ['GET'])]
-    public function index(Request $request, StatRepository $statsRepository, Aggregator $aggregator): Response
+    #[Route('/', name: 'app_dashboard_list', methods: ['GET'])]
+    public function index(DomainRepository $domainRepository): Response
     {
-        // run the aggregator whenever the dashboard is loaded
-        $aggregator->run();
-        $timezone = new \DateTimeZone('UTC');
+        $domains = $domainRepository->getAll();
 
+        // if there is only a single domain, redirect directly to it
+        if (count($domains) === 1) {
+            return $this->redirectToRoute('app_dashboard', ['domain' => $domains[0]->domain ]);
+        }
+
+        return $this->render('dashboard-list.html.php', [
+            'domains' => $domains,
+        ]);
+    }
+
+    #[Route('/{domain}', name: 'app_dashboard', methods: ['GET'])]
+    public function show(string $domain, Request $request, StatRepository $statsRepository, DomainRepository $domainRepository, Aggregator $aggregator): Response
+    {
+        $domain = $domainRepository->getByDomain($domain);
+        if (!$domain) {
+            $this->createNotFoundException();
+        }
+
+        // run the aggregator for this domain whenever the dashboard is loaded
+        $aggregator->run($domain);
+
+        $timezone = new \DateTimeZone('UTC');
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
@@ -33,12 +56,12 @@ class DashboardController extends Controller
         }
 
         $prev = $start->sub($start->diff($end));
-        $totals = $statsRepository->getTotalsBetween($start, $end);
-        $totals_previous = $statsRepository->getTotalsBetween($prev, $start);
-        $chart = $statsRepository->getGroupedTotalsBetween($start, $end);
-        $pages = $statsRepository->getPageStatsBetween($start, $end);
-        $referrers = $statsRepository->getReferrerStatsBetween($start, $end);
-        $realtime_count = $statsRepository->getRealtimeCount();
+        $totals = $statsRepository->getTotalsBetween($domain, $start, $end);
+        $totals_previous = $statsRepository->getTotalsBetween($domain, $prev, $start);
+        $chart = $statsRepository->getGroupedTotalsBetween($domain, $start, $end);
+        $pages = $statsRepository->getPageStatsBetween($domain, $start, $end);
+        $referrers = $statsRepository->getReferrerStatsBetween($domain, $start, $end);
+        $realtime_count = $statsRepository->getRealtimeCount($domain);
 
         return $this->render("dashboard.html.php", [
             'date_start' => $start,

@@ -65,7 +65,8 @@ To start collecting visitor statistics for any website, deploy this application 
   s.src = [c.url, '/', o, '.js'].join('');
   document.body.appendChild(s);
 })('ka', {
-  url: 'http://localhost:8000'   /* the URL to your Koko Analytics application instance */
+  url: 'http://localhost:8000',   /* the URL to your Koko Analytics application instance */
+  domain: 'website.com'           /* name of the domain in your Koko Analytics dashboard */
 })
 </script>
 ```

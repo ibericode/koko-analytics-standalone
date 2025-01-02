@@ -15,6 +15,7 @@ window.addEventListener('load', function() {
     path = path.replace(/.*:\/\/[^\/]+/, '')
     var referrer = document.referrer.startsWith(self) ? '' : document.referrer;
     navigator.sendBeacon(window.ka.url + '/collect?' + (new URLSearchParams({
+        d: window.ka.domain,
         p: path,
         r: referrer,
     })));
