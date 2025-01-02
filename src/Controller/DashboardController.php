@@ -22,7 +22,7 @@ class DashboardController extends Controller
 
         // if there is only a single domain, redirect directly to it
         if (count($domains) === 1) {
-            return $this->redirectToRoute('app_dashboard', ['domain' => $domains[0]->domain ]);
+            return $this->redirectToRoute('app_dashboard', ['domain' => $domains[0]->getName() ]);
         }
 
         return $this->render('dashboard-list.html.php', [
@@ -33,7 +33,7 @@ class DashboardController extends Controller
     #[Route('/{domain}', name: 'app_dashboard', methods: ['GET'])]
     public function show(string $domain, Request $request, StatRepository $statsRepository, DomainRepository $domainRepository, Aggregator $aggregator): Response
     {
-        $domain = $domainRepository->getByDomain($domain);
+        $domain = $domainRepository->getByName($domain);
         if (!$domain) {
             $this->createNotFoundException();
         }
@@ -52,7 +52,7 @@ class DashboardController extends Controller
 
         $date_range = $request->query->get('date-range', 'custom');
         if ($date_range !== 'custom') {
-            [$start, $end] = $this->get_dates_from_range($date_range);
+            [$start, $end] = $this->getDatesFromRange($date_range);
         }
 
         $prev = $start->sub($start->diff($end));
@@ -77,7 +77,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function get_dates_from_range(string $range): array {
+    private function getDatesFromRange(string $range): array {
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         // TODO: Make it configurable which day is start of week

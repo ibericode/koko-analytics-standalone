@@ -27,7 +27,7 @@ class AggregateCommand extends Command
             $time_start = microtime(true);
             $this->aggregator->run($domain);
             $time_elapsed = round((microtime(true) - $time_start) * 1000, 2); // in ms
-            $output->writeln("{$domain->domain}: aggregation completed in {$time_elapsed} ms.");
+            $output->writeln("{$domain->getName()}: aggregation completed in {$time_elapsed} ms.");
         }
         return Command::SUCCESS;
     }

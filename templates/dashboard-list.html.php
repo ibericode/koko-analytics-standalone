@@ -11,7 +11,7 @@ require __DIR__ . '/_header.html.php'; ?>
 
 <ul>
 <?php foreach ($domains as $domain) : ?>
-    <li><a href="<?= $this->generateUrl('app_dashboard', [ 'domain' => $domain->domain ]); ?>"><?= esc($domain->domain); ?></a></li>
+    <li><a href="<?= $this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ]); ?>"><?= esc($domain->getName()); ?></a></li>
 <?php endforeach; ?>
 </ul>
 

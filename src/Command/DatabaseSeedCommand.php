@@ -39,7 +39,7 @@ class DatabaseSeedCommand extends Command
         $date_start = new \DateTimeImmutable("-{$months} months", new \DateTimeZone('UTC'));
         $date_now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-        $domain = $this->domainRepository->getByDomain($domain_name);
+        $domain = $this->domainRepository->getByName($domain_name);
         if (!$domain) {
             $output->writeln("No such domain: {$domain_name}");
             return Command::FAILURE;
@@ -65,7 +65,7 @@ class DatabaseSeedCommand extends Command
         $date_cur = $date_start;
 
         // populate site stats
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_site_stats_{$domain->id} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews);");
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews);");
         while ($date_cur < $date_now) {
             $visitors = random_int(10, 100);
             $pageviews = $visitors + random_int(10, 100);
@@ -91,14 +91,14 @@ class DatabaseSeedCommand extends Command
             '/blog',
         ];
         $page_url_ids = [];
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_urls_{$domain->id} (url) VALUES (:url);");
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES (:url);");
         foreach ($page_urls as $url) {
             $stmt->execute([ 'url' => $url ]);
             $page_url_ids[$url] = $this->db->lastInsertId();
         }
 
         $date_cur = $date_start;
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_stats_{$domain->id} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
         while ($date_cur < $date_now) {
             foreach ($page_url_ids as $url => $id) {
                 $visitors = random_int(5, 50);
@@ -129,14 +129,14 @@ class DatabaseSeedCommand extends Command
             'https://www.yahoo.com/',
         ];
         $referrer_url_ids = [];
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_urls_{$domain->id} (url) VALUES (:url);");
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES (:url);");
         foreach ($referrer_urls as $url) {
             $stmt->execute([ 'url' => $url ]);
             $referrer_url_ids[$url] = $this->db->lastInsertId();
         }
 
         $date_cur = $date_start;
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_stats_{$domain->id} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
         while ($date_cur < $date_now) {
             foreach ($referrer_url_ids as $url => $id) {
                 $visitors = random_int(1, 10);

@@ -4,7 +4,7 @@ use App\Database;
 
 return function(Database $db) {
     $db->exec(
-        "INSERT INTO koko_analytics_domains (domain) VALUES ('website.com');"
+        "INSERT INTO koko_analytics_domains (name) VALUES ('website.com');"
     );
     $id = $db->lastInsertId();
 

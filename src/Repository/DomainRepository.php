@@ -10,6 +10,9 @@ class DomainRepository {
         protected Database $db
     ) {}
 
+    /**
+     * @return Domain[]
+     */
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains;");
@@ -17,11 +20,19 @@ class DomainRepository {
         return $stmt->fetchAll(\PDO::FETCH_CLASS, Domain::class);
     }
 
-    public function getByDomain(string $domain): ?Domain
+    public function getByName(string $name): ?Domain
     {
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE domain = :domain LIMIT 1;");
-        $stmt->execute(["domain" => $domain]);
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE name = :name LIMIT 1;");
+        $stmt->execute(["name" => $name]);
         $obj = $stmt->fetchObject(Domain::class);
         return $obj ?: null;
+    }
+
+    public function save(Domain &$domain): void
+    {
+        $this->db
+            ->prepare("INSERT INTO koko_analytics_domains (name) VALUES (?)")
+            ->execute([ $domain->getName() ]);
+        $domain->setId($this->db->lastInsertId());
     }
 }
