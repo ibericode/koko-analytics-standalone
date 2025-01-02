@@ -11,13 +11,13 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 abstract class Controller extends AbstractController {
-    protected function render(string $template, array $parameters = [], ?Response $response = null): Response {
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response {
 
         \extract($parameters);
         require_once \dirname(__DIR__) . '/template-functions.php';
 
         \ob_start();
-        require \dirname(__DIR__, 2) . "/templates/{$template}";
+        require \dirname(__DIR__, 2) . "/templates/{$view}";
         $content = \ob_get_clean();
 
         $response ??= new Response();

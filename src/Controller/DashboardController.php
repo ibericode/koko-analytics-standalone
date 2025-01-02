@@ -22,7 +22,7 @@ class DashboardController extends Controller
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $start = new \DateTimeImmutable('-28 days', $timezone);
             $end = new \DateTimeImmutable('now', $timezone);
         }

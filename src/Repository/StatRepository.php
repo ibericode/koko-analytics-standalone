@@ -47,7 +47,7 @@ class StatRepository {
         return array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getPageStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end)
+    public function getPageStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
             SELECT
@@ -68,7 +68,7 @@ class StatRepository {
         return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getReferrerStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end)
+    public function getReferrerStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
             SELECT

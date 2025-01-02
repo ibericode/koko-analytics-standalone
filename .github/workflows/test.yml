@@ -6,7 +6,12 @@ jobs:
     steps: 
       - name: checkout repo
         uses: actions/checkout@v3
-      - run: composer install
+
+      # Install project depencencies incl. development dependencies
+      - run: composer install --dev
+
+      # Run static analysis
+      - run: ./vendor/bin/psalm
 
       # Test app against SQLite database
       - run: APP_ENV=test DATABASE_DSN="sqlite:var/db_test.sqlite" php bin/console app:database:migrate

@@ -15,8 +15,6 @@ class Chart
     public function __construct(array $data, \DateTimeImmutable $date_start, \DateTimeImmutable $date_end, int $height = 280)
     {
         $data = $this->transformData($data);
-        $n = \count($data);
-        $tick_width = $n > 0 ? 100.0 / (float) $n : 100.0;
         $y_max = 0;
         foreach ($data as $tick) {
             $y_max = \max($y_max, $tick->pageviews);
@@ -103,6 +101,6 @@ class Chart
 
         $e = \floor(\log10($n));
         $pow = \pow(10, $e);
-        return (int) \ceil($n / $pow) * $pow;
+        return (int) (\ceil($n / $pow) * $pow);
     }
 }
