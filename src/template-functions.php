@@ -20,13 +20,13 @@ function percent_format($pct): string
 function get_referrer_url_label(string $url): string
 {
     // if link starts with android-app://, turn that prefix into something more human readable
-    if (strpos($url, 'android-app://') === 0) {
-        return str_replace('android-app://', 'Android app: ', $url);
+    if (\strpos($url, 'android-app://') === 0) {
+        return \str_replace('android-app://', 'Android app: ', $url);
     }
 
     // strip protocol and www. prefix
-    $url = (string) preg_replace('/^https?:\/\/(?:www\.)?/', '', $url);
+    $url = (string) \preg_replace('/^https?:\/\/(?:www\.)?/', '', $url);
 
     // trim trailing slash
-    return rtrim($url, '/');
+    return \rtrim($url, '/');
 }

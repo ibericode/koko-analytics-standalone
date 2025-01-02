@@ -215,7 +215,7 @@ class Aggregator {
         // remove pageviews older than 3 hours
         $this->db
             ->prepare("DELETE FROM koko_analytics_realtime_count WHERE timestamp < ?")
-            ->execute([ (new \DateTimeImmutable('-3 hours'))->format('Y-m-d H:i:s')]);
+            ->execute([ (new \DateTimeImmutable('-3 hours', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
     }
 
     private function isReferrerUrlOnBlocklist(string $url): bool

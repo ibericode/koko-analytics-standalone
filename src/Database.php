@@ -17,7 +17,7 @@ class Database extends PDO
 
     public function __construct(string $dsn, ?string $username = null, ?string $password = null)
     {
-        $this->driverName = \substr($dsn, 0, strpos($dsn, ':'));
+        $this->driverName = \substr($dsn, 0, \strpos($dsn, ':'));
 
         parent::__construct($this->makeDatabasePathAbsolute($dsn), $username, $password, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION

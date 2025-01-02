@@ -65,7 +65,7 @@ class StatRepository {
             'end' => $end->format('Y-m-d'),
         ]);
 
-        return array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+        return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function getReferrerStatsBetween(\DateTimeInterface $start, \DateTimeInterface $end)
@@ -86,7 +86,7 @@ class StatRepository {
             'end' => $end->format('Y-m-d'),
         ]);
 
-        return array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+        return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function getRealtimeCount(): int

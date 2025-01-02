@@ -20,7 +20,7 @@ class AuthController extends Controller {
             $password = $request->request->getString('_password', '');
             $user = $userRepository->getByEmail($identifier);
             $userPassword = $user ? $user->getPassword() : '';
-            if (password_verify($password, $userPassword) && $user) {
+            if (\password_verify($password, $userPassword) && $user) {
                 $session = $request->getSession();
                 $session->set('user', $user);
                 $session->save();
@@ -40,8 +40,6 @@ class AuthController extends Controller {
     public function logout(Request $request) : Response
     {
         $session = $request->getSession();
-        $session->remove('user');
-        $session->save();
         $session->invalidate();
         return new RedirectResponse('/login');
     }

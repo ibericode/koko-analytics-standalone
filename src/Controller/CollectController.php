@@ -69,8 +69,8 @@ class CollectController
         }
 
         $pages_visited = \file($session_filename, FILE_IGNORE_NEW_LINES);
-        $new_visitor = count($pages_visited) === 0 ? 1 : 0;
-        $unique_pageview = in_array($path, $pages_visited, true) ? 0 : 1;
+        $new_visitor = \count($pages_visited) === 0 ? 1 : 0;
+        $unique_pageview = \in_array($path, $pages_visited, true) ? 0 : 1;
 
         // write path to session file
         if ($unique_pageview) {

@@ -17,13 +17,14 @@ class DashboardController extends Controller
     {
         // run the aggregator whenever the dashboard is loaded
         $aggregator->run();
+        $timezone = new \DateTimeZone('UTC');
 
         try {
-            $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'));
-            $end = new \DateTimeImmutable($request->query->get('date-end', 'now'));
+            $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
+            $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
         } catch (\Exception $e) {
-            $start = new \DateTimeImmutable('-28 days');
-            $end = new \DateTimeImmutable('now');
+            $start = new \DateTimeImmutable('-28 days', $timezone);
+            $end = new \DateTimeImmutable('now', $timezone);
         }
 
         $date_range = $request->query->get('date-range', 'custom');
@@ -54,7 +55,7 @@ class DashboardController extends Controller
     }
 
     private function get_dates_from_range(string $range): array {
-        $now = new \DateTimeImmutable('now');
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         // TODO: Make it configurable which day is start of week
         $start_of_week = 0;
