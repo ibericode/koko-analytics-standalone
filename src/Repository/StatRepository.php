@@ -77,7 +77,7 @@ class StatRepository {
     }
 
     /**
-     * @return ReferrerStats
+     * @return ReferrerStats[]
      */
     public function getReferrerStatsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {

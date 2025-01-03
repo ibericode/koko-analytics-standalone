@@ -24,3 +24,4 @@ jobs:
       - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/console app:database:migrate
       - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/console app:database:seed --months=1
       - run: APP_ENV=test DATABASE_DSN="mysql:dbname=koko_analytics_test;host=127.0.0.1" php bin/phpunit
+
