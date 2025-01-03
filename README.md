@@ -38,6 +38,8 @@ To install Koko Analytics you will need a server with at least the following req
 - PHP 8.2 or higher.
 - SQLite or MySQL database.
 
+Koko Analytics runs on a traditional LAMP stack. It aims to run alongside whatever software you already have running while consuming minimal resources. There is no need to spin-up an OLAP database just to provide you with some metrics.
+
 
 ### Deployment
 
