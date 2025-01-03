@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Database;
 use App\Entity\Domain;
 use App\Entity\PageStats;
+use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
 
 class StatRepository {
@@ -29,6 +30,9 @@ class StatRepository {
         return SiteStats::fromArray($stmt->fetch(\PDO::FETCH_ASSOC) ?: []);
     }
 
+    /**
+     * @return SiteStats[]
+     */
     public function getGroupedTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
@@ -48,6 +52,9 @@ class StatRepository {
         return array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
+    /**
+     * @return PageStats[]
+     */
     public function getPageStatsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
@@ -69,6 +76,9 @@ class StatRepository {
         return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
+    /**
+     * @return ReferrerStats
+     */
     public function getReferrerStatsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $stmt = $this->db->prepare("
@@ -87,7 +97,7 @@ class StatRepository {
             'end' => $end->format('Y-m-d'),
         ]);
 
-        return \array_map([PageStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+        return \array_map([ReferrerStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     public function getRealtimeCount(Domain $domain, ): int

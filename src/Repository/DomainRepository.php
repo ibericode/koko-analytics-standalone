@@ -27,12 +27,4 @@ class DomainRepository {
         $obj = $stmt->fetchObject(Domain::class);
         return $obj ?: null;
     }
-
-    public function save(Domain &$domain): void
-    {
-        $this->db
-            ->prepare("INSERT INTO koko_analytics_domains (name) VALUES (?)")
-            ->execute([ $domain->getName() ]);
-        $domain->setId($this->db->lastInsertId());
-    }
 }

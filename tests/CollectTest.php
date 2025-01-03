@@ -50,6 +50,7 @@ class CollectTest extends WebTestCase
     {
         yield ['/collect?d=website.com&p=/&r=not-an-url'];
         yield ['/collect?d=unexisting-domain.com&p=/'];
+        yield ['/collect?d=../&p=/'];
     }
 
     /**
