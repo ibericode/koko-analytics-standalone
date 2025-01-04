@@ -26,7 +26,7 @@ class Database
     public function getConnection(): PDO {
         if (!$this->conn) {
             $this->conn = new \PDO($this->makeDatabasePathAbsolute($this->dsn), $this->username, $this->password, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ]);
         }
 

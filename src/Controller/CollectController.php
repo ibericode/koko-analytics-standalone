@@ -70,15 +70,17 @@ class CollectController
     }
 
     private function determineUniqueness(Request $request, string $path): array {
-        $user_agent = $request->headers->get('User-Agent', '');
-        $ip_address = $request->getClientIp();
-        $id = \hash("xxh64", "{$user_agent}-{$ip_address}", false);
-
         // TODO: We can get rid of this check by creating dir separately (ie during app seed)
         $session_directory = \dirname(__DIR__, 2) . '/var/sessions';
         if (!\is_dir($session_directory)) {
             \mkdir($session_directory, 0755);
         }
+
+        $user_agent = $request->headers->get('User-Agent', '');
+        $ip_address = $request->getClientIp();
+        $seed = @file_get_contents("$session_directory/seed.txt") ?: '';
+        $id = \hash("xxh64", "{$seed}-{$user_agent}-{$ip_address}", false);
+
         $session_filename = "{$session_directory}/{$id}";
 
         // if file does not yet exist or is old, treat as new visitor and unique pageview
