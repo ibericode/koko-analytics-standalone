@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Aggregator;
 use App\Database;
+use App\Datastore\MysqlStore;
+use App\Datastore\StoreInterface;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;

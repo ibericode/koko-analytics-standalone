@@ -6,20 +6,27 @@ use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
+use App\Repository\StatRepository;
 use DateTimeImmutable;
 use Exception;
 
 class Aggregator {
 
     protected SiteStats $site_stats;
+
+    /** @var PageStats[] $page_stats */
     protected array $page_stats = [];
+
+    /** @var ReferrerStats[] $referrer_stats */
     protected array $referrer_stats = [];
     protected Domain $domain;
 
     public function __construct(
-        protected Database $db
+        protected Database $db,
+        protected StatRepository $statRepository,
     ) {
         $this->site_stats = new SiteStats;
+        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
     }
 
     public function run(Domain $domain): void
@@ -79,13 +86,21 @@ class Aggregator {
         $this->site_stats->visitors += $new_visitor ? 1 : 0;
 
         // increment page stats
-        $this->page_stats[$path] ??= new PageStats;
+        if (!isset($this->page_stats[$path])) {
+            $this->page_stats[$path] = new PageStats;
+            $this->page_stats[$path]->date = $this->site_stats->date;
+            $this->page_stats[$path]->url = $path;
+        }
         $this->page_stats[$path]->pageviews++;
         $this->page_stats[$path]->visitors += $unique_pageview ? 1 : 0;
 
         // increment referrer stats
         if ($referrer_url !== '') {
-            $this->referrer_stats[$referrer_url] ??= new ReferrerStats;
+            if (!isset($this->referrer_stats[$referrer_url])) {
+                $this->referrer_stats[$referrer_url] = new ReferrerStats;
+                $this->referrer_stats[$referrer_url]->url = $referrer_url;
+                $this->referrer_stats[$referrer_url]->date = $this->site_stats->date;
+            }
             $this->referrer_stats[$referrer_url]->pageviews++;
             $this->referrer_stats[$referrer_url]->visitors += $unique_pageview ? 1 : 0;
         }
@@ -96,16 +111,11 @@ class Aggregator {
         // return early if no new data came in
         if ($this->site_stats->pageviews === 0) return;
 
-        // TODO: Use configurable timezone here
-        $now = new DateTimeImmutable('now', new \DateTimeZone('UTC'));
-        $date = $now->format('Y-m-d');
-
-        $this->commitSiteStats($date);
-        $this->commitPageStats($date);
-        $this->commitReferrerStats($date);
-        $this->commitRealtimePageviewCount();
+        $this->statRepository->upsertSitestats($this->domain, $this->site_stats);
+        $this->statRepository->upsertManyPageStats($this->domain, $this->page_stats);
+        $this->statRepository->upsertManyReferrerStats($this->domain, $this->referrer_stats);
+        $this->statRepository->insertRealtimePageviewsCount($this->domain, $this->site_stats->pageviews);
         $this->reset();
-
         (new SessionCleaner)();
     }
 
@@ -116,116 +126,9 @@ class Aggregator {
     private function reset(): void
     {
         $this->site_stats = new SiteStats;
+        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $this->page_stats = [];
         $this->referrer_stats = [];
-    }
-
-    private function commitSiteStats(string $date): void
-    {
-        // TODO: Abstract away in a different class: SQLiteCommitter
-        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_site_stats_{$this->domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
-        } else {
-            $query = "INSERT INTO koko_analytics_site_stats_{$this->domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
-        }
-
-        $this->db->prepare($query)->execute([
-            'date' => $date,
-            'visitors' => $this->site_stats->visitors,
-            'pageviews' => $this->site_stats->pageviews,
-        ]);
-    }
-
-    private function commitPageStats(string $date): void
-    {
-        if (empty($this->page_stats)) return;
-
-        // insert all page urls
-        $values = \array_keys($this->page_stats);
-        $placeholders = \rtrim(\str_repeat('(?),', count($values)), ',');
-        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$this->domain->getId()} (url) VALUES {$placeholders}";
-        } else {
-            $query = "INSERT IGNORE INTO koko_analytics_page_urls_{$this->domain->getId()} (url) VALUES {$placeholders}";
-        }
-        $this->db->prepare($query)->execute($values);
-
-        // select and map page url to id
-        $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$this->domain->getId()} WHERE url IN ({$placeholders})");
-        $stmt->execute($values);
-        $page_url_ids = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $page_url_ids[$row['url']] = $row['id'];
-        }
-
-        // build final upsert query for page stats
-        $values = [];
-        foreach ($this->page_stats as $url => $stats) {
-            \array_push($values, $date, $page_url_ids[$url], $stats->visitors, $stats->pageviews);
-        }
-        $column_count = 4;
-        $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
-        $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-
-        if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_page_stats_{$this->domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
-        } else {
-            $query = "INSERT INTO koko_analytics_page_stats_{$this->domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
-        }
-        $this->db->prepare($query)->execute($values);
-    }
-
-    private function commitReferrerStats(string $date): void
-    {
-        if (empty($this->referrer_stats)) return;
-
-        // insert all page urls
-        $values = \array_keys($this->referrer_stats);
-        $placeholders = \rtrim(\str_repeat('(?),', \count($values)), ',');
-        if ($this->db->getDriverName() === Database::DRIVER_SQLITE) {
-            $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls_{$this->domain->getId()} (url) VALUES {$placeholders}";
-        } else {
-            $query = "INSERT IGNORE INTO koko_analytics_referrer_urls_{$this->domain->getId()} (url) VALUES {$placeholders}";
-        }
-        $this->db->prepare($query)->execute($values);
-
-        // select and map page url to id
-        $placeholders = \rtrim(\str_repeat('?,', count($values)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$this->domain->getId()} WHERE url IN ({$placeholders})");
-        $stmt->execute($values);
-        $url_ids = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $url_ids[$row['url']] = $row['id'];
-        }
-
-        // build final upsert query for page stats
-        $values = [];
-        foreach ($this->referrer_stats as $url => $stats) {
-            \array_push($values, $date, $url_ids[$url], $stats->visitors, $stats->pageviews);
-        }
-        $column_count = 4;
-        $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
-        $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        if ($this->db->getDrivername() === Database::DRIVER_SQLITE) {
-            $query = "INSERT INTO koko_analytics_referrer_stats_{$this->domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
-        } else {
-            $query = "INSERT INTO koko_analytics_referrer_stats_{$this->domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
-        }
-        $this->db->prepare($query)->execute($values);
-    }
-
-    private function commitRealtimePageviewCount(): void
-    {
-        // insert pageviews since last aggregation run
-        $this->db
-            ->prepare("INSERT INTO koko_analytics_realtime_count_{$this->domain->getId()} (timestamp, count) VALUES (?, ?)")
-            ->execute([(new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') , $this->site_stats->pageviews]);
-
-        // remove pageviews older than 3 hours
-        $this->db
-            ->prepare("DELETE FROM koko_analytics_realtime_count_{$this->domain->getId()} WHERE timestamp < ?")
-            ->execute([ (new \DateTimeImmutable('-3 hours', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
     }
 
     private function isReferrerUrlOnBlocklist(string $url): bool

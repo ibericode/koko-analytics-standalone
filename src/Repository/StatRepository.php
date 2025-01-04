@@ -8,7 +8,7 @@ use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
 
-class StatRepository {
+abstract class StatRepository {
     public function __construct(
         protected Database $db
     ) {}
@@ -49,7 +49,7 @@ class StatRepository {
             'end' => $end->format('Y-m-d'),
         ]);
 
-        return array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
+        return \array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
     /**
@@ -109,4 +109,47 @@ class StatRepository {
         $stmt->execute([(new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
         return (int) $stmt->fetchColumn();
     }
+
+    public function deleteAllBeforeDate(Domain $domain, \DateTimeInterface $dt): void
+    {
+        $queries = [
+            "DELETE FROM koko_analytics_site_stats_{$domain->getId()} WHERE date < ?",
+            "DELETE FROM koko_analytics_page_stats_{$domain->getId()} WHERE date < ?",
+            "DELETE FROM koko_analytics_referrer_stats_{$domain->getId()} WHERE date < ?"
+        ];
+        foreach ($queries as $query) {
+            $this->db
+                ->prepare($query)
+                ->execute([$dt->format('Y-m-d')]);
+        }
+
+        // TODO: Remove orphaned rows from koko_analytics_page_urls and koko_analytics_referrer_urls tables
+    }
+
+    public function insertRealtimePageviewsCount(Domain $domain, int $count): void
+    {
+        // insert pageviews since last aggregation run
+        $this->db
+            ->prepare("INSERT INTO koko_analytics_realtime_count_{$domain->getId()} (timestamp, count) VALUES (?, ?)")
+            ->execute([(new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') , $count]);
+
+        // remove pageviews older than 3 hours
+        $this->db
+            ->prepare("DELETE FROM koko_analytics_realtime_count_{$domain->getId()} WHERE timestamp < ?")
+            ->execute([ (new \DateTimeImmutable('-3 hours', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
+    }
+
+    // The methods below have a database specific implementation
+    // @see StatRepositorySqlite
+    // @see StatRepositoryMysql
+    // @see config/services.php
+
+    abstract public function createTables(Domain $domain): void;
+    abstract public function upsertSitestats(Domain $domain, SiteStats $stats): void;
+
+    /** @param PageStats[] $stats */
+    abstract public function upsertManyPageStats(Domain $domain, array $stats): void;
+
+    /** @param ReferrerStats[] $stats */
+    abstract public function upsertManyReferrerStats(Domain $domain, array $stats): void;
 }
