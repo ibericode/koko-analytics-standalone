@@ -22,8 +22,8 @@ class DomainRepository {
 
     public function getByName(string $name): ?Domain
     {
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE name = :name LIMIT 1;");
-        $stmt->execute(["name" => $name]);
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE name = ? LIMIT 1;");
+        $stmt->execute([$name]);
         $obj = $stmt->fetchObject(Domain::class);
         return $obj ?: null;
     }

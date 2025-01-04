@@ -25,8 +25,7 @@ class Aggregator {
         protected Database $db,
         protected StatRepository $statRepository,
     ) {
-        $this->site_stats = new SiteStats;
-        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->reset();
     }
 
     public function run(Domain $domain): void
@@ -112,8 +111,8 @@ class Aggregator {
         if ($this->site_stats->pageviews === 0) return;
 
         $this->statRepository->upsertSitestats($this->domain, $this->site_stats);
-        $this->statRepository->upsertManyPageStats($this->domain, $this->page_stats);
-        $this->statRepository->upsertManyReferrerStats($this->domain, $this->referrer_stats);
+        $this->statRepository->upsertManyPageStats($this->domain, \array_values($this->page_stats));
+        $this->statRepository->upsertManyReferrerStats($this->domain, \array_values($this->referrer_stats));
         $this->statRepository->insertRealtimePageviewsCount($this->domain, $this->site_stats->pageviews);
         $this->reset();
         (new SessionCleaner)();

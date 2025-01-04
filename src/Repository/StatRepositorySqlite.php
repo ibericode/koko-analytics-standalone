@@ -57,7 +57,7 @@ class StatRepositorySqlite extends StatRepository {
         );
     }
 
-    public function upsertSitestats(Domain $domain, SiteStats $stats): void
+    public function upsertSiteStats(Domain $domain, SiteStats $stats): void
     {
         $query = "INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
 
@@ -75,7 +75,7 @@ class StatRepositorySqlite extends StatRepository {
 
         // insert all page urls
         $urls = \array_map(function($s) { return $s->url; }, $stats);
-        $placeholders = \rtrim(\str_repeat('(?),', count($urls)), ',');
+        $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);
 
@@ -90,7 +90,7 @@ class StatRepositorySqlite extends StatRepository {
 
         // build final upsert query for page stats
         $values = [];
-        foreach ($stats as $url => $s) {
+        foreach ($stats as $s) {
             \array_push($values, $s->date->format('Y-m-d'), $page_url_ids[$s->url], $s->visitors, $s->pageviews);
         }
         $column_count = 4;
@@ -113,7 +113,7 @@ class StatRepositorySqlite extends StatRepository {
         $this->db->prepare($query)->execute($urls);
 
         // select and map page url to id
-        $placeholders = \rtrim(\str_repeat('?,', count($urls)), ',');
+        $placeholders = \rtrim(\str_repeat('?,', \count($urls)), ',');
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
         $url_ids = [];
@@ -123,7 +123,7 @@ class StatRepositorySqlite extends StatRepository {
 
         // build final upsert query for page stats
         $values = [];
-        foreach ($stats as $url => $s) {
+        foreach ($stats as $s) {
             \array_push($values, $s->date->format('Y-m-d'), $url_ids[$s->url], $s->visitors, $s->pageviews);
         }
         $column_count = 4;

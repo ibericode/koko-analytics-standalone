@@ -32,10 +32,12 @@ return function(ContainerConfigurator $container): void {
         ->arg('$password', env('DATABASE_PASSWORD'));
 
 
-    if (str_starts_with(env('DATABASE_DSN'), 'sqlite:')) {
-        $services->alias(StatRepository::class, StatRepositorySqlite::class);
-    } else {
-        $services->alias(StatRepository::class, StatRepositoryMysql::class);
-    }
+    $services->set(StatRepository::class)
+        ->factory([StatRepository::class, 'create']);
+    // if (str_starts_with(env('DATABASE_DSN')->string(), 'sqlite:')) {
+    //     $services->alias(StatRepository::class, StatRepositorySqlite::class);
+    // } else {
+    //     $services->alias(StatRepository::class, StatRepositoryMysql::class);
+    // }
 
 };

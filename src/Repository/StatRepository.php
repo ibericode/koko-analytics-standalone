@@ -13,6 +13,14 @@ abstract class StatRepository {
         protected Database $db
     ) {}
 
+    public static function create(Database $db): static {
+        if ($db->getDriverName() === Database::DRIVER_SQLITE) {
+            return new StatRepositorySqlite($db);
+        } else {
+            return new StatRepositoryMysql($db);
+        }
+    }
+
     public function getTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): SiteStats
     {
         $stmt = $this->db->prepare("
@@ -145,7 +153,7 @@ abstract class StatRepository {
     // @see config/services.php
 
     abstract public function createTables(Domain $domain): void;
-    abstract public function upsertSitestats(Domain $domain, SiteStats $stats): void;
+    abstract public function upsertSiteStats(Domain $domain, SiteStats $stats): void;
 
     /** @param PageStats[] $stats */
     abstract public function upsertManyPageStats(Domain $domain, array $stats): void;

@@ -6,22 +6,45 @@ use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 use PDO;
 
-// Define service as lazy so we do not connect to the database everytime this service is injected (but not used)
-#[Autoconfigure(lazy: true)]
-class Database extends PDO
+class Database
 {
     const DRIVER_SQLITE = 'sqlite';
     const DRIVER_MYSQL = 'mysql';
 
-    private string $driverName = '';
+    private string $driverName;
+    private ?\PDO $conn = null;
 
-    public function __construct(string $dsn, ?string $username = null, ?string $password = null)
+    public function __construct(
+        private string $dsn,
+        private ?string $username = null,
+        private ?string $password = null
+    )
     {
         $this->driverName = \substr($dsn, 0, \strpos($dsn, ':'));
+    }
 
-        parent::__construct($this->makeDatabasePathAbsolute($dsn), $username, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ]);
+    public function getConnection(): PDO {
+        if (!$this->conn) {
+            $this->conn = new \PDO($this->makeDatabasePathAbsolute($this->dsn), $this->username, $this->password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+        }
+
+        return $this->conn;
+    }
+
+    public function prepare(string $query, array $options = [])
+    {
+        return $this->getConnection()->prepare($query, $options);
+    }
+
+    public function exec(string $statement)
+    {
+        return $this->getConnection()->exec($statement);
+    }
+
+    public function lastInsertId(?string $name = null) {
+        return $this->getConnection()->lastInsertId($name);
     }
 
     private function makeDatabasePathAbsolute(string $dsn): string

@@ -58,7 +58,7 @@ class StatRepositoryMysql extends StatRepository {
         );
     }
 
-    public function upsertSitestats(Domain $domain, SiteStats $stats): void
+    public function upsertSiteStats(Domain $domain, SiteStats $stats): void
     {
         $query = "INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
 
@@ -74,8 +74,8 @@ class StatRepositoryMysql extends StatRepository {
         if (empty($stats)) return;
 
         // insert all page urls
-        $urls = \array_map(function($s) { return $s->url; }, array_values($stats));
-        $placeholders = \rtrim(\str_repeat('(?),', count($urls)), ',');
+        $urls = \array_map(function($s) { return $s->url; }, $stats);
+        $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);
 
@@ -90,7 +90,7 @@ class StatRepositoryMysql extends StatRepository {
 
         // build final upsert query for page stats
         $values = [];
-        foreach ($stats as $url => $s) {
+        foreach ($stats as $s) {
             \array_push($values, $s->date->format('Y-m-d'), $page_url_ids[$s->url], $s->visitors, $s->pageviews);
         }
         $column_count = 4;
@@ -121,7 +121,7 @@ class StatRepositoryMysql extends StatRepository {
 
         // build final upsert query for page stats
         $values = [];
-        foreach ($stats as $url => $s) {
+        foreach ($stats as $s) {
             \array_push($values, $s->date->format('Y-m-d'), $url_ids[$s->url], $s->visitors, $s->pageviews);
         }
         $column_count = 4;
