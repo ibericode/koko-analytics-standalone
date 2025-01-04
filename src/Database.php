@@ -33,17 +33,23 @@ class Database
         return $this->conn;
     }
 
-    public function prepare(string $query, array $options = [])
+    public function prepare(string $query, array $options = []): \PDOStatement|false
     {
         return $this->getConnection()->prepare($query, $options);
     }
 
-    public function exec(string $statement)
+    public function exec(string $statement): int|false
     {
         return $this->getConnection()->exec($statement);
     }
 
-    public function lastInsertId(?string $name = null) {
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): \PDOStatement|false
+    {
+        return $this->getConnection()->query($query, $fetchMode, $fetchModeArgs);
+    }
+
+    public function lastInsertId(?string $name = null): string|false
+    {
         return $this->getConnection()->lastInsertId($name);
     }
 
