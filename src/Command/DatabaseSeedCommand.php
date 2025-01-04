@@ -4,10 +4,14 @@ namespace App\Command;
 
 use App\Database;
 use App\Entity\Domain;
+use App\Entity\PageStats;
+use App\Entity\ReferrerStats;
+use App\Entity\SiteStats;
 use App\Repository\UserRepository;
 use App\Repository\DomainRepository;
+use App\Repository\StatRepository;
 use App\Security\User;
-use Exception;
+
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,8 +22,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DatabaseSeedCommand extends Command
 {
     public function __construct(
-        protected Database $db,
         protected UserRepository $userRepository,
+        protected StatRepository $statRepository,
         protected DomainRepository $domainRepository,
     ) {
         parent::__construct();
@@ -34,6 +38,7 @@ class DatabaseSeedCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $time_start = microtime(true);
         $months = (int) $input->getOption('months');
         $domain_name = $input->getOption('domain');
         $date_start = new \DateTimeImmutable("-{$months} months", new \DateTimeZone('UTC'));
@@ -49,6 +54,9 @@ class DatabaseSeedCommand extends Command
         $this->seedSiteStats($domain, $date_start, $date_now);
         $this->seedPageStats($domain, $date_start, $date_now);
         $this->seedReferrerStats($domain, $date_start, $date_now);
+
+        $time_elapsed = round((microtime(true) - $time_start) * 1000, 2);
+        $output->writeln("Created {$months} months of sample data in {$time_elapsed} ms");
         return Command::SUCCESS;
     }
 
@@ -65,15 +73,14 @@ class DatabaseSeedCommand extends Command
         $date_cur = $date_start;
 
         // populate site stats
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews);");
         while ($date_cur < $date_now) {
+            $s = new SiteStats;
+            $s->visitors = random_int(10, 100);
+            $s->pageviews = $s->visitors + random_int(10, 100);
+            $s->date = $date_cur;
+            $this->statRepository->upsertSiteStats($domain, $s);
             $visitors = random_int(10, 100);
-            $pageviews = $visitors + random_int(10, 100);
-            $stmt->execute([
-                'date' => $date_cur->format('Y-m-d'),
-                'visitors' => $visitors,
-                'pageviews' => $pageviews,
-            ]);
+
             $date_cur = $date_cur->modify('+1 day');
         }
     }
@@ -90,29 +97,23 @@ class DatabaseSeedCommand extends Command
             '/team/sarah',
             '/blog',
         ];
-        $page_url_ids = [];
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES (:url);");
-        foreach ($page_urls as $url) {
-            $stmt->execute([ 'url' => $url ]);
-            $page_url_ids[$url] = $this->db->lastInsertId();
-        }
-
+        $stats = [];
         $date_cur = $date_start;
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_page_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
+
         while ($date_cur < $date_now) {
-            foreach ($page_url_ids as $url => $id) {
-                $visitors = random_int(5, 50);
-                $pageviews = $visitors + random_int(5, 50);
-                $stmt->execute([
-                    'date' => $date_cur->format('Y-m-d'),
-                    'id' => $id,
-                    'visitors' => $visitors,
-                    'pageviews' => $pageviews,
-                ]);
+            foreach ($page_urls as $url) {
+                $s = new PageStats;
+                $s->url = $url;
+                $s->date = $date_cur;
+                $s->visitors = random_int(5, 50);
+                $s->pageviews = $s->visitors + random_int(5, 50);
+                $stats[] = $s;
             }
 
             $date_cur = $date_cur->modify('+1 day');
         }
+
+        $this->statRepository->upsertManyPageStats($domain, $stats);
     }
 
     private function seedReferrerStats(Domain $domain, \DateTimeImmutable $date_start, \DateTimeImmutable $date_now): void
@@ -128,28 +129,22 @@ class DatabaseSeedCommand extends Command
             'https://www.bing.com/',
             'https://www.yahoo.com/',
         ];
-        $referrer_url_ids = [];
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES (:url);");
-        foreach ($referrer_urls as $url) {
-            $stmt->execute([ 'url' => $url ]);
-            $referrer_url_ids[$url] = $this->db->lastInsertId();
-        }
+        $stats = [];
 
         $date_cur = $date_start;
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_referrer_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES (:date, :id, :visitors, :pageviews);");
         while ($date_cur < $date_now) {
-            foreach ($referrer_url_ids as $url => $id) {
-                $visitors = random_int(1, 10);
-                $pageviews = $visitors + random_int(1, 10);
-                $stmt->execute([
-                    'date' => $date_cur->format('Y-m-d'),
-                    'id' => $id,
-                    'visitors' => $visitors,
-                    'pageviews' => $pageviews,
-                ]);
+            foreach ($referrer_urls as $url ) {
+                $s = new ReferrerStats;
+                $s->url = $url;
+                $s->date = $date_cur;
+                $s->visitors = random_int(5, 50);
+                $s->pageviews = $s->visitors + random_int(5, 50);
+                $stats[] = $s;
             }
 
             $date_cur = $date_cur->modify('+1 day');
         }
+
+        $this->statRepository->upsertManyReferrerStats($domain, $stats);
     }
 }
