@@ -5,14 +5,14 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        php-versions: ['highest', '8.2']
+        php-versions: ['8.3', '8.2']
     steps: 
       # Install PHP interpreter
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: pdo, mbstring, json, xml, zip
+          extensions: ctype, iconv, pdo, mbstring, json, xml, zip
 
       # Checkout source repository
       - name: checkout repo
@@ -22,7 +22,7 @@ jobs:
       - run: composer run lint
 
       # Install project depencencies incl. development dependencies
-      - run: composer install --dev
+      - run: composer install
 
       # Run static analysis
       - run: ./vendor/bin/psalm
