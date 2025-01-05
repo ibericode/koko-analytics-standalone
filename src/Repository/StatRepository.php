@@ -7,6 +7,7 @@ use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
+use PDOException;
 
 abstract class StatRepository {
     public function __construct(

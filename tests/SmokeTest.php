@@ -27,15 +27,15 @@ class SmokeTest extends WebTestCase
 
     public function provideDashboardUrls(): \Generator
     {
-        yield ['/website.com'];
-        yield ['/website.com?date-start=2024-01-01&date-end=2024-12-31'];
-        yield ['/website.com?date-range=today'];
-        yield ['/website.com?date-range=this_week'];
-        yield ['/website.com?date-range=last_week'];
-        yield ['/website.com?date-range=this_month'];
-        yield ['/website.com?date-range=last_month'];
-        yield ['/website.com?date-range=this_year'];
-        yield ['/website.com?date-range=last_year'];
+        yield ['/smoke-test.com'];
+        yield ['/smoke-test.com?date-start=2024-01-01&date-end=2024-12-31'];
+        yield ['/smoke-test.com?date-range=today'];
+        yield ['/smoke-test.com?date-range=this_week'];
+        yield ['/smoke-test.com?date-range=last_week'];
+        yield ['/smoke-test.com?date-range=this_month'];
+        yield ['/smoke-test.com?date-range=last_month'];
+        yield ['/smoke-test.com?date-range=this_year'];
+        yield ['/smoke-test.com?date-range=last_year'];
     }
 
     /**
@@ -57,24 +57,24 @@ class SmokeTest extends WebTestCase
 
         /** @var \App\Repository\UserRepository */
         $userRepository = self::getContainer()->get(UserRepository::class);
-        $userRepository->reset();
-        $user = new User();
-        $user->setEmail('test@kokoanalytics.com');
-        $user->setPassword('');
-        $userRepository->save($user);
+
+        if (!($user = $userRepository->getByEmail('test@kokoanalytics.com'))) {
+            $user = new User();
+            $user->setEmail('test@kokoanalytics.com');
+            $user->setPassword('');
+            $userRepository->save($user);
+        }
 
         /** @var DomainRepository */
         $domainRepository = self::getContainer()->get(DomainRepository::class);
         $domainRepository->reset();
         $domain = new Domain();
-        $domain->setName('website.com');
+        $domain->setName('smoke-test.com');
         $domainRepository->insert($domain);
 
         /** @var StatRepository */
         $statRepository = self::getContainer()->get(StatRepository::class);
         $statRepository->createTables($domain);
-
-        $user = $userRepository->getByEmail('test@kokoanalytics.com');
 
         /** @var Session */
         $session = self::getContainer()->get('session.factory')->createSession();
