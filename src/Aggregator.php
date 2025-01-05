@@ -115,7 +115,8 @@ class Aggregator {
         $this->statRepository->upsertManyReferrerStats($this->domain, \array_values($this->referrer_stats));
         $this->statRepository->insertRealtimePageviewsCount($this->domain, $this->site_stats->pageviews);
         $this->reset();
-        (new SessionCleaner)();
+
+        (new SessionManager)->purge();
     }
 
     /**

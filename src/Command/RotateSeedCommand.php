@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Aggregator;
 use App\Repository\DomainRepository;
+use App\SessionManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,11 +15,9 @@ class RotateSeedCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $seed = bin2hex(random_bytes(16));
-        $session_directory = dirname(__DIR__, 2) . "/var/sessions";
-        $filename = "{$session_directory}/seed.txt";
-        file_put_contents($filename, $seed);
-        $output->writeln("Written new seed to {$filename}.");
+        $sessionManager = new SessionManager;
+        $sessionManager->rotateSeed();
+        $output->writeln("Written new seed to {$sessionManager->getSeedFilename()}.");
         return Command::SUCCESS;
     }
 }
