@@ -6,12 +6,11 @@
 $title = 'Dashboards - Koko Analytics';
 require __DIR__ . '/_header.html.php'; ?>
 
-
 <h1>Choose a domain</h1>
 
 <ul>
 <?php foreach ($domains as $domain) : ?>
-    <li><a href="<?= $this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ]); ?>"><?= esc($domain->getName()); ?></a></li>
+    <li><a href="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>"><?= esc($domain->getName()); ?></a></li>
 <?php endforeach; ?>
 </ul>
 

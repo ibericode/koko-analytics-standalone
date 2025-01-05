@@ -2,6 +2,10 @@
 
 function esc(string $value) : string 
 { 
+    if (str_starts_with($value, 'javascript:')) {
+        $value = substr($value, strlen('javascript:'));
+    }
+
     return \htmlspecialchars($value, ENT_QUOTES|ENT_SUBSTITUTE, 'UTF-8');
 }
 

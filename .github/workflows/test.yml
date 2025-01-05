@@ -18,11 +18,14 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v3
 
+      - name: Check escaping in templates
+        run: ./bin/check_templates
+
       # Lint every PHP source file using PHP interpreter
       - run: composer run lint
 
       # Install project depencencies incl. development dependencies
-      - run: composer install
+      - run: composer install --no-progress
 
       # Run static analysis
       - run: ./vendor/bin/psalm

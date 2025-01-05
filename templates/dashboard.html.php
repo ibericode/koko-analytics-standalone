@@ -66,8 +66,8 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
         <th>Total visitors</th>
         <td class="totals-amount">
             <?= number_format($totals->visitors); ?>
-            <span class="totals-change <?php echo $visitors_change > 0 ? 'up' : 'down'; ?>">
-                <?php echo percent_format($visitors_change); ?>
+            <span class="totals-change <?= $visitors_change > 0 ? 'up' : 'down'; ?>">
+                <?= percent_format($visitors_change); ?>
             </span>
         </td>
         <td class="totals-subtext">
@@ -80,8 +80,8 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
         <th>Total pageviews</th>
         <td class="totals-amount">
             <?= number_format($totals->pageviews); ?>
-            <span class="totals-change <?php echo $pageviews_change > 0 ? 'up' : 'down'; ?>">
-                <?php echo percent_format($pageviews_change); ?>
+            <span class="totals-change <?= $pageviews_change > 0 ? 'up' : 'down'; ?>">
+                <?= percent_format($pageviews_change); ?>
             </span>
         </td>
         <td class="totals-subtext">

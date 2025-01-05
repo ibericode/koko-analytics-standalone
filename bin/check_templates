@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+// This file checks the files in the template directory for unquoted HTML attributes
+// Which need additional escaping besides htmlspecialchars (whitespace chars)
+
+$template_files = glob("templates/*");
+foreach ($template_files as $file) {
+	$content = file_get_contents($file);
+
+	if (preg_match('/\<.+=\<\?(\=|php echo)/', $content)) {
+		echo "WARNING: unquoted HTML attributes with dynamic content in file '$file'.\n";
+		exit(1);
+	}
+
+	if (preg_match('/\<.+=[\'\"]\<\?\=\s+\$\w+/', $content)) {
+		echo "WARNING: outputting unescaped value in '$file'.\n";
+		exit(1);
+	}
+}
+
+exit(0);
