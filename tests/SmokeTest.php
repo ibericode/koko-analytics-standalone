@@ -5,12 +5,14 @@ namespace App\Tests;
 use App\Database;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
+use App\Repository\StatRepository;
 use App\Repository\UserRepository;
 use App\Security\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\BrowserKit\CookieJar;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class SmokeTest extends WebTestCase
 {
@@ -68,9 +70,13 @@ class SmokeTest extends WebTestCase
         $domain->setName('website.com');
         $domainRepository->insert($domain);
 
+        /** @var StatRepository */
+        $statRepository = self::getContainer()->get(StatRepository::class);
+        $statRepository->createTables($domain);
+
         $user = $userRepository->getByEmail('test@kokoanalytics.com');
 
-        // authenticate user, taken from KernelBrowser::loginUser
+        /** @var Session */
         $session = self::getContainer()->get('session.factory')->createSession();
         $session->set('user', $user);
         $session->save();
