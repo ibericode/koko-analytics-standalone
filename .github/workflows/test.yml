@@ -3,9 +3,23 @@ on: push
 jobs: 
   build:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-versions: ['highest', 'lowest']
     steps: 
+      # Install PHP interpreter
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: pdo, mbstring, json, xml, zip
+
+      # Checkout source repository
       - name: checkout repo
         uses: actions/checkout@v3
+
+      # Lint every PHP source file using PHP interpreter
+      - run: composer run lint
 
       # Install project depencencies incl. development dependencies
       - run: composer install --dev
