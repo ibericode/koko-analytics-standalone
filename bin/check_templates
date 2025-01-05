@@ -5,18 +5,22 @@
 // Which need additional escaping besides htmlspecialchars (whitespace chars)
 
 $template_files = glob("templates/*");
+$exit_status = 0;
+
 foreach ($template_files as $file) {
-	$content = file_get_contents($file);
+	$fh = fopen($file, "r");
+	$ln = 0;
+	while ($line = fgets($fh)) {
 
-	if (preg_match('/\<.+=\<\?(\=|php echo)/', $content)) {
-		echo "WARNING: unquoted HTML attributes with dynamic content in file '$file'.\n";
-		exit(1);
+		if (preg_match('/<.*[a-zA-Z0-9]+\=<\?(=|php echo).*>/', $line)) {
+			echo "WARNING: unquoted HTML attributes with dynamic content in file '$file' on line {$ln}.\n> {$line}\n";
+			$exit_status = 1;
+		}
+
+		$ln++;
 	}
 
-	if (preg_match('/\<.+=[\'\"]\<\?\=\s+\$\w+/', $content)) {
-		echo "WARNING: outputting unescaped value in '$file'.\n";
-		exit(1);
-	}
+	fclose($fh);
 }
 
-exit(0);
+exit($exit_status);

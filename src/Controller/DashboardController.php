@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Aggregator;
 use App\Database;
+use App\Chart;
 use App\Datastore\MysqlStore;
 use App\Datastore\StoreInterface;
 use App\Entity\Domain;
@@ -64,6 +65,7 @@ class DashboardController extends Controller
         $pages = $statsRepository->getPageStatsBetween($domain, $start, $end);
         $referrers = $statsRepository->getReferrerStatsBetween($domain, $start, $end);
         $realtime_count = $statsRepository->getRealtimeCount($domain);
+        $chart = new Chart($chart, $start, $end);
 
         return $this->render("dashboard.html.php", [
             'date_start' => $start,
@@ -75,7 +77,7 @@ class DashboardController extends Controller
             'referrers' => $referrers,
             'realtime_count' => $realtime_count,
             'date_range' => $date_range,
-            'date_ranges' => $this->get_date_ranges(),
+            'date_ranges' => $this->getDateRanges(),
         ]);
     }
 
@@ -131,7 +133,7 @@ class DashboardController extends Controller
         }
     }
 
-    private function get_date_ranges(): array {
+    private function getDateRanges(): array {
         return [
             'today' => 'Today',
             'yesterday' => 'Yesterday',

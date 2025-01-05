@@ -12,14 +12,28 @@ use App\Entity\SiteStats;
 
 class Chart
 {
-    public function __construct(array $data, \DateTimeImmutable $date_start, \DateTimeImmutable $date_end, int $height = 280)
+    private array $data;
+    private int $y_max = 0;
+
+    /**
+     * @param SiteStats[] $data
+     */
+    public function __construct(
+        array $data,
+        protected \DateTimeImmutable $date_start,
+        protected \DateTimeImmutable $date_end
+    ) {
+        $this->prepareChartData($data);
+    }
+
+    public function render(int $height = 200): void
     {
-        $data = $this->transformData($data);
-        $y_max = 0;
-        foreach ($data as $tick) {
-            $y_max = \max($y_max, $tick->pageviews);
-        }
-        $y_max_nice = $this->getMagnitude($y_max);
+        $data = $this->data;
+        $y_max = $this->y_max;
+        $date_start = $this->date_start;
+        $date_end = $this->date_end;
+        $y_max_nice = $this->getMagnitude();
+
         $padding_top = 6;
         $padding_bottom = 24;
         $padding_left = 4 + \strlen(\number_format($y_max_nice)) * 8;
@@ -27,70 +41,27 @@ class Chart
         $height_modifier = $y_max_nice > 0 ? $inner_height / $y_max_nice : 1;
         $date_format =  'Y-m-d';
         $empty = new SiteStats;
-        ?>
-        <div class="ka-chart">
-            <svg width="100%" height="<?= $height; ?>" id="ka-chart">
-              <g class="axes-y" transform="translate(<?= $padding_left; ?>, <?= $padding_top; ?>)" text-anchor="end" data-padding="<?= $padding_left; ?>">
-                <text x="0" y="<?= $inner_height; ?>" fill="#757575" dy="0.3em" >0</text>
-                <text x="0" y="<?= $inner_height / 2; ?>" fill="#757575" dy="0.3em"><?= \number_format($y_max_nice / 2); ?></text>
-                <text x="0" y="0" fill="#757575" dy="0.3em"><?= \number_format($y_max_nice); ?></text>
-                <line stroke="#eee" x1="8" x2="100%" y1="<?= $inner_height; ?>" y2="<?= $inner_height; ?>"></line>
-                <line stroke="#eee" x1="8" x2="100%" y1="<?= $inner_height / 2; ?>" y2="<?= $inner_height / 2; ?>"></line>
-                <line stroke="#eee" x1="8" x2="100%" y1="0" y2="0"></line>
-              </g>
-              <g class="axes-x" text-anchor="start" transform="translate(0, <?= $inner_height + 4; ?>)">
-                <text fill="#757575" x="<?= $padding_left; ?>" y="10" dy="1em" text-anchor="start"><?= $date_start->format($date_format); ?></text>
-                <text fill="#757575" x="100%" y="10" dy="1em" text-anchor="end"><?= $date_end->format($date_format); ?></text>
-              </g>
-               <g class="bars" transform="translate(0, <?= $padding_top; ?>)" style="display: none;">
-                <?php for ($dt = $date_start; $dt <= $date_end; $dt = $dt->modify('+1 day')) {
-                    $key = $dt->format('Y-m-d');
-                    $tick = $data[$key] ?? $empty;
-                    $is_weekend = (int) $dt->format('N') >= 6;
-                    $class_attr = $is_weekend ? 'class="weekend" ' : '';
-                    // data attributes are for the hover tooltip, which is handled in JS
-                    echo '<g ', $class_attr, 'data-date="', $dt->format($date_format), '" data-pageviews="', \number_format($tick->pageviews), '" data-visitors="', \number_format($tick->visitors),'">';
-                    echo '<rect class="ka--pageviews" height="', ($tick->pageviews * $height_modifier),'" y="', ($inner_height - $tick->pageviews * $height_modifier),'"></rect>';
-                    echo '<rect class="ka--visitors" height="', ($tick->visitors * $height_modifier), '" y="', ($inner_height - $tick->visitors * $height_modifier), '"></rect>';
-                    echo '<line stroke="#ddd" y1="', $inner_height, '" y2="', ($inner_height + 6),'"></line>';
-                    echo '</g>';
-                } ?>
-               </g>
-            </svg>
-            <div class="ka-chart--tooltip" style="display: none;">
-                <div class="ka-chart--tooltip-box">
-                  <div class="ka-chart--tooltip-heading"></div>
-                  <div style="display: flex">
-                    <div class="ka-chart--tooltip-content ka--visitors">
-                      <div class="ka-chart--tooltip-amount"></div>
-                      <div>Visitors</div>
-                    </div>
-                    <div class="ka-chart--tooltip-content ka--pageviews">
-                      <div class="ka-chart--tooltip-amount"></div>
-                      <div>Pageviews</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="ka-chart--tooltip-arrow"></div>
-            </div>
-        </div><?php
+
+        require \dirname(__DIR__, 1) . '/templates/_chart.html.php';
     }
 
     /**
-     * Transform data into an associative array index by the date propery
-     * TODO: Check if we can make PDO do this?
+     * Transform chart data into an associative array index by the date propery
      */
-    private function transformData(array $data): array
+    private function prepareChartData(array $data): void
     {
-        $result = [];
+        $this->data = [];
         foreach ($data as $tick) {
-            $result[$tick->date->format('Y-m-d')] = $tick;
+            $this->data[$tick->date->format('Y-m-d')] = $tick;
+            $this->y_max = \max($this->y_max, $tick->pageviews);
         }
-        return $result;
+
     }
 
-    private function getMagnitude(int $n): int
+    private function getMagnitude(): int
     {
+        $n = $this->y_max;
+
         if ($n < 10) {
             return 10;
         }

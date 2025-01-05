@@ -9,6 +9,7 @@
  * @var \App\Entity\SiteStats $totals_previous
  * @var \App\Entity\PageStats[] $pages
  * @var \App\Entity\ReferrerStats[] $referrers
+ * @var \App\Chart $chart
  * @var int $realtime_count
  */
 
@@ -104,7 +105,7 @@ $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews /
 
 <?php /* Chart */ ?>
 <div class="box chart">
-    <?php new \App\Chart($chart, $date_start, $date_end); ?>
+    <?php $chart->render(); ?>
 </div>
 
 <div class="boxes">
