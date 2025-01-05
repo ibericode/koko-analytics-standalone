@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\Controller;
 
 use App\Aggregator;
 use App\Entity\Domain;
@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\BrowserKit\CookieJar;
 
-class CollectTest extends WebTestCase
+class CollectControllerTest extends WebTestCase
 {
     public function testValidRequest(): void
     {

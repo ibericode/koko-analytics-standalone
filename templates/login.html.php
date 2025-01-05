@@ -82,7 +82,7 @@ button {
 <div class="login">
     <h1><a href="">Powered by Koko Analytics</a></h1>
     <?php if ($error) { ?>
-        <p><?= esc($error); ?></p>
+        <p class="error"><?= esc($error); ?></p>
     <?php } ?>
 
     <form method="post" action="">

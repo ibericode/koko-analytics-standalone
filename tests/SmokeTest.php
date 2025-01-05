@@ -16,15 +16,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 class SmokeTest extends WebTestCase
 {
-    public function testLoginpage(): void
-    {
-        $client = self::createClient();
-        $client->request('GET', '/login');
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('form button[type="submit"]');
-        $this->assertSelectorExists('h1');
-    }
-
     public function provideDashboardUrls(): \Generator
     {
         yield ['/smoke-test.com'];
