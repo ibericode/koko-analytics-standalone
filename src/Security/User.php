@@ -4,12 +4,12 @@ namespace App\Security;
 
 class User
 {
-    private $id;
-    private $email;
-    private $role;
-    private $password;
+    private ?int $id = null;
+    private string $email = '';
+    private string $role = 'viewer';
+    private string $password = '';
 
-    public function getId(): int {
+    public function getId(): ?int {
         return $this->id;
     }
 

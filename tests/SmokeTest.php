@@ -3,6 +3,8 @@
 namespace App\Tests;
 
 use App\Database;
+use App\Entity\Domain;
+use App\Repository\DomainRepository;
 use App\Repository\UserRepository;
 use App\Security\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -48,11 +50,25 @@ class SmokeTest extends WebTestCase
      */
     public function testProtectedPageIsSuccessful($url): void
     {
-        /** @var KernelBrowser $client */
+        /** @var KernelBrowser */
         $client = self::createClient();
-        /** @var \App\Repository\UserRepository $repo */
-        $repo = self::getContainer()->get(UserRepository::class);
-        $user = $repo->getByEmail('test@kokoanalytics.com');
+
+        /** @var \App\Repository\UserRepository */
+        $userRepository = self::getContainer()->get(UserRepository::class);
+        $userRepository->reset();
+        $user = new User();
+        $user->setEmail('test@kokoanalytics.com');
+        $user->setPassword('');
+        $userRepository->save($user);
+
+        /** @var DomainRepository */
+        $domainRepository = self::getContainer()->get(DomainRepository::class);
+        $domainRepository->reset();
+        $domain = new Domain();
+        $domain->setName('website.com');
+        $domainRepository->insert($domain);
+
+        $user = $userRepository->getByEmail('test@kokoanalytics.com');
 
         // authenticate user, taken from KernelBrowser::loginUser
         $session = self::getContainer()->get('session.factory')->createSession();

@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Database;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
+use App\Repository\UserRepository;
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
@@ -22,6 +23,8 @@ class DatabaseResetCommand extends Command
     public function __construct(
         protected Database $db,
         protected DomainRepository $domainRepository,
+        protected UserRepository $userRepository,
+        protected StatRepository $statRepository,
     ) {
         parent::__construct();
     }
@@ -37,13 +40,11 @@ class DatabaseResetCommand extends Command
 
         $domains = $this->domainRepository->getAll();
         foreach ($domains as $domain) {
-            $this->db->exec("DROP TABLE koko_analytics_site_stats_{$domain->getId()}");
-            $this->db->exec("DROP TABLE koko_analytics_page_stats_{$domain->getId()}");
-            $this->db->exec("DROP TABLE koko_analytics_referrer_stats_{$domain->getId()}");
+            $this->statRepository->reset($domain);
         }
 
-        $this->db->exec("DELETE FROM koko_analytics_domains");
-        $this->db->exec("DELETE FROM koko_analytics_users");
+        $this->domainRepository->reset();
+        $this->userRepository->reset();
         $output->writeln("Database successfully emptied.");
         return Command::SUCCESS;
     }

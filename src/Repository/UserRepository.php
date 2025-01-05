@@ -12,7 +12,7 @@ class UserRepository {
 
     public function getByEmail(string $email): ?User
     {
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = :email LIMIT 1;");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = :email LIMIT 1");
         $stmt->execute(["email" => $email]);
         $obj = $stmt->fetchObject(User::class);
         return $obj ?: null;
@@ -24,7 +24,11 @@ class UserRepository {
             ->prepare("INSERT INTO koko_analytics_users (email, password) VALUES (?, ?)")
             ->execute([ $user->getEmail(), $user->getPassword() ]);
         $user->setId($this->db->lastInsertId());
+    }
 
+    public function reset(): void
+    {
+        $this->db->exec("DELETE FROM koko_analytics_users");
     }
 
 }

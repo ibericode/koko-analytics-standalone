@@ -147,6 +147,13 @@ abstract class StatRepository {
             ->execute([ (new \DateTimeImmutable('-3 hours', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
     }
 
+    public function reset(Domain $domain): void
+    {
+        $this->db->exec("DROP TABLE koko_analytics_site_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE koko_analytics_page_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE koko_analytics_referrer_stats_{$domain->getId()}");
+    }
+
     // The methods below have a database specific implementation
     // @see StatRepositorySqlite
     // @see StatRepositoryMysql
