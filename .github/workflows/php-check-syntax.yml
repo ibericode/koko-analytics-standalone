@@ -1,0 +1,21 @@
+name: Check PHP Syntax
+on: push
+jobs: 
+  build:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php-versions: ['highest']
+    steps: 
+      # Install PHP interpreter
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      # Checkout source repository
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      # Check syntax of every PHP source file using PHP interpreter
+      - run: composer run check-syntax
