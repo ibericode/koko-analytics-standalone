@@ -58,7 +58,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "check-syntax": "find . -name '*.php' -not -path './vendor/*' -not -path './var/cache/*' -print0 | xargs -0 -n1 php -define error_reporting=-1 -l",
+        "check-syntax": "find . -name '*.php' -not -path './vendor/*' -not -path './var/cache/*' -print0 | xargs -0 -n1 php --define error_reporting=-1 -l",
         "check-codestyle": "phpcs -sn"
     },
     "conflict": {
