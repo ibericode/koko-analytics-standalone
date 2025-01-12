@@ -9,7 +9,8 @@ class User
     private string $role = 'viewer';
     private string $password = '';
 
-    public function getId(): ?int {
+    public function getId(): ?int
+    {
         return $this->id;
     }
 

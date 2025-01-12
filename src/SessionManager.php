@@ -9,8 +9,8 @@ namespace App;
  *
  * This ensures that a visitor that did not visit any new paths within this 6 hour window is treated as a new visitor and/or unique pageview.
  */
-class SessionManager {
-
+class SessionManager
+{
     public function generateId(string $user_agent, string $ip_address): string
     {
         $seed = $this->getSeed();
@@ -25,7 +25,9 @@ class SessionManager {
         $files = \glob("{$session_directory}/*");
         $cutoff_time =  \time() - (6 * 3600);
         foreach ($files as $filename) {
-            if ($filename === "seed.txt") continue;
+            if ($filename === "seed.txt") {
+                continue;
+            }
 
             if (\filemtime($filename) < $cutoff_time) {
                 \unlink($filename);
@@ -78,7 +80,7 @@ class SessionManager {
             return [];
         }
 
-        if (\filemtime($session_filename) < \time() - 6*3600) {
+        if (\filemtime($session_filename) < \time() - 6 * 3600) {
             \unlink($session_filename);
             return [];
         }

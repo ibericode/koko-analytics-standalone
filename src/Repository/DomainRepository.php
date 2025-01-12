@@ -5,10 +5,12 @@ namespace App\Repository;
 use App\Database;
 use App\Entity\Domain;
 
-class DomainRepository {
+class DomainRepository
+{
     public function __construct(
         protected Database $db
-    ) {}
+    ) {
+    }
 
     /**
      * @return Domain[]

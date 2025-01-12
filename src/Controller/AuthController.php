@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class AuthController extends Controller {
-
+class AuthController extends Controller
+{
     #[Route('/login', name: "app_login")]
     public function login(Request $request, UserRepository $userRepository): Response
     {
@@ -37,11 +37,10 @@ class AuthController extends Controller {
     }
 
     #[Route('/logout', name: 'app_logout')]
-    public function logout(Request $request) : Response
+    public function logout(Request $request): Response
     {
         $session = $request->getSession();
         $session->invalidate();
         return new RedirectResponse('/login');
     }
-
 }

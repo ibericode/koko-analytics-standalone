@@ -62,5 +62,4 @@ class CollectControllerTest extends WebTestCase
         $client->request('GET', $url);
         self::assertResponseStatusCodeSame(400);
     }
-
 }

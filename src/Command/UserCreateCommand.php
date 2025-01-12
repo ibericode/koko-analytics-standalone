@@ -13,7 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:user:create', description: 'Registers a new user.')]
 class UserCreateCommand extends Command
 {
-    public function __construct(protected UserRepository $userRepository) {
+    public function __construct(protected UserRepository $userRepository)
+    {
         parent::__construct();
     }
 
@@ -30,7 +31,7 @@ class UserCreateCommand extends Command
         $email = $input->getArgument('email');
         $raw_password = $input->getArgument('password');
         $password = password_hash($raw_password, PASSWORD_DEFAULT);
-        $user = new User;
+        $user = new User();
         $user->setEmail($email);
         $user->setPassword($password);
         $this->userRepository->save($user);

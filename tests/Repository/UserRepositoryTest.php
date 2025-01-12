@@ -6,7 +6,8 @@ use App\Security\User;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class UserRepositoryTest extends KernelTestCase {
+class UserRepositoryTest extends KernelTestCase
+{
     /**
      *  @covers UserRepository::getByName
      *  @covers DomainRepository::save
@@ -20,7 +21,7 @@ class UserRepositoryTest extends KernelTestCase {
         $repo->reset();
         self::assertEquals(null, $repo->getByEmail('test@kokoanalytics.com'));
 
-        $user = new User;
+        $user = new User();
         $user->setEmail('test@kokoanalytics.com');
         $user->setPassword('');
         $repo->save($user);

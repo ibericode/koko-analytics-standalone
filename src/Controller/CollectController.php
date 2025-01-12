@@ -70,8 +70,9 @@ class CollectController
         return new Response('', 200, $headers);
     }
 
-    private function determineUniqueness(Request $request, string $path): array {
-        $session_manager = new SessionManager;
+    private function determineUniqueness(Request $request, string $path): array
+    {
+        $session_manager = new SessionManager();
         $user_agent = $request->headers->get('User-Agent', '');
         $ip_address = $request->getClientIp();
 
@@ -86,5 +87,4 @@ class CollectController
 
         return [$new_visitor, $unique_pageview];
     }
-
 }

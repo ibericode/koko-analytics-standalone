@@ -40,7 +40,7 @@ class Chart
         $inner_height = $height - $padding_top - $padding_bottom;
         $height_modifier = $y_max_nice > 0 ? $inner_height / $y_max_nice : 1;
         $date_format =  'Y-m-d';
-        $empty = new SiteStats;
+        $empty = new SiteStats();
 
         require \dirname(__DIR__, 1) . '/templates/_chart.html.php';
     }
@@ -55,7 +55,6 @@ class Chart
             $this->data[$tick->date->format('Y-m-d')] = $tick;
             $this->y_max = \max($this->y_max, $tick->pageviews);
         }
-
     }
 
     private function getMagnitude(): int

@@ -11,7 +11,6 @@ use App\Repository\UserRepository;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use App\Security\User;
-
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -74,7 +73,7 @@ class DatabaseSeedCommand extends Command
 
         // populate site stats
         while ($date_cur < $date_now) {
-            $s = new SiteStats;
+            $s = new SiteStats();
             $s->visitors = random_int(10, 100);
             $s->pageviews = $s->visitors + random_int(10, 100);
             $s->date = $date_cur;
@@ -102,7 +101,7 @@ class DatabaseSeedCommand extends Command
 
         while ($date_cur < $date_now) {
             foreach ($page_urls as $url) {
-                $s = new PageStats;
+                $s = new PageStats();
                 $s->url = $url;
                 $s->date = $date_cur;
                 $s->visitors = random_int(5, 50);
@@ -133,8 +132,8 @@ class DatabaseSeedCommand extends Command
 
         $date_cur = $date_start;
         while ($date_cur < $date_now) {
-            foreach ($referrer_urls as $url ) {
-                $s = new ReferrerStats;
+            foreach ($referrer_urls as $url) {
+                $s = new ReferrerStats();
                 $s->url = $url;
                 $s->date = $date_cur;
                 $s->visitors = random_int(5, 50);

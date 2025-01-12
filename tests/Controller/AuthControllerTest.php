@@ -26,13 +26,13 @@ class AuthControllerTest extends WebTestCase
             '_username' => 'test@kokoanalytics.com',
             '_password' => '',
         ]);
-       self::assertResponseIsSuccessful();
-       self::assertSelectorExists('.error');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('.error');
 
        // create test user for logging in
         $repo = self::getContainer()->get(UserRepository::class);
         $repo->reset();
-        $user = new User;
+        $user = new User();
         $user->setEmail('test@kokoanalytics.com');
         $user->setPassword(\password_hash('password', PASSWORD_DEFAULT));
         $repo->save($user);
@@ -42,10 +42,10 @@ class AuthControllerTest extends WebTestCase
             '_username' => 'test@kokoanalytics.com',
             '_password' => 'password',
         ]);
-       $client->followRedirects(true);
-       self::assertResponseRedirects();
+        $client->followRedirects(true);
+        self::assertResponseRedirects();
 
-       $repo->reset();
+        $repo->reset();
     }
 
     public function testLogout(): void

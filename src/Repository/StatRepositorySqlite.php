@@ -5,8 +5,8 @@ namespace App\Repository;
 use App\Entity\Domain;
 use App\Entity\SiteStats;
 
-class StatRepositorySqlite extends StatRepository {
-
+class StatRepositorySqlite extends StatRepository
+{
     public function createTables(Domain $domain): void
     {
         $id = $domain->getId();
@@ -71,10 +71,14 @@ class StatRepositorySqlite extends StatRepository {
 
     public function upsertManyPageStats(Domain $domain, array $stats): void
     {
-        if (empty($stats)) return;
+        if (empty($stats)) {
+            return;
+        }
 
         // insert all page urls
-        $urls = \array_map(function($s) { return $s->url; }, $stats);
+        $urls = \array_map(function ($s) {
+            return $s->url;
+        }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);
@@ -103,10 +107,14 @@ class StatRepositorySqlite extends StatRepository {
 
     public function upsertManyReferrerStats(Domain $domain, array $stats): void
     {
-        if (empty($stats)) return;
+        if (empty($stats)) {
+            return;
+        }
 
         // insert all page urls
-        $urls = \array_map(function($s) { return $s->url; }, $stats);
+        $urls = \array_map(function ($s) {
+            return $s->url;
+        }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES {$placeholders}";
 

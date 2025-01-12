@@ -10,7 +10,9 @@ use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 class Gate
 {
-    public function __construct(protected UserRepository $userRepository) {}
+    public function __construct(protected UserRepository $userRepository)
+    {
+    }
 
     #[AsEventListener]
     public function onKernelRequest(RequestEvent $event): void

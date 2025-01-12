@@ -81,7 +81,8 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function getDatesFromRange(string $range): array {
+    private function getDatesFromRange(string $range): array
+    {
         $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         // TODO: Make it configurable which day is start of week
@@ -129,11 +130,11 @@ class DashboardController extends Controller
                     $now->setDate($now->format('Y') - 1, 1, 1),
                     $now->setDate($now->format('Y') - 1, 12, 31),
                 ];
-
         }
     }
 
-    private function getDateRanges(): array {
+    private function getDateRanges(): array
+    {
         return [
             'today' => 'Today',
             'yesterday' => 'Yesterday',

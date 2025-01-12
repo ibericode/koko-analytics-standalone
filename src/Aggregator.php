@@ -10,8 +10,8 @@ use App\Repository\StatRepository;
 use DateTimeImmutable;
 use Exception;
 
-class Aggregator {
-
+class Aggregator
+{
     protected SiteStats $site_stats;
 
     /** @var PageStats[] $page_stats */
@@ -43,13 +43,17 @@ class Aggregator {
         // rename file to something temporary
         $tmp_filename = $filename . '-' . \time();
         $renamed = \rename($filename, $tmp_filename);
-        if (!$renamed) throw new Exception("Error renaming buffer file");
+        if (!$renamed) {
+            throw new Exception("Error renaming buffer file");
+        }
 
         // put empty file into place
         \touch($filename);
 
         $fh = \fopen($tmp_filename, 'r');
-        if (!$fh) throw new Exception("Error opening buffer file for reading");
+        if (!$fh) {
+            throw new Exception("Error opening buffer file for reading");
+        }
 
         // read file line by line
         while (($line = \fgets($fh, 1024)) !== false) {
@@ -86,7 +90,7 @@ class Aggregator {
 
         // increment page stats
         if (!isset($this->page_stats[$path])) {
-            $this->page_stats[$path] = new PageStats;
+            $this->page_stats[$path] = new PageStats();
             $this->page_stats[$path]->date = $this->site_stats->date;
             $this->page_stats[$path]->url = $path;
         }
@@ -96,7 +100,7 @@ class Aggregator {
         // increment referrer stats
         if ($referrer_url !== '') {
             if (!isset($this->referrer_stats[$referrer_url])) {
-                $this->referrer_stats[$referrer_url] = new ReferrerStats;
+                $this->referrer_stats[$referrer_url] = new ReferrerStats();
                 $this->referrer_stats[$referrer_url]->url = $referrer_url;
                 $this->referrer_stats[$referrer_url]->date = $this->site_stats->date;
             }
@@ -108,7 +112,9 @@ class Aggregator {
     private function commit(): void
     {
         // return early if no new data came in
-        if ($this->site_stats->pageviews === 0) return;
+        if ($this->site_stats->pageviews === 0) {
+            return;
+        }
 
         $this->statRepository->upsertSitestats($this->domain, $this->site_stats);
         $this->statRepository->upsertManyPageStats($this->domain, \array_values($this->page_stats));
@@ -116,7 +122,7 @@ class Aggregator {
         $this->statRepository->insertRealtimePageviewsCount($this->domain, $this->site_stats->pageviews);
         $this->reset();
 
-        (new SessionManager)->purge();
+        (new SessionManager())->purge();
     }
 
     /**
@@ -125,7 +131,7 @@ class Aggregator {
      */
     private function reset(): void
     {
-        $this->site_stats = new SiteStats;
+        $this->site_stats = new SiteStats();
         $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $this->page_stats = [];
         $this->referrer_stats = [];
@@ -133,7 +139,9 @@ class Aggregator {
 
     private function isReferrerUrlOnBlocklist(string $url): bool
     {
-        if ($url === '') return false;
+        if ($url === '') {
+            return false;
+        }
 
         static $blocklist;
         if ($blocklist === null) {

@@ -5,10 +5,12 @@ namespace App\Repository;
 use App\Database;
 use App\Security\User;
 
-class UserRepository {
+class UserRepository
+{
     public function __construct(
         protected Database $db
-    ) {}
+    ) {
+    }
 
     public function getByEmail(string $email): ?User
     {
@@ -30,5 +32,4 @@ class UserRepository {
     {
         $this->db->exec("DELETE FROM koko_analytics_users");
     }
-
 }

@@ -2,7 +2,8 @@
 
 namespace App\Entity;
 
-class Domain {
+class Domain
+{
     protected ?int $id = null;
     protected string $name = '';
 

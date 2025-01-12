@@ -15,7 +15,7 @@ class RotateSeedCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $sessionManager = new SessionManager;
+        $sessionManager = new SessionManager();
         $sessionManager->rotateSeed();
         $output->writeln("Written new seed to {$sessionManager->getSeedFilename()}.");
         return Command::SUCCESS;

@@ -3,7 +3,6 @@
 namespace App;
 
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
-
 use PDO;
 
 class Database
@@ -18,12 +17,12 @@ class Database
         private string $dsn,
         private ?string $username = null,
         private ?string $password = null
-    )
-    {
+    ) {
         $this->driverName = \substr($dsn, 0, \strpos($dsn, ':'));
     }
 
-    public function getConnection(): PDO {
+    public function getConnection(): PDO
+    {
         if (!$this->conn) {
             $this->conn = new \PDO($this->makeDatabasePathAbsolute($this->dsn), $this->username, $this->password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -75,4 +74,3 @@ class Database
         return $this->driverName;
     }
 }
-

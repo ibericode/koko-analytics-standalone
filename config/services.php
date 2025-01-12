@@ -6,12 +6,11 @@ use App\Database;
 use App\Repository\StatRepository;
 use App\Repository\StatRepositoryMysql;
 use App\Repository\StatRepositorySqlite;
-
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
-return function(ContainerConfigurator $container): void {
+return function (ContainerConfigurator $container): void {
     // default configuration for services in *this* file
     $services = $container->services()
         ->defaults()
@@ -39,5 +38,4 @@ return function(ContainerConfigurator $container): void {
     // } else {
     //     $services->alias(StatRepository::class, StatRepositoryMysql::class);
     // }
-
 };

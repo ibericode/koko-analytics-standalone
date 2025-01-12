@@ -6,7 +6,8 @@ use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class DomainRepositoryTest extends KernelTestCase {
+class DomainRepositoryTest extends KernelTestCase
+{
     /**
      *  @covers DomainRepository::getAll
      *  @covers DomainRepository::getByName

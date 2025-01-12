@@ -9,12 +9,15 @@ use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
 use PDOException;
 
-abstract class StatRepository {
+abstract class StatRepository
+{
     public function __construct(
         protected Database $db
-    ) {}
+    ) {
+    }
 
-    public static function create(Database $db): static {
+    public static function create(Database $db): static
+    {
         if ($db->getDriverName() === Database::DRIVER_SQLITE) {
             return new StatRepositorySqlite($db);
         } else {
@@ -109,7 +112,7 @@ abstract class StatRepository {
         return \array_map([ReferrerStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
-    public function getRealtimeCount(Domain $domain, ): int
+    public function getRealtimeCount(Domain $domain,): int
     {
         $stmt = $this->db->prepare("
             SELECT SUM(count)

@@ -21,8 +21,11 @@ jobs:
       - name: Check escaping in templates
         run: ./bin/check_templates
 
-      # Lint every PHP source file using PHP interpreter
-      - run: composer run lint
+      # Check syntax of every PHP source file using PHP interpreter
+      - run: composer run check-syntax
+
+      # Check codestyle
+      - run: composer run check-codestyle
 
       # Install project depencencies incl. development dependencies
       - run: composer install --no-progress

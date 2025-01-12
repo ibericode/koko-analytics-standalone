@@ -7,9 +7,10 @@ use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
 
-class StatRepositoryMysql extends StatRepository {
-
-    public function createTables(Domain $domain): void {
+class StatRepositoryMysql extends StatRepository
+{
+    public function createTables(Domain $domain): void
+    {
         $id = $domain->getId();
         $this->db->exec(
             "CREATE TABLE IF NOT EXISTS koko_analytics_site_stats_{$id} (
@@ -71,10 +72,14 @@ class StatRepositoryMysql extends StatRepository {
 
     public function upsertManyPageStats(Domain $domain, array $stats): void
     {
-        if (empty($stats)) return;
+        if (empty($stats)) {
+            return;
+        }
 
         // insert all page urls
-        $urls = \array_map(function($s) { return $s->url; }, $stats);
+        $urls = \array_map(function ($s) {
+            return $s->url;
+        }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);
@@ -102,10 +107,14 @@ class StatRepositoryMysql extends StatRepository {
 
     public function upsertManyReferrerStats(Domain $domain, array $stats): void
     {
-        if (empty($stats)) return;
+        if (empty($stats)) {
+            return;
+        }
 
         // insert all page urls
-        $urls = \array_map(function($s) { return $s->url; }, $stats);
+        $urls = \array_map(function ($s) {
+            return $s->url;
+        }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $query = "INSERT IGNORE INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);

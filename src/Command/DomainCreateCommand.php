@@ -18,8 +18,7 @@ class DomainCreateCommand extends Command
     public function __construct(
         protected DomainRepository $domainRepository,
         protected StatRepository $statRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -43,11 +42,10 @@ class DomainCreateCommand extends Command
             return Command::FAILURE;
         }
 
-        $domain = new Domain;
+        $domain = new Domain();
         $domain->setName($name);
         $this->domainRepository->insert($domain);
         $this->statRepository->createTables($domain);
         return Command::SUCCESS;
     }
-
 }

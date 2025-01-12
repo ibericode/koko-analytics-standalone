@@ -12,7 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'app:database:migrate', description: 'Upgrades the database schema to the latest code version')]
 class DatabaseMigrateCommand extends Command
 {
-    public function __construct(protected Database $db) {
+    public function __construct(protected Database $db)
+    {
         parent::__construct();
     }
 
@@ -28,9 +29,9 @@ class DatabaseMigrateCommand extends Command
                       version INT UNSIGNED NOT NULL PRIMARY KEY,
                       timestamp DATETIME NOT NULL
                 )"
-           );
+            );
 
-           $version = 0;
+            $version = 0;
         }
 
         $stmt = $this->db->prepare("INSERT INTO koko_analytics_migrations (version, timestamp) VALUES (:version, :timestamp);");

@@ -10,8 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-abstract class Controller extends AbstractController {
-    protected function render(string $view, array $parameters = [], ?Response $response = null): Response {
+abstract class Controller extends AbstractController
+{
+    protected function render(string $view, array $parameters = [], ?Response $response = null): Response
+    {
 
         \extract($parameters);
         require_once \dirname(__DIR__) . '/template-functions.php';

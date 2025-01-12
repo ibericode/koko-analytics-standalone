@@ -32,7 +32,8 @@ class SmokeTest extends WebTestCase
     /**
      * @dataProvider provideDashboardUrls
      */
-    public function testUnauthenticatedUserRedirects($url) {
+    public function testUnauthenticatedUserRedirects($url)
+    {
         $client = self::createClient();
         $client->request('GET', $url);
         $this->assertResponseRedirects();
@@ -85,6 +86,4 @@ class SmokeTest extends WebTestCase
         $this->assertSelectorExists('.datepicker');
         $this->assertSelectorExists('.table');
     }
-
-
 }
