@@ -20,12 +20,20 @@ class UserRepository
         return $obj ?: null;
     }
 
-    public function save(User &$user): void
+    public function save(User $user): void
     {
         $this->db
             ->prepare("INSERT INTO koko_analytics_users (email, password) VALUES (?, ?)")
             ->execute([ $user->getEmail(), $user->getPassword() ]);
         $user->setId($this->db->lastInsertId());
+    }
+
+    public function delete(User $user): void
+    {
+        $this->db
+            ->prepare("DELETE FROM koko_analytics_users WHERE id = ?")
+            ->execute([$user->getId()]);
+        $user->setId(null);
     }
 
     public function reset(): void
