@@ -38,6 +38,14 @@ class DomainRepository
         $domain->setId($this->db->lastInsertId());
     }
 
+    public function delete(Domain $domain): void
+    {
+        $this->db->prepare(
+            "DELETE FROM koko_analytics_domains WHERE id = ?"
+        )->execute([$domain->getId()]);
+        $domain->setId(null);
+    }
+
     public function reset(): void
     {
         $this->db->exec("DELETE FROM koko_analytics_domains");

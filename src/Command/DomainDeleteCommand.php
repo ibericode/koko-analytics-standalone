@@ -12,8 +12,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand(name: 'app:domain:create', description: 'Registers a new domain to track analytics for')]
-class DomainCreateCommand extends Command
+#[AsCommand(name: 'app:domain:delete', description: 'Deletes a domain')]
+class DomainDeleteCommand extends Command
 {
     public function __construct(
         protected DomainRepository $domainRepository,
@@ -31,21 +31,14 @@ class DomainCreateCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
-
-        if (strlen($name) < 3 || strlen($name) > 255) {
-            $output->writeln("Name must be between 3 and 255 characters in length.");
+        $domain = $this->domainRepository->getByName($name);
+        if (!$domain) {
+            $output->writeln("No domain with name {$name}");
             return Command::FAILURE;
         }
 
-        if (preg_match('/[^a-zA-Z0-9\.\-]/', $name)) {
-            $output->writeln("Name of domain can only contain alphanumeric characters, hyphens and dots.");
-            return Command::FAILURE;
-        }
-
-        $domain = new Domain();
-        $domain->setName($name);
-        $this->domainRepository->insert($domain);
-        $this->statRepository->createTables($domain);
+        $this->statRepository->reset($domain);
+        $this->domainRepository->delete($domain);
         return Command::SUCCESS;
     }
 }
