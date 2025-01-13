@@ -1,7 +1,7 @@
 # Koko Analytics
 
 > [!NOTE]
-> This project is still in early development and probably not suitable for use in production.
+> This project is still in development. While functional, we can't guarantee not introducing any breaking chances until we release an official version 1.
 
 Koko Analytics is a PHP application that you can self-host to provide you with simple, open-source, lightweight (< 1 KB) and privacy-friendly website analytics.
 
