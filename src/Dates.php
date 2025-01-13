@@ -4,6 +4,7 @@ namespace App;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use InvalidArgumentException;
 
 class Dates
 {
@@ -13,7 +14,11 @@ class Dates
             return $dt;
         }
 
-        return $dt->modify("last sunday, +{$week_starts_on} days");
+        $dt = $dt->modify("last sunday, +{$week_starts_on} days");
+        if ($dt === false) {
+            throw new InvalidArgumentException("Could not set start of week on DateTime object");
+        }
+        return $dt;
     }
 
     public function getDateRange(string $range, \DateTimeImmutable $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC')), int $start_of_week = 0): array
