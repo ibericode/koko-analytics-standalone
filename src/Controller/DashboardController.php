@@ -7,6 +7,7 @@ use App\Database;
 use App\Chart;
 use App\Datastore\MysqlStore;
 use App\Datastore\StoreInterface;
+use App\Dates;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
@@ -55,7 +56,7 @@ class DashboardController extends Controller
 
         $date_range = $request->query->get('date-range', 'custom');
         if ($date_range !== 'custom') {
-            [$start, $end] = $this->getDatesFromRange($date_range);
+            [$start, $end] = (new Dates())->getDateRange($date_range);
         }
 
         $prev = $start->sub($start->diff($end));
@@ -79,58 +80,6 @@ class DashboardController extends Controller
             'date_range' => $date_range,
             'date_ranges' => $this->getDateRanges(),
         ]);
-    }
-
-    private function getDatesFromRange(string $range): array
-    {
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-        // TODO: Make it configurable which day is start of week
-        $start_of_week = 0;
-
-        switch ($range) {
-            case 'today':
-                return [
-                    $now->modify('today midnight'),
-                    $now->modify('tomorrow midnight, -1 second')
-                ];
-            case 'yesterday':
-                return [
-                    $now->modify('yesterday midnight'),
-                    $now->modify('today midnight, -1 second')
-                ];
-            case 'this_week':
-                return [
-                    ($now->modify('sunday, midnight'))->modify("+$start_of_week days"),
-                    ($now->modify('next sunday, midnight, -1 second'))->modify("+$start_of_week days")
-                ];
-            case 'last_week':
-                return [
-                    ($now->modify('sunday, midnight, -7 days'))->modify("+$start_of_week days"),
-                    ($now->modify('sunday, midnight, -1 second'))->modify("+$start_of_week days"),
-                ];
-            default:
-            case 'this_month':
-                return [
-                    $now->modify('first day of this month'),
-                    $now->modify('last day of this month')
-                ];
-            case 'last_month':
-                return [
-                    $now->modify('first day of last month, midnight'),
-                    $now->modify('last day of last month')
-                ];
-            case 'this_year':
-                return [
-                    $now->setDate($now->format('Y'), 1, 1),
-                    $now->setDate($now->format('Y'), 12, 31),
-                ];
-            case 'last_year':
-                return [
-                    $now->setDate($now->format('Y') - 1, 1, 1),
-                    $now->setDate($now->format('Y') - 1, 12, 31),
-                ];
-        }
     }
 
     private function getDateRanges(): array
