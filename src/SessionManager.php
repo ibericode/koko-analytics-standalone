@@ -36,7 +36,7 @@ class SessionManager
 
         // rotate seed for hashing every 24 hours
         $seed_filename = $this->getSeedFilename();
-        if (\is_file($seed_filename) || \filemtime($seed_filename) < (\time() - (24 * 3600))) {
+        if (!\is_file($seed_filename) || \filemtime($seed_filename) < (\time() - (24 * 3600))) {
             $this->rotateSeed();
         }
     }
