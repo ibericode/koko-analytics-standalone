@@ -30,6 +30,18 @@ class DomainRepository
         return $obj ?: null;
     }
 
+    public function getSettings(Domain $domain): array
+    {
+        $stmt = $this->db->prepare("SELECT name, value FROM koko_analytics_settings WHERE domain_id = ?");
+        $stmt->execute([$domain->getId()]);
+        $defaults = [
+            'timezone' => 'UTC',
+            'purge_treshold' => 10 * 365, // 10 years
+            'excluded_ip_addresses' => "127.0.0.1\n",
+        ];
+        return array_merge($defaults, $stmt->fetchAll(\PDO::FETCH_UNIQUE));
+    }
+
     public function insert(Domain $domain): void
     {
         $this->db->prepare(

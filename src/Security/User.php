@@ -4,9 +4,12 @@ namespace App\Security;
 
 class User
 {
+    const ROLE_VIEWER = 'viewer';
+    const ROLE_ADMIN = 'admin';
+
     private ?int $id = null;
     private string $email = '';
-    private string $role = 'viewer';
+    private string $role = self::ROLE_VIEWER;
     private string $password = '';
 
     public function getId(): ?int

@@ -35,17 +35,24 @@ class DashboardController extends Controller
     }
 
     #[Route('/{domain}', name: 'app_dashboard', methods: ['GET'])]
-    public function show(string $domain, Request $request, StatRepository $statsRepository, DomainRepository $domainRepository, Aggregator $aggregator): Response
-    {
+    public function show(
+        string $domain,
+        Request $request,
+        StatRepository $statsRepository,
+        DomainRepository $domainRepository,
+        Aggregator $aggregator
+    ): Response {
         $domain = $domainRepository->getByName($domain);
         if (!$domain) {
             $this->createNotFoundException();
         }
 
+        $settings = $domainRepository->getSettings($domain);
+
         // run the aggregator for this domain whenever the dashboard is loaded
         $aggregator->run($domain);
 
-        $timezone = new \DateTimeZone('UTC');
+        $timezone = new \DateTimeZone($settings['timezone']);
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);

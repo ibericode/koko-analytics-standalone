@@ -2,7 +2,7 @@
 
 use App\Database;
 
-return function(Database $db) {
+return function (Database $db) {
     $db->exec(
         "INSERT INTO koko_analytics_domains (name) VALUES ('website.com');"
     );
@@ -17,12 +17,12 @@ return function(Database $db) {
         ) ENGINE=INNODB CHARACTER SET=ascii"
     );
      $db->exec(
-        "CREATE TABLE koko_analytics_page_urls_{$id} (
+         "CREATE TABLE koko_analytics_page_urls_{$id} (
           id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           url VARCHAR(255) NOT NULL,
           UNIQUE INDEX (url)
         ) ENGINE=INNODB CHARACTER SET=ascii"
-    );
+     );
     $db->exec(
         "CREATE TABLE koko_analytics_page_stats_{$id} (
           date DATE NOT NULL,
@@ -54,5 +54,4 @@ return function(Database $db) {
             count SMALLINT UNSIGNED NOT NULL DEFAULT 0
         ) ENGINE=INNODB;"
     );
-
 };
