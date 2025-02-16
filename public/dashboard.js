@@ -55,12 +55,14 @@ document.addEventListener('mouseover', function() {
 
 
 /* CHART */
-var chart = document.querySelector('#ka-chart');
-(function() {
+var chart = document.querySelector('.ka-chart svg');
+document.addEventListener('DOMContentLoaded', function() {
   if (!chart) return;
 
   var tooltip = document.querySelector('.ka-chart--tooltip');
   var bars = chart.querySelectorAll('.bars g');
+  var arrow = document.querySelector('.ka-chart--tooltip-arrow');
+
   if (bars.length === 0) return;
 
   var barWidth;
@@ -82,14 +84,30 @@ var chart = document.querySelector('#ka-chart');
     tooltip.querySelector('.ka--pageviews').children[0].textContent = data.pageviews;
 
     // set tooltip position relative to top-left of document
+    var availWidth = document.body.clientWidth;
     tooltip.style.display = 'block';
     var scrollY = window.pageYOffset !== undefined ? window.pageYOffset : window.scrollTop
-    var scrollX = window.pageXOffset !== undefined ? window.pageXOffset : window.scrollLeft
+    var scrollX = 0; //window.pageXOffset !== undefined ? window.pageXOffset : window.scrollLeft
     var styles = e.target.parentElement.getBoundingClientRect() // <g> element
-    var left = Math.round(styles.left + scrollX - 0.5 * tooltip.clientWidth + 0.5 * barWidth) + 'px';
-    var top = Math.round(styles.top + scrollY - tooltip.clientHeight) + 'px';
-    tooltip.style.left = left;
-    tooltip.style.top = top;
+    var left = Math.round(styles.left + scrollX - 0.5 * tooltip.clientWidth + 0.5 * barWidth);
+    var top = Math.round(styles.top + scrollY - tooltip.clientHeight);
+    var offCenter = 0;
+
+    // if tooltip goes off the screen, position it a bit off center
+    if (left < 0) {
+      offCenter = -left + 0;
+    } else if (left + tooltip.clientWidth > availWidth - 0) {
+      offCenter = availWidth - (left + tooltip.clientWidth) - 0;
+    }
+
+    // shift tooltip to the right (or left)
+    left += offCenter;
+
+    // shift arrow to the left (or right)
+    arrow.style.marginLeft = offCenter === 0 ? 'auto' : ((0.5 * tooltip.clientWidth) - 6 - offCenter) + 'px';
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+
   })
 
   var yTicks = chart.querySelectorAll('.axes-y text');
@@ -100,6 +118,9 @@ var chart = document.querySelector('#ka-chart');
   }
   var tickWidth = (chart.clientWidth - leftOffset) / bars.length;
   barWidth = tickWidth - 2;
+
+  console.log(chart.clientWidth);
+  console.log(barWidth);
 
   // update width of each bar now that we know the client width
   bars[0].parentElement.style.display = 'none';
@@ -121,7 +142,7 @@ var chart = document.querySelector('#ka-chart');
   }
 
   bars[0].parentElement.style.display = '';
-})();
+});
 
 /* END CHART */
 

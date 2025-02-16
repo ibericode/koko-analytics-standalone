@@ -1,5 +1,5 @@
 <div class="ka-chart">
-    <svg width="100%" height="<?= $height; ?>" id="ka-chart">
+    <svg width="100%" height="<?= $height; ?>">
       <g class="axes-y" transform="translate(<?= $padding_left; ?>, <?= $padding_top; ?>)" text-anchor="end">
         <text x="0" y="<?= $inner_height; ?>" fill="#757575" dy="0.3em" >0</text>
         <text x="0" y="<?= $inner_height / 2; ?>" fill="#757575" dy="0.3em"><?= \number_format($y_max_nice / 2); ?></text>

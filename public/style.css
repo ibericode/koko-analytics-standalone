@@ -1,6 +1,6 @@
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 html {
-    -webkit-text-size-adjust: 100%; /* 2 */
+    -webkit-text-size-adjust: 100%;
 }
 main,
 details {
@@ -17,17 +17,17 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: inherit; /* 1 */
-  font-size: 100%; /* 1 */
-  line-height: 1.15; /* 1 */
-  margin: 0; /* 2 */
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
 }
 button,
-input { /* 1 */
+input {
   overflow: visible;
 }
 button,
-select { /* 1 */
+select {
   text-transform: none;
 }
 button,
@@ -79,7 +79,7 @@ h5 {
     line-height: 1.2;
 }
 
-/* whitespace */
+
 form > div,
 p,
 h1,
@@ -123,7 +123,7 @@ code {
     font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
 }
 
-/* datepicker */
+
 .datepicker summary {
     padding: 8px;
     background: white;
@@ -175,13 +175,10 @@ code {
 }
 
 /** Chart */
-.ka-chart {
-  overflow: visible;
-  min-height: 200px;
-}
+.ka-chart, .ka-chart svg { width: 100%; }
 .ka-chart--tooltip {
   position: absolute;
-  z-index: 9991; /* above wp admin menu */
+  z-index: 9991;
 }
 .ka-chart--tooltip-box {
   background: rgba(46, 54, 63, 0.96);
@@ -212,7 +209,7 @@ code {
   height: 0;
   margin-left: auto;
   margin-right: auto;
-  /* css trick to create a downward pointing triangle */
+
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-top: 6px solid rgba(46, 54, 63, 0.96);
@@ -229,7 +226,7 @@ code {
   fill: #195585;
 }
 
-/* boxes */
+
 .boxes {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -246,7 +243,7 @@ code {
   }
 }
 
-/* totals component */
+
 .totals {
     background: #2e363f;
     color: white;
@@ -286,7 +283,7 @@ code {
   color: #fb7272;
 }
 
-/* page & referrer tables */
+
 .table {
   table-layout: fixed;
   width: 100%;
@@ -306,19 +303,19 @@ code {
   border-color: #2e363f;
   color: white;
 }
-/* fix borders for table header */
+
 .table th:first-of-type {
   border-radius: 4px 0 0 0;
 }
 .table th:last-of-type {
   border-radius: 0 4px 0 0;
 }
-/* rank column */
+
 .table th:first-child,
 .table td:first-child {
   width: 18px;
 }
-/* page title / referrer url / event param column */
+
 .table td[colspan],
 .table td:nth-child(2),
 .table th:nth-child(2) {
@@ -329,7 +326,7 @@ code {
   white-space: nowrap;
 }
 
-/* use a nice page transition in browsers that support it */
+
 @view-transition {
  navigation: auto;
 }
