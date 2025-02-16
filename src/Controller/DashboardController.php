@@ -102,4 +102,20 @@ class DashboardController extends Controller
             'last_year' => 'Last year',
         ];
     }
+
+    #[Route('/{domain}/settings', name: 'app_dashboard_settings', methods: ['GET', 'POST'])]
+    public function settings(string $domain, Request $request, DomainRepository $domainRepository)
+    {
+        $domain = $domainRepository->getByName($domain);
+        if (!$domain) {
+            $this->createNotFoundException();
+        }
+
+        $settings = $domainRepository->getSettings($domain);
+
+        return $this->render('settings.html.php', [
+            'domain' => $domain,
+            'settings' => $settings,
+        ]);
+    }
 }
