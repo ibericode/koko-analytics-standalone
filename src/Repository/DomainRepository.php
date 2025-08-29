@@ -34,12 +34,28 @@ class DomainRepository
     {
         $stmt = $this->db->prepare("SELECT name, value FROM koko_analytics_settings WHERE domain_id = ?");
         $stmt->execute([$domain->getId()]);
-        $defaults = [
+        $settings = [
             'timezone' => 'UTC',
             'purge_treshold' => 10 * 365, // 10 years
             'excluded_ip_addresses' => "127.0.0.1\n",
         ];
-        return array_merge($defaults, $stmt->fetchAll(\PDO::FETCH_UNIQUE));
+        foreach ($stmt->fetchAll() as [$name, $value]) {
+            $settings[$name] = $value;
+        }
+        return $settings;
+    }
+
+    public function saveSettings(Domain $domain, array $settings)
+    {
+        $placeholders = rtrim(str_repeat('(?, ?, ?),', count($settings)), ',');
+        $stmt = $this->db->prepare("INSERT INTO koko_analytics_settings (domain_id, name, value) VALUES {$placeholders} ON DUPLICATE KEY UPDATE value = VALUES(value)");
+
+        $values = [];
+        foreach ($settings as $key => $value) {
+            array_push($values, $domain->getId(), $key, $value);
+        }
+
+        $stmt->execute($values);
     }
 
     public function insert(Domain $domain): void

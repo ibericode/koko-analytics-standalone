@@ -86,6 +86,7 @@ class DashboardController extends Controller
             'realtime_count' => $realtime_count,
             'date_range' => $date_range,
             'date_ranges' => $this->getDateRanges(),
+            'domain' => $domain,
         ]);
     }
 
@@ -112,6 +113,12 @@ class DashboardController extends Controller
         }
 
         $settings = $domainRepository->getSettings($domain);
+
+        if ($request->getMethod() == Request::METHOD_POST) {
+            $settings = $request->request->all('settings');
+            $domainRepository->saveSettings($domain, $settings);
+            return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->getName()]);
+        }
 
         return $this->render('settings.html.php', [
             'domain' => $domain,
