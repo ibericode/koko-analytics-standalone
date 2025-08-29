@@ -3,7 +3,7 @@
 $time = round((microtime(true) - $GLOBALS['time_app_start']) * 1000.0, 2);
 $memory = round(memory_get_peak_usage() / 1024 / 1024, 2);
 ?>
-<p style="color: #444; font-size: 14px;">
+<p class="text-muted fs-6">
     Page generated in <?= esc($time); ?> ms. Peak memory use was <?= esc($memory); ?> MB.
 </p>
 

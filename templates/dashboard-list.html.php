@@ -1,10 +1,4 @@
-<?php
-/**
- * @var \App\Entity\Domain[] $domains
- */
-
-$title = 'Dashboards - Koko Analytics';
-require __DIR__ . '/_header.html.php'; ?>
+<?php (require __DIR__ . '/_header.html.php')('Dashboards - Koko Analytics'); ?>
 
 <h1>Choose a domain</h1>
 

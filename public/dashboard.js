@@ -17,23 +17,6 @@ function setPresetToCustom() {
 dateStartInput && dateStartInput.addEventListener('change', setPresetToCustom);
 dateEndInput && dateEndInput.addEventListener('change', setPresetToCustom);
 
-// click "prev date range" or "next date range" when using arrow keys
-document.addEventListener('keydown', function (evt) {
-  if (evt.defaultPrevented) {
-    return; // Do nothing if the event was already processed
-  }
-
-  switch (evt.key) {
-  case 'ArrowLeft':
-    document.querySelector('.ka-datepicker--quicknav-prev').click();
-    break;
-  case 'ArrowRight':
-    document.querySelector('.ka-datepicker--quicknav-next').click();
-    break;
-  }
-})
-/* END DATEPICKER */
-
 
 
 /* AUTO RELOAD: every 61 seconds without mouse activity, reload the page (but only if tab is active) */
@@ -118,9 +101,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   var tickWidth = (chart.clientWidth - leftOffset) / bars.length;
   barWidth = tickWidth - 2;
-
-  console.log(chart.clientWidth);
-  console.log(barWidth);
 
   // update width of each bar now that we know the client width
   bars[0].parentElement.style.display = 'none';

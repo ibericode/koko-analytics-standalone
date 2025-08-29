@@ -1,112 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Login - Koko Analytics</title>
-        <link rel="stylesheet" href="/style.css">
-        <style>
-body, html { height: 100%; }
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signin Template · Bootstrap v5.3</title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <meta name="theme-color" content="#712cf9">
+    <style>
+html,
 body {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    height: auto;
-    min-height: 100%;
+  height: 100%;
 }
 
-.login {
-    width: 320px;
-    padding: 24px;
-    margin: 72px auto;
-    background: #fff;
-    position: relative;
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .2);
-    text-wrap: pretty;
+.form-signin {
+  max-width: 330px;
+  padding: 1rem;
 }
 
-.login h1 {
-    text-align: center;
-    margin-bottom: 24px;
-    position: absolute;
-    top: -100px;
-    width: 100%;
-    left: 0;
+.form-signin .form-floating:focus-within {
+  z-index: 2;
 }
 
-.login h1 a {
-  background-image: none, url('/icon-128x128.png');
-  background-size: 64px;
-  background-position: center top;
-  background-repeat: no-repeat;
-  color: #999;
-  height: 64px;
-  margin: 0 auto;
-  padding: 0;
-  width: auto;
-  text-indent: -9999px;
-  outline: none;
-  overflow: hidden;
-  display: block;
-  transition: none;
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
-form > div { margin-bottom: 16px; }
-form > div:last-of-type { margin-bottom: 0; }
-input {
-    width: 100%;
-    font-size: 18px;
-}
-button {
-    width: 100%;
-    padding: 8px 16px;
-}
-#nav {
-  font-size: 14px;
-  padding: 0;
-  margin: 24px auto;
-  text-align: center;
-  position: absolute;
-  left: 0;
-  bottom: -68px;
-  width: 100%;
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
-#nav a {
-    color: #50575e;
-}
-</style>
+    </style>
 </head>
-<body>
-<div class="login">
-    <h1><a href="">Powered by Koko Analytics</a></h1>
-    <?php if ($error) { ?>
-        <p class="error"><?= esc($error); ?></p>
-    <?php } ?>
 
-    <form method="post" action="">
-        <div>
-            Log into your Koko Analytics dashboard to view your website statistics.
-        </div>
-        <div>
-            <label for="email">Email</label>
-            <input type="email" id="email" name="_username" value="<?= esc($last_username); ?>" required>
-        </div>
+<body class="d-flex align-items-center py-4 bg-body-tertiary">
 
-        <div>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="_password" required>
-        </div>
+    <main class="form-signin w-100 m-auto">
+        <form method="post" action="/login">
+            <img class="mb-4" src="/icon-128x128.png" alt="" width="57" height="57">
+            <h1 class="h3 mb-3 fw-normal">Log in</h1>
+            <div class="mb-3"><?= esc($error); ?></div>
+            <div class="form-floating">
+                <input type="email" name="_username" class="form-control" id="floatingInput" placeholder="name@example.com" value="<?= esc($last_username); ?>">
+                <label for="floatingInput">Email address</label>
+            </div>
+            <div class="form-floating"> <input type="password" name="_password" class="form-control" id="floatingPassword" placeholder="Password"> <label for="floatingPassword">Password</label> </div>
+             <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+            <p class="mt-5 mb-3 text-body-secondary">&copy; <?= date('Y'); ?> &mdash; Koko Analytics</p>
+        </form>
+    </main>
+</body>
 
-        <div>
-            <button type="submit">Log in</button>
-        </div>
-    </form>
-
-    <p id="nav">
-        <a href="">Lost password?</a>
-    </p>
-</div>
-
-<?php require __DIR__ . '/_footer.html.php'; ?>
+</html>
