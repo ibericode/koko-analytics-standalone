@@ -34,6 +34,33 @@ class DashboardController extends Controller
         ]);
     }
 
+    #[Route('/create', methods: ['GET', 'POST'])]
+    public function create(Request $request, DomainRepository $domainRepository, StatRepository $statRepository): Response
+    {
+
+        if ($request->getMethod() === Request::METHOD_POST) {
+            $domain = new Domain();
+            $domain->setName($request->request->get('name', ''));
+            $domainRepository->insert($domain);
+            $statRepository->createTables($domain);
+            return $this->redirectToRoute('app_dashboard', ['domain' => $domain->getName()]);
+        }
+
+        return $this->render('dashboard-create.html.php', []);
+    }
+
+    #[Route('/{domain}/delete', methods: ['POST'])]
+    public function delete(string $domain, DomainRepository $domainRepository, StatRepository $statRepository): Response
+    {
+        $domain = $domainRepository->getByName($domain);
+        if (!$domain) {
+            $this->createNotFoundException();
+        }
+        $statRepository->reset($domain);
+        $domainRepository->delete($domain);
+        return $this->redirectToRoute('app_dashboard_list', []);
+    }
+
     #[Route('/{domain}', name: 'app_dashboard', methods: ['GET'])]
     public function show(
         string $domain,

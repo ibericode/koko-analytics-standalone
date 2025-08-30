@@ -157,7 +157,9 @@ abstract class StatRepository
     {
         $this->db->exec("DROP TABLE koko_analytics_site_stats_{$domain->getId()}");
         $this->db->exec("DROP TABLE koko_analytics_page_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE koko_analytics_page_urls_{$domain->getId()}");
         $this->db->exec("DROP TABLE koko_analytics_referrer_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE koko_analytics_referrer_urls_{$domain->getId()}");
     }
 
     // The methods below have a database specific implementation
