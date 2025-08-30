@@ -18,6 +18,7 @@
 <script src="/dashboard.js" defer></script>
 
 <?php template(__DIR__ . '/_header.html.php', [ 'title' => 'Dashboards - Koko Analytics']); ?>
+
 <div class="container py-3">
 
     <div class="d-flex justify-content-between">
