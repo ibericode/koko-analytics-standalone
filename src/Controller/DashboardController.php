@@ -76,6 +76,7 @@ class DashboardController extends Controller
             $this->createNotFoundException();
         }
 
+        $domains = $domainRepository->getAll();
         $settings = $domainRepository->getSettings($domain);
 
         // run the aggregator for this domain whenever the dashboard is loaded
@@ -116,6 +117,7 @@ class DashboardController extends Controller
             'date_range' => $date_range,
             'date_ranges' => $this->getDateRanges(),
             'domain' => $domain,
+            'domains' => $domains,
         ]);
     }
 

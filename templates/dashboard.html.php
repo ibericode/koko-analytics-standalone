@@ -20,11 +20,10 @@
 <?php $this->partial('_header.html.php', [ 'title' => "{$domain->getName()} - Koko Analytics"]); ?>
 
 <div class="container py-3">
-
-    <div class="d-flex justify-content-between">
+    <div class="d-md-flex flex-row flex-wrap justify-content-between">
     <?php /* Datepicker */ ?>
     <details class="datepicker mb-3">
-        <summary><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
+        <summary class="py-2"><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
         <div class="datepicker-dropdown mt-3" style="width: 320px;">
             <form>
                 <div class="mb-2">
@@ -53,7 +52,13 @@
         </div>
     </details>
 
-        <div>
+        <div class="mb-3 mb-md-0">
+            <select class="form-select d-inline-block me-2 w-auto" onchange="window.location = this.value;">
+            <?php foreach ($domains as $d) : ?>
+                <option value="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $d->getName() ])); ?>" <?= $domain->getName() == $d->getName() ? 'selected' : '' ?>><?= esc($d->getName()); ?></option>
+            <?php endforeach; ?>
+            </select>
+
             <a href="/<?= $domain->getName(); ?>/settings"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#000" class="bi bi-gear" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/></svg></a>
         </div>
     </div>
@@ -64,12 +69,12 @@
     $visitors_change = $totals_previous->visitors == 0 ? 0 : ($totals->visitors / $totals_previous->visitors) - 1;
     $pageviews_change = $totals_previous->pageviews == 0 ? 0 : ($totals->pageviews / $totals_previous->pageviews) - 1;
     ?>
-    <table class="mb-5  bg-dark text-white p-4 w-100 d-block rounded">
-        <tbody class="d-flex">
+    <table class="mb-4 bg-dark text-white p-4 w-100 d-block rounded">
+        <tbody class="d-flex flex-row flex-wrap gap-5">
         <tr class="me-5">
             <th class="d-block mb-2">Total visitors</th>
             <td class="d-block mb-2">
-                <div class="fs-3"><?= number_format($totals->visitors); ?></div>
+                <div class="fs-2"><?= number_format($totals->visitors); ?></div>
                 <div class="totals-change <?= $visitors_change > 0 ? 'text-success' : 'text-danger'; ?>">
                     <?= percent_format($visitors_change); ?>
                 </div>
@@ -83,7 +88,7 @@
         <tr class="me-5">
             <th class="d-block mb-2">Total pageviews</th>
             <td class="d-block mb-2">
-                <div class="fs-3"><?= number_format($totals->pageviews); ?></div>
+                <div class="fs-2"><?= number_format($totals->pageviews); ?></div>
                 <div class="totals-change <?= $pageviews_change > 0 ? 'up' : 'down'; ?>">
                     <?= percent_format($pageviews_change); ?>
                 </div>
@@ -96,7 +101,7 @@
         </tr>
         <tr>
             <th class="d-block mb-2">Realtime pageviews</th>
-            <td class="d-block mb-2 fs-3">
+            <td class="d-block mb-2 fs-2">
                 <?= number_format($realtime_count); ?>
             </td>
             <td class="d-block">
@@ -107,13 +112,13 @@
     </table>
 
     <?php /* Chart */ ?>
-    <div class="mb-3 chart">
+    <div class="mb-4 chart">
         <?php $chart->render(); ?>
     </div>
 
-    <div class="row row-cols-2 g-3">
+    <div class="row row-cols-lg-2 g-4">
         <?php /* Page stats */ ?>
-        <div class="box">
+        <div class="">
         <table class="table">
             <thead>
                 <tr>
@@ -171,6 +176,6 @@
         </div>
     </div>
 
+    <?php $this->partial('_footer.html.php', []); ?>
 
-<?php require __DIR__ . '/_footer.html.php'; ?>
 </div>
