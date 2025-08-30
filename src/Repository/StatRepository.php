@@ -155,11 +155,11 @@ abstract class StatRepository
 
     public function reset(Domain $domain): void
     {
-        $this->db->exec("DROP TABLE koko_analytics_site_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE koko_analytics_page_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE koko_analytics_page_urls_{$domain->getId()}");
-        $this->db->exec("DROP TABLE koko_analytics_referrer_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE koko_analytics_referrer_urls_{$domain->getId()}");
+        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_site_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_page_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_page_urls_{$domain->getId()}");
+        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_referrer_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_referrer_urls_{$domain->getId()}");
     }
 
     // The methods below have a database specific implementation

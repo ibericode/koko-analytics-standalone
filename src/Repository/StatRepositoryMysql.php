@@ -80,17 +80,27 @@ class StatRepositoryMysql extends StatRepository
         $urls = \array_map(function ($s) {
             return $s->url;
         }, $stats);
-        $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
-        $query = "INSERT IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
-        $this->db->prepare($query)->execute($urls);
 
-        // select and map page url to id
-        $placeholders = \rtrim(\str_repeat('?,', count($urls)), ',');
+        $page_url_ids = array_fill_keys($urls, 0);
+
+        // select all existing urls
+        $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
-        $page_url_ids = [];
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $page_url_ids[$row['url']] = $row['id'];
+        while ($row = $stmt->fetch(\PDO::FETCH_OBJ)) {
+            $page_url_ids[$row->url] = $row->id;
+        }
+
+        // insert new url's
+        $new_urls = array_keys($page_url_ids, 0);
+        if ($new_urls) {
+            $placeholders = \rtrim(\str_repeat('(?),', \count($new_urls)), ',');
+            $query = "INSERT INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
+            $this->db->prepare($query)->execute($new_urls);
+            $insert_id = $this->db->lastInsertId();
+            foreach ($new_urls as $url) {
+                $page_url_ids[$url] = $insert_id++;
+            }
         }
 
         // build final upsert query for page stats
