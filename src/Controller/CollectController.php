@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Normalizer;
 use App\SessionManager;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,7 +39,7 @@ class CollectController
         }
 
         // validate path
-        if (!preg_match('/[a-zA-Z0-9-\/]+/', $path)) {
+        if (!preg_match('/[a-zA-Z0-9-\/\#\&\?\=\%]+/', $path)) {
             return new Response('', 200, $headers);
         }
 
@@ -50,8 +51,9 @@ class CollectController
 
 
         // limit string inputs to a maximum of 255 chars
-        $path = \strtolower(\substr($path, 0, 255));
-        $referrer = \strtolower(\substr(parse_url($referrer, PHP_URL_HOST), 0, 255));
+        $normalizer = new Normalizer();
+        $path = $normalizer->path($path);
+        $referrer = $normalizer->referrer($referrer);
         $domain = \substr($domain, 0, 255);
 
         // validate domain param

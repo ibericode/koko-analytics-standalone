@@ -78,7 +78,7 @@ abstract class StatRepository
             JOIN koko_analytics_page_urls_{$domain->getId()} p ON p.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
-            ORDER BY pageviews DESC, visitors DESC
+            ORDER BY pageviews DESC, visitors DESC, s.id ASC
             LIMIT 0, 20
         ");
         $stmt->execute([
@@ -103,7 +103,7 @@ abstract class StatRepository
             JOIN koko_analytics_referrer_urls_{$domain->getId()} r ON r.id = s.id
             WHERE s.date BETWEEN :start AND :end
             GROUP BY s.id
-            ORDER BY pageviews DESC, visitors DESC
+            ORDER BY pageviews DESC, visitors DESC, s.id ASC
             LIMIT 0, 20
         ");
         $stmt->execute([
