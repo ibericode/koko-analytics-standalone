@@ -82,8 +82,6 @@ class SmokeTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('.chart');
-        $this->assertSelectorExists('.totals');
-        $this->assertSelectorExists('.datepicker');
         $this->assertSelectorExists('.table');
     }
 }

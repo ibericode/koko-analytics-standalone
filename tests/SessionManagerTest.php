@@ -12,15 +12,16 @@ class SessionManagerTest extends TestCase
         $s = new SessionManager();
         $user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
         $ip_address = '127.0.0.1';
-        $a = $s->generateId($user_agent, $ip_address);
+        $domain = 'website.com';
+        $a = $s->generateId($domain, $user_agent, $ip_address);
         self::assertNotEmpty($a);
 
-        $b = $s->generateId($user_agent, $ip_address);
+        $b = $s->generateId($domain, $user_agent, $ip_address);
         self::assertEquals($a, $b);
 
         // assert that id changes after rotating seed
         $s->rotateSeed();
-        $c = $s->generateId($user_agent, $ip_address);
+        $c = $s->generateId($domain, $user_agent, $ip_address);
         self::assertNotEquals($b, $c);
     }
 
@@ -46,7 +47,8 @@ class SessionManagerTest extends TestCase
         $s = new SessionManager();
         $user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
         $ip_address = '127.0.0.1';
-        $id = $s->generateId($user_agent, $ip_address);
+        $domain = 'website.com';
+        $id = $s->generateId($domain, $user_agent, $ip_address);
 
         self::assertEquals([], $s->getVisitedPages($id));
     }
@@ -56,7 +58,8 @@ class SessionManagerTest extends TestCase
         $s = new SessionManager();
         $user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0";
         $ip_address = '127.0.0.1';
-        $id = $s->generateId($user_agent, $ip_address);
+        $domain = 'website.com';
+        $id = $s->generateId($domain, $user_agent, $ip_address);
         $s->addVisitedPage($id, '/about');
         self::assertEquals(["/about"], $s->getVisitedPages($id));
     }

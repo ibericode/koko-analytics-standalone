@@ -34,7 +34,7 @@ class CollectController
 
         // do nothing if required param is missing
         if ($domain === null || $path === null) {
-            return new Response('Bad request', 400, $headers);
+            return new Response('', 200, $headers);
         }
 
         // validate path
@@ -63,7 +63,7 @@ class CollectController
 
         // if filename does not exist: domain is invalid
         if (!\is_file($buffer_filename)) {
-            return new Response('Bad request', 400, $headers);
+            return new Response('', 200, $headers);
         }
 
         // determine uniqueness of request to this path

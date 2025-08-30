@@ -25,7 +25,7 @@ class CollectControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->request('GET', '/collect');
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(200);
     }
 
     public function provideMissingQueryParameters(): \Generator
@@ -42,7 +42,7 @@ class CollectControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->request('GET', $url);
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(200);
     }
 
 
@@ -60,6 +60,6 @@ class CollectControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $client->request('GET', $url);
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(200);
     }
 }
