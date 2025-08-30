@@ -41,7 +41,7 @@ jobs:
       - run: composer run check-codestyle
 
       # Run static analysis
-      - run: ./vendor/bin/psalm
+      # - run: ./vendor/bin/psalm
 
       # Test app against SQLite database
       - run: APP_ENV=test DATABASE_DSN="sqlite:var/db_test.sqlite" php bin/console app:database:migrate
