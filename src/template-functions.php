@@ -1,6 +1,5 @@
 <?php
 
-
 function template(string $file, array $context)
 {
     \extract($context);
