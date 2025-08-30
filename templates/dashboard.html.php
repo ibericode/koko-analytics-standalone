@@ -17,7 +17,7 @@
 
 <script src="/dashboard.js" defer></script>
 
-<?php template(__DIR__ . '/_header.html.php', [ 'title' => "{$domain->getName()} - Koko Analytics"]); ?>
+<?php $this->partial('_header.html.php', [ 'title' => "{$domain->getName()} - Koko Analytics"]); ?>
 
 <div class="container py-3">
 

@@ -1,7 +1,4 @@
-<?php
-
-$title = 'Koko Analytics';
-require __DIR__ . '/_header.html.php'; ?>
+<?php $this->partial('_header.html.php', [ 'title' => 'Settings - Koko Analytics']); ?>
 
 <div class="container py-3">
 

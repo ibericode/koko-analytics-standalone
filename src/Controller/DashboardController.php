@@ -43,6 +43,7 @@ class DashboardController extends Controller
             $domain->setName($request->request->get('name', ''));
             $domainRepository->insert($domain);
             $statRepository->createTables($domain);
+            $this->addFlash('success', 'Domain created');
             return $this->redirectToRoute('app_dashboard', ['domain' => $domain->getName()]);
         }
 
@@ -58,6 +59,7 @@ class DashboardController extends Controller
         }
         $statRepository->reset($domain);
         $domainRepository->delete($domain);
+        $this->addFlash('danger', 'Domain deleted');
         return $this->redirectToRoute('app_dashboard_list', []);
     }
 
@@ -144,6 +146,7 @@ class DashboardController extends Controller
         if ($request->getMethod() == Request::METHOD_POST) {
             $settings = $request->request->all('settings');
             $domainRepository->saveSettings($domain, $settings);
+            $this->addFlash('info', 'Settings saved');
             return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->getName()]);
         }
 

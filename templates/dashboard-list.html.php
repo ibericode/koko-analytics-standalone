@@ -1,4 +1,4 @@
-<?php template(__DIR__ . '/_header.html.php', [ 'title' => 'Dashboards - Koko Analytics']); ?>
+<?php $this->partial('_header.html.php', [ 'title' => 'Dashboards - Koko Analytics']); ?>
 
 <div class="container py-5">
 

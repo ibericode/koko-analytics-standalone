@@ -1,4 +1,4 @@
-<?php template(__DIR__ . '/_header.html.php', [ 'title' => 'Add domain - Koko Analytics']); ?>
+<?php $this->partial('_header.html.php', [ 'title' => 'Add domain - Koko Analytics']); ?>
 
 <div class="container py-5">
 

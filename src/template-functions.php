@@ -1,11 +1,5 @@
 <?php
 
-function template(string $file, array $context)
-{
-    \extract($context);
-    require $file;
-}
-
 function esc(string $value): string
 {
     if (str_starts_with($value, 'javascript:')) {
