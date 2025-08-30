@@ -2,7 +2,7 @@
 
 <div class="container py-3">
 
-    <p class="mb-3"><a href="<?= esc("/{$domain->getName()}"); ?>">← Back to analytics dashboard</a>.</p>
+    <p class="mb-3"><a href="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>">← Back to analytics dashboard</a>.</p>
 
     <h1>Settings</h1>
     <p class="mb-4">Configuration settings for <strong><?= esc($domain->getName()); ?></strong>.</p>
@@ -46,7 +46,7 @@
     <div class="mb-5">
         <h3>Delete domain</h3>
         <p>You can completely remove this domain and all of its data using the button below.</p>
-        <form method="POST" action="<?= esc("/{$domain->getName()}/delete"); ?>" onsubmit="return confirm('Are you sure you want to completely delete this domain and all accompanying data?')">
+        <form method="POST" action="<?= esc($this->generateUrl('app_dashboard_delete', [ 'domain' => $domain->getName() ])); ?>" onsubmit="return confirm('Are you sure you want to completely delete this domain and all accompanying data?')">
             <button type="submit" class="btn btn-danger btn-sm">Delete <?= esc($domain->getName()) ?></button>
         </form>
     </div>

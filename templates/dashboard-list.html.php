@@ -14,7 +14,7 @@
     </ul>
 
     <div class="mb-4">
-        <a class="btn btn-secondary btn-sm" href="/create">+ Add new domain</a>
+        <a class="btn btn-secondary btn-sm" href="<?= esc($this->generateUrl('app_dashboard_create')) ?>">+ Add new domain</a>
     </div>
 
     <?php require __DIR__ . '/_footer.html.php'; ?>

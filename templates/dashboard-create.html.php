@@ -9,6 +9,12 @@
 
 <form method="post" action="">
 
+    <?php if ($error) { ?>
+        <div class="mb-3 text-danger">
+            <?= esc($error) ?>
+        </div>
+    <?php } ?>
+
     <div class="mb-3">
         <label class="form-label">Name</label>
         <input class="form-control" type="text" name="name" minlength="1" pattern="[a-zA-Z0-9\-\.]+" required>

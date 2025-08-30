@@ -34,23 +34,28 @@ class DashboardController extends Controller
         ]);
     }
 
-    #[Route('/create', methods: ['GET', 'POST'])]
+    #[Route('/create', name: 'app_dashboard_create', methods: ['GET', 'POST'])]
     public function create(Request $request, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
-
         if ($request->getMethod() === Request::METHOD_POST) {
             $domain = new Domain();
-            $domain->setName($request->request->get('name', ''));
+            $domain->setName(trim($request->request->get('name', '')));
+
+            // validate domain name
+            if ($domain->getName() === '' || !preg_match('/[a-zA-Z0-8\-\.]+/', $domain->getName())) {
+                return $this->render('dashboard-create.html.php', [ 'error' => 'Domain name can not be empty or contain non-alphanumeric characters.' ]);
+            }
+
             $domainRepository->insert($domain);
             $statRepository->createTables($domain);
             $this->addFlash('success', 'Domain created');
             return $this->redirectToRoute('app_dashboard', ['domain' => $domain->getName()]);
         }
 
-        return $this->render('dashboard-create.html.php', []);
+        return $this->render('dashboard-create.html.php', [ 'error' => '' ]);
     }
 
-    #[Route('/{domain}/delete', methods: ['POST'])]
+    #[Route('/{domain}/delete', name: 'app_dashboard_delete', methods: ['POST'])]
     public function delete(string $domain, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
         $domain = $domainRepository->getByName($domain);
