@@ -11,10 +11,10 @@ namespace App;
  */
 class SessionManager
 {
-    public function generateId(string $user_agent, string $ip_address): string
+    public function generateId(string $domain, string $user_agent, string $ip_address): string
     {
         $seed = $this->getSeed();
-        return \hash("xxh64", "{$seed}-{$user_agent}-{$ip_address}", false);
+        return \hash("xxh64", "{$seed}-{$domain}-{$user_agent}-{$ip_address}", false);
     }
 
     public function purge(): void

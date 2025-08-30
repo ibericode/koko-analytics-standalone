@@ -62,7 +62,7 @@ class CollectController
         }
 
         // determine uniqueness of request to this path
-        [$new_visitor, $unique_pageview ] = $this->determineUniqueness($request, $path);
+        [$new_visitor, $unique_pageview ] = $this->determineUniqueness($request, $domain, $path);
 
         // write to buffer file
         \file_put_contents($buffer_filename, \serialize([$path, $new_visitor, $unique_pageview, $referrer]) . PHP_EOL, FILE_APPEND);
@@ -70,13 +70,13 @@ class CollectController
         return new Response('', 200, $headers);
     }
 
-    private function determineUniqueness(Request $request, string $path): array
+    private function determineUniqueness(Request $request, string $domain, string $path): array
     {
         $session_manager = new SessionManager();
         $user_agent = $request->headers->get('User-Agent', '');
         $ip_address = $request->getClientIp();
 
-        $id = $session_manager->generateId($user_agent, $ip_address);
+        $id = $session_manager->generateId($domain, $user_agent, $ip_address);
         $pages_visited = $session_manager->getVisitedPages($id);
         $new_visitor = \count($pages_visited) === 0 ? 1 : 0;
         $unique_pageview = \in_array($path, $pages_visited, true) ? 0 : 1;
