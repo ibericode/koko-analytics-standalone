@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Signin Template · Bootstrap v5.3</title>
+    <title>Log in - Koko Analytics</title>
     <link rel="stylesheet" href="/bootstrap.min.css">
     <meta name="theme-color" content="#712cf9">
     <style>
