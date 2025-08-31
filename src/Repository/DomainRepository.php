@@ -73,6 +73,6 @@ class DomainRepository
 
     public function reset(): void
     {
-        $this->db->exec("TRUNCATE koko_analytics_domains");
+        $this->db->exec("DELETE FROM koko_analytics_domains");
     }
 }
