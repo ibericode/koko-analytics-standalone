@@ -82,12 +82,11 @@ class DashboardController extends Controller
         }
 
         $domains = $domainRepository->getAll();
-        $settings = $domainRepository->getSettings($domain);
 
         // run the aggregator for this domain whenever the dashboard is loaded
         $aggregator->run($domain);
 
-        $timezone = new \DateTimeZone($settings['timezone']);
+        $timezone = new \DateTimeZone($domain->getTimezone());
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
@@ -148,18 +147,21 @@ class DashboardController extends Controller
             $this->createNotFoundException();
         }
 
-        $settings = $domainRepository->getSettings($domain);
 
         if ($request->getMethod() == Request::METHOD_POST) {
-            $settings = $request->request->all('settings');
-            $domainRepository->saveSettings($domain, $settings);
+            $posted = $request->request->all('domain');
+            $domain->setName(trim($posted['name'] ?? $domain->getName()));
+            $domain->setPurgeTreshold((int) $posted['purge_treshold'] ?? $domain->getPurgeTreshold());
+            $domain->setTimezone(trim($posted['timezone'] ?? $domain->getTimezone()));
+            $domain->setExcludedIpAddresses(explode("\n", $posted['excluded_ip_addresses']) ?? $domain->getExcludedIpAddresses());
+            $domainRepository->update($domain);
+
             $this->addFlash('info', 'Settings saved');
             return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->getName()]);
         }
 
         return $this->render('settings.html.php', [
             'domain' => $domain,
-            'settings' => $settings,
         ]);
     }
 }

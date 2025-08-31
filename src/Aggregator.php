@@ -6,6 +6,7 @@ use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
 use App\Entity\SiteStats;
+use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use DateTimeImmutable;
 use Exception;
@@ -19,20 +20,18 @@ class Aggregator
 
     /** @var ReferrerStats[] $referrer_stats */
     protected array $referrer_stats = [];
-    protected Domain $domain;
 
     public function __construct(
         protected Database $db,
         protected StatRepository $statRepository,
     ) {
-        $this->reset();
     }
 
     public function run(Domain $domain): void
     {
-        $this->domain = $domain;
+        $this->reset($domain);
 
-        $filename = \dirname(__DIR__) . "/var/buffer-{$this->domain->getName()}";
+        $filename = \dirname(__DIR__) . "/var/buffer-{$domain->getName()}";
         if (!\is_file($filename)) {
             // buffer file for this domain does not exist, meaning no new data since last aggregation
             // we still create the file, because we use this to validate domain on /collect requests
@@ -72,7 +71,7 @@ class Aggregator
         \fclose($fh);
         \unlink($tmp_filename);
 
-        $this->commit();
+        $this->commit($domain);
     }
 
     private function addData(array $data): void
@@ -109,30 +108,31 @@ class Aggregator
         }
     }
 
-    private function commit(): void
+    private function commit(Domain $domain): void
     {
         // return early if no new data came in
         if ($this->site_stats->pageviews === 0) {
             return;
         }
 
-        $this->statRepository->upsertSitestats($this->domain, $this->site_stats);
-        $this->statRepository->upsertManyPageStats($this->domain, \array_values($this->page_stats));
-        $this->statRepository->upsertManyReferrerStats($this->domain, \array_values($this->referrer_stats));
-        $this->statRepository->insertRealtimePageviewsCount($this->domain, $this->site_stats->pageviews);
-        $this->reset();
+        $this->statRepository->upsertSitestats($domain, $this->site_stats);
+        $this->statRepository->upsertManyPageStats($domain, \array_values($this->page_stats));
+        $this->statRepository->upsertManyReferrerStats($domain, \array_values($this->referrer_stats));
+        $this->statRepository->insertRealtimePageviewsCount($domain, $this->site_stats->pageviews);
 
+        // clean-up stale session files
         (new SessionManager())->purge();
+
+        // TODO: purge data older than treshold?
     }
 
     /**
      * Resets the object properties to their initial state.
-     * This protects against calling run() twice on the same class instance, committing data twice.
      */
-    private function reset(): void
+    private function reset(Domain $domain): void
     {
         $this->site_stats = new SiteStats();
-        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone($domain->getTimezone()));
         $this->page_stats = [];
         $this->referrer_stats = [];
     }

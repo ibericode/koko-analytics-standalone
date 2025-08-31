@@ -53,6 +53,15 @@ First, read through [deploying a Symfony application](https://symfony.com/doc/cu
 1. Configure your webserver to point all requests to `public/index.php`
 1. Run `php bin/console app:user:create <email> <password>` to register a new user.
 
+You can then create dashboards for each domain you want to track from the user interface.
+
+#### Setting up the server cronjob
+
+The Koko Analytics application needs a single cronjob for persisting collected statistics from the temporary buffer files (optimized for writing) to permanent storage (optimized for querying):
+
+```sh
+* * * * * cd /path/to/your/application && bin/console app:aggregate
+```
 
 ### Tracking snippet
 

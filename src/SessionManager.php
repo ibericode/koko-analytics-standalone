@@ -22,6 +22,7 @@ class SessionManager
         $session_directory = $this->getStorageDirectory();
 
         // clean all session files older than 6 hours
+        // TODO: This should only remove everything older than last midnight
         $files = \glob("{$session_directory}/*");
         $cutoff_time =  \time() - (6 * 3600);
         foreach ($files as $filename) {
@@ -45,7 +46,7 @@ class SessionManager
     {
         $session_directory = \dirname(__DIR__, 1) . '/var/sessions';
         if (!\is_dir($session_directory)) {
-            \mkdir($session_directory, 0770);
+            \mkdir($session_directory, 0755);
         }
 
         return $session_directory;

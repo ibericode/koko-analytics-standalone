@@ -13,17 +13,18 @@
                 <tr>
                     <th><label class="form-label" for="select-timezone">Timezone</label></th>
                     <td>
-                        <select class="form-select" name="settings[timezone]" id="select-timezone">
+                        <select class="form-select mb-2" name="domain[timezone]" id="select-timezone">
                             <?php foreach (\DateTimeZone::listIdentifiers() as $timezone) { ?>
-                                <option <?= $settings['timezone'] === $timezone ? 'selected' : ''; ?>><?= esc($timezone); ?></option>
+                                <option <?= $domain->getTimezone() === $timezone ? 'selected' : ''; ?>><?= esc($timezone); ?></option>
                             <?php } ?>
                         </select>
+                        <div class="text-muted">Select your site's timezone.</div>
                     </td>
                 </tr>
                 <tr>
                     <th><label class="form-label" for="textarea-excluded-ips">Ignored IP addresses</label></th>
                     <td>
-                        <textarea class="form-control" name="settings[excluded_ip_addresses]" id="textarea-excluded-ips" rows="8'"><?php echo esc($settings['excluded_ip_addresses']); ?></textarea>
+                        <textarea class="form-control mb-2" name="domain[excluded_ip_addresses]" id="textarea-excluded-ips" rows="8'"><?php echo esc(join("\n", $domain->getExcludedIpAddresses())); ?></textarea>
                         <div class="text-muted">Enter a list of IP addresses to ignore. Separate addresses by a new line.</div>
                     </td>
                 </tr>
@@ -31,7 +32,7 @@
                 <tr>
                     <th><label class="form-label" for="input-retention">Retention</label></th>
                     <td>
-                        <input class="form-control" name="settings[purge_treshold]" id="input-retention" type="number" step="1" min="30" value="<?php echo esc($settings['purge_treshold']); ?>">
+                        <input class="form-control mb-2" name="domain[purge_treshold]" id="input-retention" type="number" step="1" min="30" value="<?php echo esc($domain->getPurgeTreshold()); ?>">
                         <div class="text-muted">After how many days should data be purged? </div>
                     </td>
                 </tr>

@@ -4,12 +4,24 @@ namespace App\Repository;
 
 use App\Database;
 use App\Entity\Domain;
+use LogicException;
 
 class DomainRepository
 {
     public function __construct(
         protected Database $db
     ) {
+    }
+
+    private function hydrate(array $data): Domain
+    {
+        $domain = new Domain();
+        $domain->setId($data['id']);
+        $domain->setName($data['name']);
+        $domain->setTimezone($data['timezone']);
+        $domain->setExcludedIpAddresses(array_map('trim', explode("\n", $data['excluded_ip_addresses'])));
+        $domain->setPurgeTreshold($data['purge_treshold']);
+        return $domain;
     }
 
     /**
@@ -19,6 +31,8 @@ class DomainRepository
     {
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains");
         $stmt->execute();
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map([$this, 'hydrate'], $result);
         return $stmt->fetchAll(\PDO::FETCH_CLASS, Domain::class);
     }
 
@@ -26,36 +40,19 @@ class DomainRepository
     {
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE name = ? LIMIT 1");
         $stmt->execute([$name]);
-        $obj = $stmt->fetchObject(Domain::class);
-        return $obj ?: null;
+        $obj = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $obj ? $this->hydrate($obj) : null;
     }
 
-    public function getSettings(Domain $domain): array
+    public function update(Domain $domain): void
     {
-        $stmt = $this->db->prepare("SELECT name, value FROM koko_analytics_settings WHERE domain_id = ?");
-        $stmt->execute([$domain->getId()]);
-        $settings = [
-            'timezone' => 'UTC',
-            'purge_treshold' => 10 * 365, // 10 years
-            'excluded_ip_addresses' => "127.0.0.1\n",
-        ];
-        foreach ($stmt->fetchAll() as [$name, $value]) {
-            $settings[$name] = $value;
-        }
-        return $settings;
-    }
-
-    public function saveSettings(Domain $domain, array $settings)
-    {
-        $placeholders = rtrim(str_repeat('(?, ?, ?),', count($settings)), ',');
-        $stmt = $this->db->prepare("INSERT INTO koko_analytics_settings (domain_id, name, value) VALUES {$placeholders} ON DUPLICATE KEY UPDATE value = VALUES(value)");
-
-        $values = [];
-        foreach ($settings as $key => $value) {
-            array_push($values, $domain->getId(), $key, $value);
+        if (!$domain->getId()) {
+            throw new LogicException("Updating non-existing domain");
         }
 
-        $stmt->execute($values);
+        $this->db->prepare(
+            "UPDATE koko_analytics_domains SET name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
+        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses()), $domain->getId() ]);
     }
 
     public function insert(Domain $domain): void
@@ -76,6 +73,6 @@ class DomainRepository
 
     public function reset(): void
     {
-        $this->db->exec("DELETE FROM koko_analytics_domains");
+        $this->db->exec("TRUNCATE koko_analytics_domains");
     }
 }
