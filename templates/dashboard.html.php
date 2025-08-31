@@ -119,12 +119,12 @@
     <div class="row row-cols-lg-2 g-4">
         <?php /* Page stats */ ?>
         <div class="">
-        <table class="table">
+        <table class="table table-fixed">
             <thead>
                 <tr>
                     <th class="text-muted" style="width: 3ch;">#</th>
                     <th>Page</th>
-                    <th class="text-end" style="width: 6ch; min-width: fit-content;">Visitors</th>
+                    <th class="text-end d-none d-sm-table-cell" style="width: 6ch; min-width: fit-content;">Visitors</th>
                     <th class="text-end" style="width: 6ch; min-width: fit-content;">Pageviews</th>
                 </tr>
             </thead>
@@ -132,8 +132,8 @@
                 <?php foreach ($pages as $rank => $p) { ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td><a href=""><?= esc($p->url); ?></a></td>
-                        <td class="text-end"><?= number_format($p->visitors); ?></td>
+                        <td class="text-truncate"><a href=""><?= esc($p->url); ?></a></td>
+                        <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>
                 <?php }; ?>
@@ -148,12 +148,12 @@
 
         <?php /* Referrer stats */ ?>
         <div class="box">
-        <table class="table">
+        <table class="table table-fixed">
             <thead>
                 <tr>
                     <th class="text-muted" style="width: 3ch;">#</th>
                     <th>Referrer</th>
-                    <th class="text-end" style="width: 6ch; min-width: fit-content;">Visitors</th>
+                    <th class="text-end d-none d-sm-table-cell" style="width: 6ch; min-width: fit-content;">Visitors</th>
                     <th class="text-end" style="width: 6ch; min-width: fit-content;">Pageviews</th>
                 </tr>
             </thead>
@@ -161,8 +161,8 @@
                 <?php foreach ($referrers as $rank => $p) : ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td><?= get_referrer_url_label(esc($p->url)); ?></td>
-                        <td class="text-end"><?= number_format($p->visitors); ?></td>
+                        <td class="text-truncate"><?= get_referrer_url_label(esc($p->url)); ?></td>
+                        <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>
                 <?php endforeach; ?>
