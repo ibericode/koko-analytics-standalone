@@ -121,9 +121,13 @@ class Aggregator
         $this->statRepository->insertRealtimePageviewsCount($domain, $this->site_stats->pageviews);
 
         // clean-up stale session files
-        (new SessionManager())->purge();
+        (new SessionManager())->purge($domain);
 
-        // TODO: purge data older than treshold?
+        // purge data older than specified treshold in domain settings
+        if ($domain->getPurgeTreshold() > 0) {
+            $datetime = new \DateTimeImmutable("-{$domain->getPurgeTreshold()} days", new \DateTimeZone($domain->getTimezone()));
+            $this->statRepository->deleteAllBeforeDate($domain, $datetime);
+        }
     }
 
     /**

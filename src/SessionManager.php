@@ -2,12 +2,16 @@
 
 namespace App;
 
+use App\Entity\Domain;
+
 /**
  * @package koko-analytics
  *
  * SessionCleaner removes all files from /var/sessions which are older than 6 hours.
  *
  * This ensures that a visitor that did not visit any new paths within this 6 hour window is treated as a new visitor and/or unique pageview.
+ *
+ * TODO: Each domain should get its own directory, because each domain can have a different timezone.
  */
 class SessionManager
 {
@@ -17,27 +21,28 @@ class SessionManager
         return \hash("xxh64", "{$seed}-{$domain}-{$user_agent}-{$ip_address}", false);
     }
 
-    public function purge(): void
+    public function purge(Domain $domain): void
     {
         $session_directory = $this->getStorageDirectory();
+        $midnight = (new \DateTimeImmutable('today, midnight', new \DateTimeZone($domain->getTimezone())))->getTimestamp();
 
         // clean all session files older than 6 hours
-        // TODO: This should only remove everything older than last midnight
-        $files = \glob("{$session_directory}/*");
-        $cutoff_time =  \time() - (6 * 3600);
+        $files = \scandir("{$session_directory}", SCANDIR_SORT_NONE);
+        $ignored_files = [".", "..", "seed.txt"];
         foreach ($files as $filename) {
-            if ($filename === "seed.txt") {
+            if (in_array($filename, $ignored_files)) {
                 continue;
             }
 
-            if (\filemtime($filename) < $cutoff_time) {
+            $filename = "{$session_directory}/$filename";
+            if (\filemtime($filename) < $midnight) {
                 \unlink($filename);
             }
         }
 
-        // rotate seed for hashing every 24 hours
+        // rotate seed for hashing every night at midnight
         $seed_filename = $this->getSeedFilename();
-        if (!\is_file($seed_filename) || \filemtime($seed_filename) < (\time() - (24 * 3600))) {
+        if (!\is_file($seed_filename) || \filemtime($seed_filename) < $midnight) {
             $this->rotateSeed();
         }
     }

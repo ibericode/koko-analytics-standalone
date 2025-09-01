@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\Entity\Domain;
 use App\SessionManager;
 use PHPUnit\Framework\TestCase;
 
@@ -67,7 +68,8 @@ class SessionManagerTest extends TestCase
     public function testPurge(): void
     {
         $s = new SessionManager();
-        $s->purge();
+        $d = new Domain();
+        $s->purge($d);
 
         // we're not actually testing anything here
         // but still make sure the method above gets exercised
