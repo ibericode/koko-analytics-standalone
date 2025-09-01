@@ -10,7 +10,7 @@ return function (Database $db) {
         "ALTER TABLE koko_analytics_domains ADD COLUMN purge_treshold SMALLINT UNSIGNED NOT NULL DEFAULT 1825"
     );
     $db->exec(
-        "ALTER TABLE koko_analytics_domains ADD COLUMN excluded_ip_addresses TEXT NOT NULL DEFAULT ''"
+        "ALTER TABLE koko_analytics_domains ADD COLUMN excluded_ip_addresses TEXT NOT NULL"
     );
     $db->exec(
         "DROP TABLE koko_analytics_settings"
