@@ -52,14 +52,14 @@ class DomainRepository
 
         $this->db->prepare(
             "UPDATE koko_analytics_domains SET name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
-        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses()), $domain->getId() ]);
+        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses()), $domain->getId()]);
     }
 
     public function insert(Domain $domain): void
     {
         $this->db->prepare(
-            "INSERT INTO koko_analytics_domains (name) VALUES (?)"
-        )->execute([$domain->getName()]);
+            "INSERT INTO koko_analytics_domains (name, timezone, purge_treshold, excluded_ip_addresses) VALUES (?, ?, ?, ?)"
+        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses())]);
         $domain->setId($this->db->lastInsertId());
     }
 

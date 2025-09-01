@@ -27,12 +27,22 @@ class DomainRepositoryTest extends KernelTestCase
         // assert inserting a domain sets the ID
         $domain = new Domain();
         $domain->setName('website.com');
+        $domain->setTimezone('Europe/Amsterdam');
+        $domain->setPurgeTreshold(100);
+        $domain->setExcludedIpAddresses(['127.0.0.1']);
         $repo->insert($domain);
         self::assertGreaterThan(0, $domain->getId());
 
-        // assert repository contains 1 item now and item is what we just inserted
+        // assert repository contains 1 item now
         self::assertCount(1, $repo->getAll());
-        self::assertEquals($domain, $repo->getByName('website.com'));
+
+        // asert item matches what we just inserted
+        $saved = $repo->getByName('website.com');
+        self::assertNotNull($saved);
+        self::assertEquals($domain->getName(), $saved->getName());
+        self::assertEquals($domain->getTimezone(), $saved->getTimezone());
+        self::assertEquals($domain->getPurgeTreshold(), $saved->getPurgeTreshold());
+        self::assertEquals($domain->getExcludedIpAddresses(), $saved->getExcludedIpAddresses());
 
         // assert repository is empty again after calling reset
         $repo->reset();
