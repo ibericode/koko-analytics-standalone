@@ -74,12 +74,13 @@
         <tr class="me-5">
             <th class="d-block mb-2">Total visitors</th>
             <td class="d-block mb-2">
-                <div class="fs-2"><?= number_format($totals->visitors); ?></div>
-                <div class="totals-change <?= $visitors_change > 0 ? 'text-success' : 'text-danger'; ?>">
-                    <?= percent_format($visitors_change); ?>
+                <div class="fs-2"><?= number_format($totals->visitors); ?>
+                    <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
+                        <?= percent_format($visitors_change); ?>
+                    </span>
                 </div>
             </td>
-            <td class="d-block">
+            <td class="d-block text-white-80">
                 <?= number_format(abs($totals->visitors - $totals_previous->visitors)); ?>
                 <?= $totals->visitors > $totals_previous->visitors ? 'more' : 'less'; ?>
                 than in previous period
@@ -88,12 +89,13 @@
         <tr class="me-5">
             <th class="d-block mb-2">Total pageviews</th>
             <td class="d-block mb-2">
-                <div class="fs-2"><?= number_format($totals->pageviews); ?></div>
-                <div class="totals-change <?= $pageviews_change > 0 ? 'up' : 'down'; ?>">
-                    <?= percent_format($pageviews_change); ?>
+                <div class="fs-2"><?= number_format($totals->pageviews); ?>
+                    <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
+                        <?= percent_format($pageviews_change); ?>
+                    </span>
                 </div>
             </td>
-            <td class="d-block text-light">
+            <td class="d-block text-white-80">
                 <?= number_format(abs($totals->pageviews - $totals_previous->pageviews)); ?>
                 <?= $totals->pageviews > $totals_previous->pageviews ? 'more' : 'less'; ?>
                 than in previous period
@@ -104,7 +106,7 @@
             <td class="d-block mb-2 fs-2">
                 <?= number_format($realtime_count); ?>
             </td>
-            <td class="d-block">
+            <td class="d-block text-white-80">
                 pageviews in the last hour
             </td>
         </tr>
