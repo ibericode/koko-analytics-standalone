@@ -28,7 +28,7 @@ class Gate
             '/collect'
         ];
         $request = $event->getRequest();
-        if (\in_array($request->getPathInfo(), $public_access_urls, true)) {
+        if (\in_array($request->getPathInfo(), $public_access_urls)) {
             return;
         }
 
