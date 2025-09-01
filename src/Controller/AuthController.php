@@ -14,6 +14,10 @@ class AuthController extends Controller
     #[Route('/login', name: "app_login")]
     public function login(Request $request, UserRepository $userRepository): Response
     {
+        if ($request->getSession()->get('user') instanceof User) {
+            return $this->redirectToRoute('app_dashboard_list');
+        }
+
         // check if form submitted
         if ($request->getMethod() === Request::METHOD_POST) {
             $identifier = $request->request->getString('_username', '');
@@ -24,7 +28,7 @@ class AuthController extends Controller
                 $session = $request->getSession();
                 $session->set('user', $user);
                 $session->save();
-                return new RedirectResponse('/');
+                return $this->redirectToRoute('app_dashboard_list');
             } else {
                 $error = 'Invalid credentials.';
             }

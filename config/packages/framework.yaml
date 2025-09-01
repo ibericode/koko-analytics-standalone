@@ -4,14 +4,14 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session:
-        gc_probability: 1
-        # NULL means that Symfony uses PHP default session mechanism
-        handler_id: null
+        enabled: true
+        storage_factory_id: session.storage.factory.native
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/symfony-sessions/%kernel.environment%'
+        cookie_lifetime: 604800
+        cookie_httponly: true
         cookie_secure: auto
         cookie_samesite: lax
-        cookie_lifetime: 86400
-        gc_maxlifetime: 86400
-        storage_factory_id: session.storage.factory.native
 
     #esi: true
     #fragments: true
