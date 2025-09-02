@@ -25,19 +25,35 @@ abstract class StatRepository
         }
     }
 
-    public function getTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): SiteStats
+    public function getTotalsBetween(Domain $domain, string $path, \DateTimeInterface $start, \DateTimeInterface $end): SiteStats
     {
-        $stmt = $this->db->prepare("
-            SELECT
-                SUM(visitors) AS visitors,
-                SUM(pageviews) AS pageviews
-            FROM koko_analytics_site_stats_{$domain->getId()}
-            WHERE date BETWEEN :start AND :end
-        ");
-        $stmt->execute([
-            'start' => $start->format('Y-m-d'),
-            'end' => $end->format('Y-m-d'),
-        ]);
+        if ($path) {
+            $stmt = $this->db->prepare("
+                SELECT
+                    SUM(visitors) AS visitors,
+                    SUM(pageviews) AS pageviews
+                FROM koko_analytics_page_stats_{$domain->getId()} s
+                JOIN koko_analytics_page_urls_{$domain->getId()} p ON p.id = s.id
+                WHERE date BETWEEN :start AND :end AND p.url = :path
+            ");
+            $stmt->execute([
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+                'path' => $path,
+            ]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT
+                    SUM(visitors) as visitors,
+                    SUM(pageviews) as pageviews
+                FROM koko_analytics_site_stats_{$domain->getId()}
+                WHERE date BETWEEN :start and :end
+            ");
+            $stmt->execute([
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+            ]);
+        }
 
         return SiteStats::fromArray($stmt->fetch(\PDO::FETCH_ASSOC) ?: []);
     }
@@ -45,22 +61,39 @@ abstract class StatRepository
     /**
      * @return SiteStats[]
      */
-    public function getGroupedTotalsBetween(Domain $domain, \DateTimeInterface $start, \DateTimeInterface $end): array
+    public function getGroupedTotalsBetween(Domain $domain, string $path, \DateTimeInterface $start, \DateTimeInterface $end): array
     {
-        $stmt = $this->db->prepare("
-            SELECT
-                date,
-                SUM(visitors) AS visitors,
-                SUM(pageviews) AS pageviews
-            FROM koko_analytics_site_stats_{$domain->getId()}
-            WHERE date BETWEEN :start AND :end
-            GROUP BY date;
-        ");
-        $stmt->execute([
-            'start' => $start->format('Y-m-d'),
-            'end' => $end->format('Y-m-d'),
-        ]);
-
+        if ($path) {
+            $stmt = $this->db->prepare("
+                SELECT
+                    date,
+                    SUM(visitors) AS visitors,
+                    SUM(pageviews) AS pageviews
+                FROM koko_analytics_page_stats_{$domain->getId()} s
+                JOIN koko_analytics_page_urls_{$domain->getId()} p ON p.id = s.id
+                WHERE date BETWEEN :start AND :end AND p.url = :path
+                GROUP BY date
+            ");
+            $stmt->execute([
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+                'path' => $path,
+            ]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT
+                    date,
+                    SUM(visitors) as visitors,
+                    SUM(pageviews) as pageviews
+                FROM koko_analytics_site_stats_{$domain->getId()}
+                WHERE date BETWEEN :start and :end
+                GROUP BY date;
+            ");
+            $stmt->execute([
+                'start' => $start->format('Y-m-d'),
+                'end' => $end->format('Y-m-d'),
+            ]);
+        }
         return \array_map([SiteStats::class, 'fromArray'], $stmt->fetchAll(\PDO::FETCH_ASSOC));
     }
 
@@ -71,12 +104,12 @@ abstract class StatRepository
     {
         $stmt = $this->db->prepare("
             SELECT
-                p.url AS url,
-                SUM(s.visitors) AS visitors,
-                SUM(s.pageviews) AS pageviews
+                p.url as url,
+                SUM(s.visitors) as visitors,
+                SUM(s.pageviews) as pageviews
             FROM koko_analytics_page_stats_{$domain->getId()} s
             JOIN koko_analytics_page_urls_{$domain->getId()} p ON p.id = s.id
-            WHERE s.date BETWEEN :start AND :end
+            WHERE s.date BETWEEN :start and :end
             GROUP BY s.id
             ORDER BY pageviews DESC, visitors DESC, s.id ASC
             LIMIT 0, 20
@@ -96,12 +129,12 @@ abstract class StatRepository
     {
         $stmt = $this->db->prepare("
             SELECT
-                r.url AS url,
-                SUM(s.visitors) AS visitors,
-                SUM(s.pageviews) AS pageviews
+                r.url as url,
+                SUM(s.visitors) as visitors,
+                SUM(s.pageviews) as pageviews
             FROM koko_analytics_referrer_stats_{$domain->getId()} s
             JOIN koko_analytics_referrer_urls_{$domain->getId()} r ON r.id = s.id
-            WHERE s.date BETWEEN :start AND :end
+            WHERE s.date BETWEEN :start and :end
             GROUP BY s.id
             ORDER BY pageviews DESC, visitors DESC, s.id ASC
             LIMIT 0, 20
@@ -144,7 +177,7 @@ abstract class StatRepository
     {
         // insert pageviews since last aggregation run
         $this->db
-            ->prepare("INSERT INTO koko_analytics_realtime_count_{$domain->getId()} (timestamp, count) VALUES (?, ?)")
+            ->prepare("INSERT INTO koko_analytics_realtime_count_{$domain->getId()}(timestamp, count) VALUES(?, ?)")
             ->execute([(new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s') , $count]);
 
         // remove pageviews older than 3 hours
@@ -155,11 +188,11 @@ abstract class StatRepository
 
     public function reset(Domain $domain): void
     {
-        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_site_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_page_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_page_urls_{$domain->getId()}");
-        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_referrer_stats_{$domain->getId()}");
-        $this->db->exec("DROP TABLE IF EXISTS koko_analytics_referrer_urls_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_site_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_page_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_page_urls_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_referrer_stats_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_referrer_urls_{$domain->getId()}");
     }
 
     // The methods below have a database specific implementation

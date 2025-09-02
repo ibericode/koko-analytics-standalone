@@ -20,37 +20,46 @@
 <?php $this->partial('_header.html.php', [ 'title' => "{$domain->getName()} - Koko Analytics"]); ?>
 
 <div class="container py-3">
-    <div class="d-md-flex flex-row flex-wrap justify-content-between">
+    <div class="d-md-flex flex-row flex-wrap justify-content-between mb-3">
     <?php /* Datepicker */ ?>
-    <details class="datepicker mb-3">
-        <summary class="py-2"><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
-        <div class="datepicker-dropdown mt-3" style="width: 320px;">
-            <form>
-                <div class="mb-2">
-                    <label class="form-label" for="date-range-input">Date range</label>
-                    <select class="form-select" name="date-range" id="date-range-input">
-                        <option value="custom" <?= $date_range === 'custom' ? 'selected' : ''; ?> disabled>Custom</option>
-                        <?php foreach ($date_ranges as $value => $label) { ?>
-                            <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
-                        <?php }; ?>
-                    </select>
-                </div>
-                <div class="row row-cols-2 mb-2">
-                    <div class="col">
-                        <label class="form-label" for="date-start-input">Start date</label>
-                        <input class="form-control" type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
+    <div class="d-flex">
+        <details class="datepicker position-relative">
+            <summary class="bg-body-tertiary py-2 px-3 bordered rounded me-3"><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
+            <div class="mt-2 position-absolute bg-white p-3 border rounded shadow" style="width: 320px;">
+                <form method="get" action="" class="mb-0">
+                    <div class="mb-2">
+                        <label class="form-label" for="date-range-input">Date range</label>
+                        <select class="form-select" name="date-range" id="date-range-input">
+                            <option value="custom" <?= $date_range === 'custom' ? 'selected' : ''; ?> disabled>Custom</option>
+                            <?php foreach ($date_ranges as $value => $label) { ?>
+                                <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
+                            <?php }; ?>
+                        </select>
                     </div>
-                    <div class="col">
-                        <label class="form-label" for="date-end-input">End date</label>
-                        <input class="form-control" type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
+                    <div class="row row-cols-2 mb-2">
+                        <div class="col">
+                            <label class="form-label" for="date-start-input">Start date</label>
+                            <input class="form-control" type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label" for="date-end-input">End date</label>
+                            <input class="form-control" type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-secondary">View</button>
-                </div>
-            </form>
-        </div>
-    </details>
+                    <div>
+                        <button type="submit" class="btn btn-secondary">View</button>
+                    </div>
+                </form>
+            </div>
+        </details>
+
+        <?php if ($path) { ?>
+            <div class="bg-body-tertiary py-2 px-3 bordered rounded">
+                Path = <span class="fw-bold"><?= esc($path) ?></span>
+                <a class="btn-close ms-3" href="<?= esc($this->generateUrl('app_dashboard', ['path' => null, ...$url_params ])) ?>"></a>
+            </div>
+        <?php } ?>
+    </div>
 
         <div class="mb-3 mb-md-0">
             <select class="form-select d-inline-block me-2 w-auto" onchange="window.location = this.value;">
@@ -134,7 +143,7 @@
                 <?php foreach ($pages as $rank => $p) { ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td class="text-truncate"><a href=""><?= esc($p->url); ?></a></td>
+                        <td class="text-truncate"><a href="<?= esc($this->generateUrl('app_dashboard', ['path' => $p->url, ...$url_params])) ?>"><?= esc($p->url); ?></a></td>
                         <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>

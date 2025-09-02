@@ -95,15 +95,16 @@ class DashboardController extends Controller
             $end = new \DateTimeImmutable('now', $timezone);
         }
 
+        $path = $request->query->get('path', '');
         $date_range = $request->query->get('date-range', 'custom');
         if ($date_range !== 'custom') {
             [$start, $end] = (new Dates())->getDateRange($date_range);
         }
 
         $prev = $start->sub($start->diff($end));
-        $totals = $statsRepository->getTotalsBetween($domain, $start, $end);
-        $totals_previous = $statsRepository->getTotalsBetween($domain, $prev, $start);
-        $chart = $statsRepository->getGroupedTotalsBetween($domain, $start, $end);
+        $totals = $statsRepository->getTotalsBetween($domain, $path, $start, $end);
+        $totals_previous = $statsRepository->getTotalsBetween($domain, $path, $prev, $start);
+        $chart = $statsRepository->getGroupedTotalsBetween($domain, $path, $start, $end);
         $pages = $statsRepository->getPageStatsBetween($domain, $start, $end);
         $referrers = $statsRepository->getReferrerStatsBetween($domain, $start, $end);
         $realtime_count = $statsRepository->getRealtimeCount($domain);
@@ -122,6 +123,13 @@ class DashboardController extends Controller
             'date_ranges' => $this->getDateRanges(),
             'domain' => $domain,
             'domains' => $domains,
+            'url_params' => [
+                'domain' => $domain->getName(),
+                'date-start' => $request->query->get('date-start', null),
+                'date-end' => $request->query->get('date-end', null),
+                'date-range' => $request->query->get('date-range', null),
+            ],
+            'path' => $path,
         ]);
     }
 
