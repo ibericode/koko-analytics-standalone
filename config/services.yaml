@@ -1,0 +1,24 @@
+parameters:
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true
+
+     # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Database:
+        arguments:
+            $dsn: '%env(DATABASE_DSN)%'
+            $username: '%env(DATABASE_USER)%'
+            $password: '%env(DATABASE_PASSWORD)%'
+
+    App\Repository\StatRepository:
+        factory: [ 'App\Repository\StatRepository', 'create']
+ 
