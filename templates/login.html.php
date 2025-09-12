@@ -6,7 +6,7 @@
     <title>Log in - Koko Analytics</title>
     <link rel="stylesheet" href="/styles.css">
     <meta name="theme-color" content="#712cf9">
-    <style>
+<style>
 html,
 body {
   height: 100%;
@@ -32,12 +32,11 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-
-    </style>
+</style>
 </head>
+<body class="bg-body-tertiary py-4">
 
-<body class="d-flex align-items-center py-4 bg-body-tertiary">
-
+<div class="d-flex align-items-center h-100">
     <main class="form-signin w-100 m-auto">
         <form method="post" action="/login">
             <img class="mb-4" src="/icon-128x128.png" alt="" width="57" height="57">
@@ -50,8 +49,9 @@ body {
             <div class="form-floating"> <input type="password" name="_password" class="form-control" id="floatingPassword" placeholder="Password"> <label for="floatingPassword">Password</label> </div>
              <button class="btn btn-primary w-100 py-2" type="submit">Log in</button>
             <p class="mt-5 mb-3 text-body-secondary">&copy; <?= date('Y'); ?> &mdash; Koko Analytics</p>
+            <?php $this->partial('_performance.html.php'); ?>
         </form>
     </main>
+</div>
 </body>
-
 </html>

@@ -17,6 +17,7 @@
         <a class="btn btn-secondary btn-sm" href="<?= esc($this->generateUrl('app_dashboard_create')) ?>">+ Add new domain</a>
     </div>
 
-    <?php require __DIR__ . '/_footer.html.php'; ?>
 
 </div>
+
+<?php require __DIR__ . '/_footer.html.php'; ?>

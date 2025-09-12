@@ -1,7 +1,6 @@
 <?php $this->partial('_header.html.php', [ 'title' => 'Settings - Koko Analytics']); ?>
 
 <div class="container py-3">
-
     <p class="mb-3"><a href="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>">← Back to analytics dashboard</a>.</p>
 
     <h1>Settings</h1>
@@ -52,6 +51,6 @@
         </form>
     </div>
 
-    <?php require __DIR__ . '/_footer.html.php'; ?>
 
 </div>
+<?php require __DIR__ . '/_footer.html.php'; ?>

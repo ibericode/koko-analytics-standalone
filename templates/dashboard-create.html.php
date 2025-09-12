@@ -8,7 +8,6 @@
 </h1>
 
 <form method="post" action="">
-
     <?php if ($error) { ?>
         <div class="mb-3 text-danger">
             <?= esc($error) ?>
@@ -24,10 +23,6 @@
     <div class="mb-3">
         <button type="submit" class="btn btn-primary">Add</button>
     </div>
-
 </form>
-
-
-<?php require __DIR__ . '/_footer.html.php'; ?>
-
 </div>
+<?php require __DIR__ . '/_footer.html.php'; ?>

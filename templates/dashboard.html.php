@@ -186,7 +186,5 @@
         </table>
         </div>
     </div>
-
-    <?php $this->partial('_footer.html.php', []); ?>
-
 </div>
+<?php $this->partial('_footer.html.php', []); ?>
