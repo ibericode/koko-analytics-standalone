@@ -155,14 +155,18 @@ class DashboardController extends Controller
             $this->createNotFoundException();
         }
 
-
         if ($request->getMethod() == Request::METHOD_POST) {
             $posted = $request->request->all('domain');
             $domain->setName(trim($posted['name'] ?? $domain->getName()));
             $domain->setPurgeTreshold((int) $posted['purge_treshold'] ?? $domain->getPurgeTreshold());
             $domain->setTimezone(trim($posted['timezone'] ?? $domain->getTimezone()));
-            $domain->setExcludedIpAddresses(explode("\n", $posted['excluded_ip_addresses']) ?? $domain->getExcludedIpAddresses());
+            $domain->setExcludedIpAddresses(array_map('trim', explode("\n", trim($posted['excluded_ip_addresses']))) ?? $domain->getExcludedIpAddresses());
             $domainRepository->update($domain);
+
+            // write list of ignored ip address to var/domain-ignore
+            // we store this in a file so that the /collect endpoint does not have to initiate a database connection on every request
+            $filename = dirname(__DIR__, 2) . "/var/{$domain->getName()}-ignored-ips.txt";
+            file_put_contents($filename, join(PHP_EOL, $domain->getExcludedIpAddresses()));
 
             $this->addFlash('info', 'Settings saved');
             return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->getName()]);

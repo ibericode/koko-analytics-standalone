@@ -24,7 +24,10 @@
                     <th><label class="form-label" for="textarea-excluded-ips">Ignored IP addresses</label></th>
                     <td>
                         <textarea class="form-control mb-2" name="domain[excluded_ip_addresses]" id="textarea-excluded-ips" rows="8'"><?php echo esc(join("\n", $domain->getExcludedIpAddresses())); ?></textarea>
-                        <div class="text-muted">Enter a list of IP addresses to ignore. Separate addresses by a new line.</div>
+                        <div class="text-muted">
+                            Enter a list of IP addresses to ignore. Separate addresses by a new line.
+                            Your current IP address is <input class="border-0" type="text" readonly onfocus="this.select()" value="<?= esc($this->container->get('request_stack')->getCurrentRequest()->getClientIp()); ?>">
+                        </div>
                     </td>
                 </tr>
 

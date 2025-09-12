@@ -68,6 +68,11 @@ class CollectController
             return new Response('', 200, $headers);
         }
 
+        // check if IP address is on ignore list
+        if ($this->isIgnoredIpAddress($domain, $request->getClientIp())) {
+            return new Response('', 200, $headers);
+        }
+
         // determine uniqueness of request to this path
         [$new_visitor, $unique_pageview ] = $this->determineUniqueness($request, $domain, $path);
 
@@ -93,5 +98,12 @@ class CollectController
         }
 
         return [$new_visitor, $unique_pageview];
+    }
+
+    private function isIgnoredIpAddress(string $domain, string $ip): bool
+    {
+        $filename = dirname(__DIR__, 2) . "/var/{$domain}-ignored-ips.txt";
+        $ignoreList = is_file($filename) ? (file($filename, FILE_IGNORE_NEW_LINES) ?: []) : [];
+        return in_array($ip, $ignoreList);
     }
 }
