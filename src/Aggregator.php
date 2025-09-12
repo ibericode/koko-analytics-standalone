@@ -147,13 +147,11 @@ class Aggregator
             return false;
         }
 
+        // we check for the blocklist here to prevent having to read the entire 37K file on every /collect request
+
         static $blocklist;
         if ($blocklist === null) {
-            $blocklist_filename = \dirname(__DIR__) . '/var/blocklist.txt';
-            if (\is_file($blocklist_filename)) {
-                $blocklist = \file($blocklist_filename, FILE_IGNORE_NEW_LINES);
-            }
-            $blocklist = $blocklist ?: [];
+            $blocklist = (new ReferrerBlocklist())->read();
         }
 
         foreach ($blocklist as $blocklisted_domain) {
