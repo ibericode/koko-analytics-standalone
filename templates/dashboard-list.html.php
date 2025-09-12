@@ -3,7 +3,7 @@
 <div class="container py-5">
 
     <h1 class="fs-3 mb-4">
-        <img class="align-top me-2" src="/icon-128x128.png" alt="" width="32" height="32">
+        <img class="align-top me-2" src="/icon-128x128.png" alt="Koko Analytics logo" width="32" height="32">
         Choose a domain
     </h1>
 
