@@ -14,10 +14,9 @@ class UserRepository
 
     public function getByEmail(string $email): ?User
     {
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = :email LIMIT 1");
-        $stmt->execute(["email" => $email]);
-        $obj = $stmt->fetchObject(User::class);
-        return $obj ?: null;
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = ? LIMIT 1");
+        $stmt->execute([ $email ]);
+        return $stmt->fetchObject(User::class) ?: null;
     }
 
     public function save(User $user): void

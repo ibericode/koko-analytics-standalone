@@ -33,7 +33,6 @@ class DomainRepository
         $stmt->execute();
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return array_map([$this, 'hydrate'], $result);
-        return $stmt->fetchAll(\PDO::FETCH_CLASS, Domain::class);
     }
 
     public function getByName(string $name): ?Domain
