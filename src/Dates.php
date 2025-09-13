@@ -29,54 +29,64 @@ class Dates
                     $now->modify('today midnight'),
                     $now->modify('tomorrow midnight, -1 second')
                 ];
+                break;
             case 'yesterday':
                 return [
                     $now->modify('yesterday midnight'),
                     $now->modify('today midnight, -1 second')
                 ];
+                break;
             case 'this_week':
                 $start = $this->getFirstDayOfWeek($now, $start_of_week);
                 return [
                     $start,
                     $start->modify('+7 days, midnight, -1 second')
                 ];
+                break;
             case 'last_week':
                 $start = $this->getFirstDayOfWeek($now, $start_of_week)->modify('-7 days');
                 return [
                     $start,
                     $start->modify('+7 days, midnight, -1 second')
                 ];
+                break;
             case 'last_14_days':
                 return [
                     $now->modify('-14 days'),
                     $now->modify('tomorrow midnight, -1 second')
                 ];
+                break;
             default:
             case 'last_28_days':
                 return [
                     $now->modify('-28 days'),
                     $now->modify('tomorrow midnight, -1 second')
                 ];
+                break;
             case 'this_month':
                 return [
                     $now->modify('first day of this month'),
                     $now->modify('last day of this month')
                 ];
+                break;
             case 'last_month':
                 return [
                     $now->modify('first day of last month, midnight'),
                     $now->modify('last day of last month')
                 ];
+                break;
             case 'this_year':
                 return [
                     $now->setDate((int) $now->format('Y'), 1, 1),
                     $now->setDate((int) $now->format('Y'), 12, 31),
                 ];
+                break;
             case 'last_year':
                 return [
                     $now->setDate((int) $now->format('Y') - 1, 1, 1),
                     $now->setDate((int) $now->format('Y') - 1, 12, 31),
                 ];
+                break;
         }
     }
 }

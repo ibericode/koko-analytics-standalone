@@ -11,6 +11,7 @@ use App\Dates;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
+use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -98,7 +99,7 @@ class DashboardController extends Controller
         $path = $request->query->get('path', '');
         $date_range = $request->query->get('date-range', 'custom');
         if ($date_range !== 'custom') {
-            [$start, $end] = (new Dates())->getDateRange($date_range);
+            [$start, $end] = (new Dates())->getDateRange($date_range, new DateTimeImmutable('now', $timezone));
         }
 
         $prev = $start->sub($start->diff($end));
