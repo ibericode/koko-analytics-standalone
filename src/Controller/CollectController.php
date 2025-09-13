@@ -29,17 +29,17 @@ class CollectController
             return new Response('', 200, $headers);
         }
 
-        $domain = $request->query->get('d');
-        $path = $request->query->get('p');
-        $referrer = $request->query->getString('r', '');
+        $domain = $request->request->getString('d');
+        $path = $request->request->getString('p');
+        $referrer = $request->request->getString('r', '');
 
         // do nothing if required param is missing
-        if ($domain === null || $path === null) {
+        if (! $domain || ! $path) {
             return new Response('', 200, $headers);
         }
 
         // validate path
-        if (!preg_match('/[a-zA-Z0-9-\/\#\&\?\=\%]+/', $path)) {
+        if ($path[0] !== '/' || preg_match('/[^a-zA-Z0-9\-\+\=\/\#\&\?\%]/', $path)) {
             return new Response('', 200, $headers);
         }
 
