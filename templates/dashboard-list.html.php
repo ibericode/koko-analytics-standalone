@@ -9,12 +9,12 @@
 
     <ul class="list-group mb-4">
     <?php foreach ($domains as $domain) : ?>
-        <li class="list-group-item"><a href="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>"><?= esc($domain->getName()); ?></a></li>
+        <li class="list-group-item"><a href="<?php $this->e($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>"><?php $this->e($domain->getName()); ?></a></li>
     <?php endforeach; ?>
     </ul>
 
     <div class="mb-4">
-        <a class="btn btn-secondary btn-sm" href="<?= esc($this->generateUrl('app_dashboard_create')) ?>">+ Add new domain</a>
+        <a class="btn btn-secondary btn-sm" href="<?php $this->e($this->generateUrl('app_dashboard_create')) ?>">+ Add new domain</a>
     </div>
 
 

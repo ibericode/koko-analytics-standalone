@@ -24,7 +24,7 @@
     <?php /* Datepicker */ ?>
     <div class="d-flex">
         <details class="datepicker position-relative">
-            <summary class="bg-body-tertiary py-2 px-3 bordered rounded me-3"><?= esc($date_start->format('M j, Y')); ?> &mdash; <?= esc($date_end->format('M j, Y')); ?></summary>
+            <summary class="bg-body-tertiary py-2 px-3 bordered rounded me-3"><?php $this->e($date_start->format('M j, Y')); ?> &mdash; <?php $this->e($date_end->format('M j, Y')); ?></summary>
             <div class="mt-2 position-absolute bg-white p-3 border rounded shadow" style="width: 320px;">
                 <form method="get" action="" class="mb-0">
                     <div class="mb-2">
@@ -32,18 +32,18 @@
                         <select class="form-select" name="date-range" id="date-range-input">
                             <option value="custom" <?= $date_range === 'custom' ? 'selected' : ''; ?> disabled>Custom</option>
                             <?php foreach ($date_ranges as $value => $label) { ?>
-                                <option value="<?= esc($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?= esc($label); ?></option>
+                                <option value="<?php $this->e($value); ?>" <?= $date_range === $value ? 'selected' : ''; ?>><?php $this->e($label); ?></option>
                             <?php }; ?>
                         </select>
                     </div>
                     <div class="row row-cols-2 mb-2">
                         <div class="col">
                             <label class="form-label" for="date-start-input">Start date</label>
-                            <input class="form-control" type="date" name="date-start" id="date-start-input" value="<?= esc($date_start->format('Y-m-d')); ?>" required>
+                            <input class="form-control" type="date" name="date-start" id="date-start-input" value="<?php $this->e($date_start->format('Y-m-d')); ?>" required>
                         </div>
                         <div class="col">
                             <label class="form-label" for="date-end-input">End date</label>
-                            <input class="form-control" type="date" name="date-end" id="date-end-input" value="<?= esc($date_end->format('Y-m-d')); ?>" required>
+                            <input class="form-control" type="date" name="date-end" id="date-end-input" value="<?php $this->e($date_end->format('Y-m-d')); ?>" required>
                         </div>
                     </div>
                     <div>
@@ -55,8 +55,8 @@
 
         <?php if ($path) { ?>
             <div class="bg-body-tertiary py-2 px-3 bordered rounded">
-                Path = <span class="fw-bold"><?= esc($path) ?></span>
-                <a class="btn-close ms-3" href="<?= esc($this->generateUrl('app_dashboard', ['path' => null, ...$url_params ])) ?>"></a>
+                Path = <span class="fw-bold"><?php $this->e($path) ?></span>
+                <a class="btn-close ms-3" href="<?php $this->e($this->generateUrl('app_dashboard', ['path' => null, ...$url_params ])) ?>"></a>
             </div>
         <?php } ?>
     </div>
@@ -64,7 +64,7 @@
         <div class="mb-3 mb-md-0">
             <select class="form-select d-inline-block me-2 w-auto" onchange="window.location = this.value;">
             <?php foreach ($domains as $d) : ?>
-                <option value="<?= esc($this->generateUrl('app_dashboard', [ 'domain' => $d->getName() ])); ?>" <?= $domain->getName() == $d->getName() ? 'selected' : '' ?>><?= esc($d->getName()); ?></option>
+                <option value="<?php $this->e($this->generateUrl('app_dashboard', [ 'domain' => $d->getName() ])); ?>" <?= $domain->getName() == $d->getName() ? 'selected' : '' ?>><?php $this->e($d->getName()); ?></option>
             <?php endforeach; ?>
             </select>
 
@@ -85,7 +85,7 @@
             <td class="d-block mb-2">
                 <div class="fs-2"><?= number_format($totals->visitors); ?>
                     <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
-                        <?= percent_format($visitors_change); ?>
+                        <?= $this->percent_format($visitors_change); ?>
                     </span>
                 </div>
             </td>
@@ -100,7 +100,7 @@
             <td class="d-block mb-2">
                 <div class="fs-2"><?= number_format($totals->pageviews); ?>
                     <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
-                        <?= percent_format($pageviews_change); ?>
+                        <?= $this->percent_format($pageviews_change); ?>
                     </span>
                 </div>
             </td>
@@ -143,7 +143,7 @@
                 <?php foreach ($pages as $rank => $p) { ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td class="text-truncate"><a href="<?= esc($this->generateUrl('app_dashboard', ['path' => $p->url, ...$url_params])) ?>"><?= esc($p->url); ?></a></td>
+                        <td class="text-truncate"><a href="<?php $this->e($this->generateUrl('app_dashboard', ['path' => $p->url, ...$url_params])) ?>"><?php $this->e($p->url); ?></a></td>
                         <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>
@@ -172,7 +172,7 @@
                 <?php foreach ($referrers as $rank => $p) : ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td class="text-truncate"><?= get_referrer_url_label(esc($p->url)); ?></td>
+                        <td class="text-truncate"><?php $this->e($this->get_referrer_url_label($p->url)); ?></td>
                         <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>

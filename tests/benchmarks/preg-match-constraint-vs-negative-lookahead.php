@@ -1,6 +1,5 @@
 <?php
 
-
 function bench(array $functions, int $n = 1000)
 {
     $results = [];

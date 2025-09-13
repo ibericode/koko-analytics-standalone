@@ -9,7 +9,7 @@
     <form method="post" action="">
         <?php if ($error) { ?>
             <div class="mb-3 text-danger">
-                <?= esc($error) ?>
+                <?php $this->e($error) ?>
             </div>
         <?php } ?>
 

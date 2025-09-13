@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Security\User;
+use App\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -14,22 +16,6 @@ abstract class Controller extends AbstractController
 {
     protected function render(string $view, array $parameters = [], ?Response $response = null): Response
     {
-        \extract($parameters);
-
-        \ob_start();
-        $this->partial($view, $parameters);
-        $content = \ob_get_clean();
-
-        $response ??= new Response();
-        $response->setContent($content);
-        return $response;
-    }
-
-    public function partial(string $view, array $parameters = []): void
-    {
-        $session = $this->container->get('request_stack')->getSession();
-        \extract($parameters);
-        require_once \dirname(__DIR__) . '/template-functions.php';
-        require \dirname(__DIR__, 2) . "/templates/{$view}";
+        return new Template($this->container)->render($view, $parameters, $response);
     }
 }
