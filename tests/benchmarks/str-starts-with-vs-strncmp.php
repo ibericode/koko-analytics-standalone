@@ -1,8 +1,6 @@
 <?php
 
-$string = "website-url.com";
-
-function bench(array $functions, int $n = 1000)
+function bench(array $functions, int $n = 100000)
 {
     $results = [];
 
@@ -27,13 +25,16 @@ function bench(array $functions, int $n = 1000)
 }
 
 bench([
-    "preg_replace" => function () use ($string) {
-        return ! preg_match('/[^a-zA-Z0-9\.\-]/', $string);
+    'str_starts_with' => function () {
+        return str_starts_with("App\\Controllers\\ApiController", "App\\");
     },
-    "strtr + ctype_alnum" => function () use ($string) {
-        return ctype_alnum(strtr($string, ["-" => "0", "." => "0"]));
+    'strncmp' => function () {
+        return strncmp("App\\Controllers\\ApiController", "App\\", strlen("App\\")) === 0;
     },
-    "strspn" => function () use ($string) {
-        return strspn($string, "abcdefghijklmnopqrstuvwxyz0123456789-.") == strlen($string);
-    }
+    'substr' => function () {
+        return substr("App\\Controllers\\ApiController", 0, strlen("App\\")) === "App\\";
+    },
+    'strpos' => function () {
+        return strpos("App\\Controllers\\ApiController", "App\\") === 0;
+    },
 ]);
