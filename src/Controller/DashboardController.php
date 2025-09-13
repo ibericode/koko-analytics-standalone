@@ -43,7 +43,7 @@ class DashboardController extends Controller
             $domain->setName(trim($request->request->get('name', '')));
 
             // validate domain name
-            if ($domain->getName() === '' || !preg_match('/[a-zA-Z0-8\-\.]+/', $domain->getName())) {
+            if ($domain->getName() === '' || !preg_match('/[a-zA-Z0-9\-\.]+/', $domain->getName())) {
                 return $this->render('dashboard-create.html.php', [ 'error' => 'Domain name can not be empty or contain non-alphanumeric characters.' ]);
             }
 
