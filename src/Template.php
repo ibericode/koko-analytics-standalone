@@ -25,7 +25,7 @@ class Template
         return $response;
     }
 
-    public function partial(string $view, array $parameters = []): void
+    protected function partial(string $view, array $parameters = []): void
     {
         \extract($parameters);
         require \dirname(__DIR__, 1) . "/templates/{$view}";
@@ -41,14 +41,14 @@ class Template
         return $this->container->get('router')->generate($route, $parameters, $referenceType);
     }
 
-    private function getFlashMessages(): array
+    protected function getFlashMessages(): array
     {
         $session = $this->container->get('request_stack')->getSession();
         return $session->getFlashBag()->all();
     }
 
 
-    public function e(string $value): void
+    protected function e(string $value): void
     {
         if (str_starts_with($value, 'javascript:')) {
             $value = substr($value, strlen('javascript:'));
@@ -57,7 +57,7 @@ class Template
         echo \htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
-    public function percent_format($pct): string
+    protected function percent_format($pct): string
     {
         if ($pct == 0) {
             return '';
@@ -68,8 +68,7 @@ class Template
         return $prefix . $formatted . '%';
     }
 
-
-    public function get_referrer_url_label(string $url): string
+    protected function get_referrer_url_label(string $url): string
     {
         // if link starts with android-app://, turn that prefix into something more human readable
         if (\strpos($url, 'android-app://') === 0) {
