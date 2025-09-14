@@ -170,7 +170,15 @@ abstract class StatRepository
                 ->execute([$dt->format('Y-m-d')]);
         }
 
-        // TODO: Remove orphaned rows from koko_analytics_page_urls and koko_analytics_referrer_urls tables
+        // remove orphaned page urls
+        $this->db
+            ->prepare("DELETE FROM koko_analytics_page_urls_{$domain->getId()} WHERE id NOT IN (SELECT DISTINCT(id) FROM koko_analytics_page_stats_{$domain->getId()})")
+            ->execute();
+
+        // remove orphaned referrer url's
+        $this->db
+            ->prepare("DELETE FROM koko_analytics_referrer_urls_{$domain->getId()} WHERE id NOT IN (SELECT DISTINCT(id) FROM koko_analytics_referrer_stats_{$domain->getId()})")
+            ->execute();
     }
 
     public function insertRealtimePageviewsCount(Domain $domain, int $count): void
