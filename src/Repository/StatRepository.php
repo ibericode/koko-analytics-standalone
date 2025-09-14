@@ -193,6 +193,7 @@ abstract class StatRepository
         $this->db->exec("DROP TABLE if EXISTS koko_analytics_page_urls_{$domain->getId()}");
         $this->db->exec("DROP TABLE if EXISTS koko_analytics_referrer_stats_{$domain->getId()}");
         $this->db->exec("DROP TABLE if EXISTS koko_analytics_referrer_urls_{$domain->getId()}");
+        $this->db->exec("DROP TABLE if EXISTS koko_analytics_realtime_count_{$domain->getId()}");
     }
 
     // The methods below have a database specific implementation
