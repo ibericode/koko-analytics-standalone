@@ -13,6 +13,34 @@
  * @var int $realtime_count
  */
 
+if (! function_exists('percent_format')) {
+    function percent_format($pct): string
+    {
+        if ($pct == 0) {
+            return '';
+        }
+
+           $prefix = $pct > 0 ? '+' : '';
+           $formatted = \number_format($pct * 100, 0);
+           return $prefix . $formatted . '%';
+    }
+}
+
+if (! function_exists('get_referrer_url_label')) {
+    function get_referrer_url_label(string $url): string
+    {
+        // if link starts with android-app://, turn that prefix into something more human readable
+        if (str_starts_with($url, 'android-app://')) {
+            return 'Android app: ' . substr($url, strlen('android-app://'));
+        }
+
+        // strip protocol and www. prefix
+        $url = (string) \preg_replace('/^https?:\/\/(?:www\.)?/', '', $url);
+
+        // trim trailing slash
+        return \rtrim($url, '/');
+    }
+}
 ?>
 
 <script src="/dashboard.js" defer></script>
@@ -85,7 +113,7 @@
             <td class="d-block mb-2">
                 <div class="fs-2"><?= number_format($totals->visitors); ?>
                     <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
-                        <?= $this->percent_format($visitors_change); ?>
+                        <?= percent_format($visitors_change); ?>
                     </span>
                 </div>
             </td>
@@ -100,7 +128,7 @@
             <td class="d-block mb-2">
                 <div class="fs-2"><?= number_format($totals->pageviews); ?>
                     <span class="fs-6 align-middle ms-2 <?= $visitors_change > 0 ? 'text-green' : 'text-red'; ?>">
-                        <?= $this->percent_format($pageviews_change); ?>
+                        <?= percent_format($pageviews_change); ?>
                     </span>
                 </div>
             </td>
@@ -172,7 +200,7 @@
                 <?php foreach ($referrers as $rank => $p) : ?>
                     <tr>
                         <td class="text-muted"><?= $rank + 1; ?></td>
-                        <td class="text-truncate"><?php $this->e($this->get_referrer_url_label($p->url)); ?></td>
+                        <td class="text-truncate"><?php $this->e(get_referrer_url_label($p->url)); ?></td>
                         <td class="text-end d-none d-sm-table-cell"><?= number_format($p->visitors); ?></td>
                         <td class="text-end"><?= number_format($p->pageviews); ?></td>
                     </tr>

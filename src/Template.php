@@ -43,8 +43,7 @@ class Template
 
     protected function getFlashMessages(): array
     {
-        $session = $this->container->get('request_stack')->getSession();
-        return $session->getFlashBag()->all();
+        return $this->container->get('request_stack')->getSession()->getFlashBag()->all();
     }
 
 
@@ -55,30 +54,5 @@ class Template
         }
 
         echo \htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    }
-
-    protected function percent_format($pct): string
-    {
-        if ($pct == 0) {
-            return '';
-        }
-
-        $prefix = $pct > 0 ? '+' : '';
-        $formatted = \number_format($pct * 100, 0);
-        return $prefix . $formatted . '%';
-    }
-
-    protected function get_referrer_url_label(string $url): string
-    {
-        // if link starts with android-app://, turn that prefix into something more human readable
-        if (\strpos($url, 'android-app://') === 0) {
-            return \str_replace('android-app://', 'Android app: ', $url);
-        }
-
-        // strip protocol and www. prefix
-        $url = (string) \preg_replace('/^https?:\/\/(?:www\.)?/', '', $url);
-
-        // trim trailing slash
-        return \rtrim($url, '/');
     }
 }
