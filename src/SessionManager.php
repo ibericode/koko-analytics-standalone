@@ -24,7 +24,7 @@ class SessionManager
     public function purge(Domain $domain): void
     {
         $session_directory = $this->getStorageDirectory();
-        $midnight = (new \DateTimeImmutable('today, midnight', new \DateTimeZone($domain->getTimezone())))->getTimestamp();
+        $midnight = (new \DateTimeImmutable('today, midnight', new \DateTimeZone($domain->timezone)))->getTimestamp();
 
         // clean all session files older than 6 hours
         $files = \scandir("{$session_directory}", SCANDIR_SORT_NONE);
