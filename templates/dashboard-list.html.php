@@ -9,7 +9,7 @@
 
     <ul class="list-group mb-4">
     <?php foreach ($domains as $domain) : ?>
-        <li class="list-group-item"><a href="<?php $this->e($this->generateUrl('app_dashboard', [ 'domain' => $domain->getName() ])); ?>"><?php $this->e($domain->getName()); ?></a></li>
+        <li class="list-group-item"><a href="<?php $this->e($this->generateUrl('app_dashboard', [ 'domain' => $domain->name ])); ?>"><?php $this->e($domain->name); ?></a></li>
     <?php endforeach; ?>
     </ul>
 

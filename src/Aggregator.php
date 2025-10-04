@@ -31,7 +31,7 @@ class Aggregator
     {
         $this->reset($domain);
 
-        $filename = \dirname(__DIR__) . "/var/buffer-{$domain->getName()}";
+        $filename = \dirname(__DIR__) . "/var/buffer-{$domain->name}";
         if (!\is_file($filename)) {
             // buffer file for this domain does not exist, meaning no new data since last aggregation
             // we still create the file, because we use this to validate domain on /collect requests
@@ -124,8 +124,8 @@ class Aggregator
         (new SessionManager())->purge($domain);
 
         // purge data older than specified treshold in domain settings
-        if ($domain->getPurgeTreshold() > 0) {
-            $datetime = new \DateTimeImmutable("-{$domain->getPurgeTreshold()} days", new \DateTimeZone($domain->getTimezone()));
+        if ($domain->purge_treshold > 0) {
+            $datetime = new \DateTimeImmutable("-{$domain->purge_treshold} days", new \DateTimeZone($domain->timezone));
             $this->statRepository->deleteAllBeforeDate($domain, $datetime);
         }
     }
@@ -136,7 +136,7 @@ class Aggregator
     private function reset(Domain $domain): void
     {
         $this->site_stats = new SiteStats();
-        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone($domain->getTimezone()));
+        $this->site_stats->date = new \DateTimeImmutable('now', new \DateTimeZone($domain->timezone));
         $this->page_stats = [];
         $this->referrer_stats = [];
     }

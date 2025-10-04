@@ -11,7 +11,7 @@ class StatRepositoryMysql extends StatRepository
 {
     public function createTables(Domain $domain): void
     {
-        $id = $domain->getId();
+        $id = $domain->id;
         $this->db->exec(
             "CREATE TABLE IF NOT EXISTS koko_analytics_site_stats_{$id} (
                   date DATE PRIMARY KEY NOT NULL,
@@ -61,9 +61,7 @@ class StatRepositoryMysql extends StatRepository
 
     public function upsertSiteStats(Domain $domain, SiteStats $stats): void
     {
-        $query = "INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
-
-        $this->db->prepare($query)->execute([
+        $this->db->prepare("INSERT INTO koko_analytics_site_stats_{$domain->id} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)")->execute([
             'date' => $stats->date->format('Y-m-d'),
             'visitors' => $stats->visitors,
             'pageviews' => $stats->pageviews,
@@ -85,7 +83,7 @@ class StatRepositoryMysql extends StatRepository
 
         // select all existing urls
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
         while ($row = $stmt->fetch(\PDO::FETCH_OBJ)) {
             $page_url_ids[$row->url] = $row->id;
@@ -95,7 +93,7 @@ class StatRepositoryMysql extends StatRepository
         $new_urls = array_keys($page_url_ids, 0);
         if ($new_urls) {
             $placeholders = \rtrim(\str_repeat('(?),', \count($new_urls)), ',');
-            $query = "INSERT INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
+            $query = "INSERT INTO koko_analytics_page_urls_{$domain->id} (url) VALUES {$placeholders}";
             $this->db->prepare($query)->execute($new_urls);
             $insert_id = $this->db->lastInsertId();
             foreach ($new_urls as $url) {
@@ -111,7 +109,7 @@ class StatRepositoryMysql extends StatRepository
         $column_count = 4;
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        $query = "INSERT INTO koko_analytics_page_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
+        $query = "INSERT INTO koko_analytics_page_stats_{$domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews)";
         $this->db->prepare($query)->execute($values);
     }
 
@@ -126,12 +124,13 @@ class StatRepositoryMysql extends StatRepository
             return $s->url;
         }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
-        $query = "INSERT IGNORE INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES {$placeholders}";
-        $this->db->prepare($query)->execute($urls);
+        $this->db
+            ->prepare("INSERT IGNORE INTO koko_analytics_referrer_urls_{$domain->id} (url) VALUES {$placeholders}")
+            ->execute($urls);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($urls)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
         $url_ids = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -146,7 +145,7 @@ class StatRepositoryMysql extends StatRepository
         $column_count = 4;
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        $query = "INSERT INTO koko_analytics_referrer_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
+        $query = "INSERT INTO koko_analytics_referrer_stats_{$domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON DUPLICATE KEY UPDATE visitors = visitors + VALUES(visitors), pageviews = pageviews + VALUES(pageviews);";
         $this->db->prepare($query)->execute($values);
     }
 }

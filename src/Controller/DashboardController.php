@@ -27,7 +27,7 @@ class DashboardController extends Controller
 
         // if there is only a single domain, redirect directly to it
         if (count($domains) === 1) {
-            return $this->redirectToRoute('app_dashboard', ['domain' => $domains[0]->getName() ]);
+            return $this->redirectToRoute('app_dashboard', ['domain' => $domains[0]->name ]);
         }
 
         return $this->render('dashboard-list.html.php', [
@@ -40,17 +40,17 @@ class DashboardController extends Controller
     {
         if ($request->getMethod() === Request::METHOD_POST) {
             $domain = new Domain();
-            $domain->setName(trim($request->request->get('name', '')));
+            $domain->name = trim($request->request->get('name', ''));
 
             // validate domain name
-            if ($domain->getName() === '' || !preg_match('/[a-zA-Z0-9\-\.]+/', $domain->getName())) {
+            if ($domain->name === '' || !preg_match('/[a-zA-Z0-9\-\.]+/', $domain->name)) {
                 return $this->render('dashboard-create.html.php', [ 'error' => 'Domain name can not be empty or contain non-alphanumeric characters.' ]);
             }
 
             $domainRepository->insert($domain);
             $statRepository->createTables($domain);
             $this->addFlash('success', 'Domain created');
-            return $this->redirectToRoute('app_dashboard', ['domain' => $domain->getName()]);
+            return $this->redirectToRoute('app_dashboard', ['domain' => $domain->name]);
         }
 
         return $this->render('dashboard-create.html.php', [ 'error' => '' ]);
@@ -87,7 +87,7 @@ class DashboardController extends Controller
         // run the aggregator for this domain whenever the dashboard is loaded
         $aggregator->run($domain);
 
-        $timezone = new \DateTimeZone($domain->getTimezone());
+        $timezone = new \DateTimeZone($domain->timezone);
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
@@ -125,7 +125,7 @@ class DashboardController extends Controller
             'domain' => $domain,
             'domains' => $domains,
             'url_params' => [
-                'domain' => $domain->getName(),
+                'domain' => $domain->name,
                 'date-start' => $request->query->get('date-start', null),
                 'date-end' => $request->query->get('date-end', null),
                 'date-range' => $request->query->get('date-range', null),
@@ -158,19 +158,19 @@ class DashboardController extends Controller
 
         if ($request->getMethod() == Request::METHOD_POST) {
             $posted = $request->request->all('domain');
-            $domain->setName(trim($posted['name'] ?? $domain->getName()));
-            $domain->setPurgeTreshold((int) $posted['purge_treshold'] ?? $domain->getPurgeTreshold());
-            $domain->setTimezone(trim($posted['timezone'] ?? $domain->getTimezone()));
-            $domain->setExcludedIpAddresses(array_map('trim', explode("\n", trim($posted['excluded_ip_addresses']))) ?? $domain->getExcludedIpAddresses());
+            $domain->name = (trim($posted['name'] ?? $domain->name));
+            $domain->purge_treshold = (int) $posted['purge_treshold'] ?? $domain->purge_treshold;
+            $domain->timezone = trim($posted['timezone'] ?? $domain->timezone);
+            $domain->excluded_ip_addresses = array_map('trim', explode("\n", trim($posted['excluded_ip_addresses'])));
             $domainRepository->update($domain);
 
             // write list of ignored ip address to var/domain-ignore
             // we store this in a file so that the /collect endpoint does not have to initiate a database connection on every request
-            $filename = dirname(__DIR__, 2) . "/var/{$domain->getName()}-ignored-ips.txt";
-            file_put_contents($filename, join(PHP_EOL, $domain->getExcludedIpAddresses()));
+            $filename = dirname(__DIR__, 2) . "/var/{$domain->name}-ignored-ips.txt";
+            file_put_contents($filename, join(PHP_EOL, $domain->excluded_ip_addresses));
 
             $this->addFlash('info', 'Settings saved');
-            return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->getName()]);
+            return $this->redirectToRoute('app_dashboard_settings', ['domain' => $domain->name]);
         }
 
         return $this->render('settings.html.php', [

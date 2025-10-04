@@ -16,11 +16,11 @@ class DomainRepository
     private function hydrate(array $data): Domain
     {
         $domain = new Domain();
-        $domain->setId($data['id']);
-        $domain->setName($data['name']);
-        $domain->setTimezone($data['timezone']);
-        $domain->setExcludedIpAddresses(array_map('trim', explode("\n", $data['excluded_ip_addresses'])));
-        $domain->setPurgeTreshold($data['purge_treshold']);
+        $domain->id = (int) $data['id'];
+        $domain->name = $data['name'];
+        $domain->timezone = $data['timezone'];
+        $domain->excluded_ip_addresses = array_map('trim', explode("\n", $data['excluded_ip_addresses']));
+        $domain->purge_treshold =  (int) $data['purge_treshold'];
         return $domain;
     }
 
@@ -45,29 +45,29 @@ class DomainRepository
 
     public function update(Domain $domain): void
     {
-        if (!$domain->getId()) {
+        if (!$domain->id) {
             throw new LogicException("Updating non-existing domain");
         }
 
         $this->db->prepare(
             "UPDATE koko_analytics_domains SET name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
-        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses()), $domain->getId()]);
+        )->execute([$domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses), $domain->id]);
     }
 
     public function insert(Domain $domain): void
     {
         $this->db->prepare(
             "INSERT INTO koko_analytics_domains (name, timezone, purge_treshold, excluded_ip_addresses) VALUES (?, ?, ?, ?)"
-        )->execute([$domain->getName(), $domain->getTimezone(), $domain->getPurgeTreshold(), join("\n", $domain->getExcludedIpAddresses())]);
-        $domain->setId($this->db->lastInsertId());
+        )->execute([$domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses)]);
+        $domain->id = (int) $this->db->lastInsertId();
     }
 
     public function delete(Domain $domain): void
     {
         $this->db->prepare(
             "DELETE FROM koko_analytics_domains WHERE id = ?"
-        )->execute([$domain->getId()]);
-        $domain->setId(null);
+        )->execute([$domain->id]);
+        $domain->id = null;
     }
 
     public function reset(): void

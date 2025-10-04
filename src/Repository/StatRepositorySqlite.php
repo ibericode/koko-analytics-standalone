@@ -9,7 +9,7 @@ class StatRepositorySqlite extends StatRepository
 {
     public function createTables(Domain $domain): void
     {
-        $id = $domain->getId();
+        $id = $domain->id;
         $this->db->exec(
             "CREATE TABLE IF NOT EXISTS koko_analytics_site_stats_{$id} (
               date DATE PRIMARY KEY NOT NULL,
@@ -59,7 +59,7 @@ class StatRepositorySqlite extends StatRepository
 
     public function upsertSiteStats(Domain $domain, SiteStats $stats): void
     {
-        $query = "INSERT INTO koko_analytics_site_stats_{$domain->getId()} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        $query = "INSERT INTO koko_analytics_site_stats_{$domain->id} (date, visitors, pageviews) VALUES (:date, :visitors, :pageviews) ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
 
         $this->db->prepare($query)
             ->execute([
@@ -80,12 +80,12 @@ class StatRepositorySqlite extends StatRepository
             return $s->url;
         }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
-        $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$domain->getId()} (url) VALUES {$placeholders}";
+        $query = "INSERT OR IGNORE INTO koko_analytics_page_urls_{$domain->id} (url) VALUES {$placeholders}";
         $this->db->prepare($query)->execute($urls);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', count($urls)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_page_urls_{$domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
         $page_url_ids = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -101,7 +101,7 @@ class StatRepositorySqlite extends StatRepository
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
 
-        $query = "INSERT INTO koko_analytics_page_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        $query = "INSERT INTO koko_analytics_page_stats_{$domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
         $this->db->prepare($query)->execute($values);
     }
 
@@ -116,13 +116,13 @@ class StatRepositorySqlite extends StatRepository
             return $s->url;
         }, $stats);
         $placeholders = \rtrim(\str_repeat('(?),', \count($urls)), ',');
-        $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls_{$domain->getId()} (url) VALUES {$placeholders}";
+        $query = "INSERT OR IGNORE INTO koko_analytics_referrer_urls_{$domain->id} (url) VALUES {$placeholders}";
 
         $this->db->prepare($query)->execute($urls);
 
         // select and map page url to id
         $placeholders = \rtrim(\str_repeat('?,', \count($urls)), ',');
-        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$domain->getId()} WHERE url IN ({$placeholders})");
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_referrer_urls_{$domain->id} WHERE url IN ({$placeholders})");
         $stmt->execute($urls);
         $url_ids = [];
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -137,7 +137,7 @@ class StatRepositorySqlite extends StatRepository
         $column_count = 4;
         $placeholders = \rtrim(\str_repeat('?,', $column_count), ',');
         $placeholders = \rtrim(\str_repeat("($placeholders),", \count($values) / $column_count), ',');
-        $query = "INSERT INTO koko_analytics_referrer_stats_{$domain->getId()} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
+        $query = "INSERT INTO koko_analytics_referrer_stats_{$domain->id} (date, id, visitors, pageviews) VALUES {$placeholders} ON CONFLICT DO UPDATE SET visitors = visitors + excluded.visitors, pageviews = pageviews + excluded.pageviews";
         $this->db->prepare($query)->execute($values);
     }
 }
