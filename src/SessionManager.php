@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Entity\Domain;
+use DateTimeImmutable;
 
 /**
  * @package koko-analytics
@@ -86,7 +87,8 @@ class SessionManager
             return [];
         }
 
-        if (\filemtime($session_filename) < \time() - 6 * 3600) {
+        // TODO: This should use domain timezone
+        if (\filemtime($session_filename) < (new DateTimeImmutable('today, midnight'))->getTimestamp()) {
             \unlink($session_filename);
             return [];
         }

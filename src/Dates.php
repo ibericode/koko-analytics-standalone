@@ -88,5 +88,7 @@ class Dates
                 ];
                 break;
         }
+
+        throw new InvalidArgumentException("Invalid date range: {$range}");
     }
 }
