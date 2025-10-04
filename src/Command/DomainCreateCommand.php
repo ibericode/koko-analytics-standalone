@@ -43,7 +43,7 @@ class DomainCreateCommand extends Command
         }
 
         $domain = new Domain();
-        $domain->setName($name);
+        $domain->name = $name;
         $this->domainRepository->insert($domain);
         $this->statRepository->createTables($domain);
         return Command::SUCCESS;
