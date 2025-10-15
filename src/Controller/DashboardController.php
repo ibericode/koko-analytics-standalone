@@ -88,12 +88,13 @@ class DashboardController extends Controller
         $aggregator->run($domain);
 
         $timezone = new \DateTimeZone($domain->timezone);
+        $now = new \DateTimeImmutable('now', $timezone);
         try {
             $start = new \DateTimeImmutable($request->query->get('date-start', '-28 days'), $timezone);
             $end = new \DateTimeImmutable($request->query->get('date-end', 'now'), $timezone);
         } catch (\Exception) {
             $start = new \DateTimeImmutable('-28 days', $timezone);
-            $end = new \DateTimeImmutable('now', $timezone);
+            $end = $now;
         }
 
         $path = $request->query->get('path', '');
@@ -102,9 +103,11 @@ class DashboardController extends Controller
             [$start, $end] = (new Dates())->getDateRange($date_range, new DateTimeImmutable('now', $timezone));
         }
 
-        $prev = $start->sub($start->diff($end));
+        $diff = $start->diff($end);
+        $prev_start = $start->sub($diff);
+        $prev_end = $prev_start->add($end > $now ? $start->diff($now) : $diff);
         $totals = $statsRepository->getTotalsBetween($domain, $path, $start, $end);
-        $totals_previous = $statsRepository->getTotalsBetween($domain, $path, $prev, $start);
+        $totals_previous = $statsRepository->getTotalsBetween($domain, $path, $prev_start, $prev_end);
         $chart = $statsRepository->getGroupedTotalsBetween($domain, $path, $start, $end);
         $pages = $statsRepository->getPageStatsBetween($domain, $start, $end);
         $referrers = $statsRepository->getReferrerStatsBetween($domain, $start, $end);

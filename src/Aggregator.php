@@ -147,7 +147,9 @@ class Aggregator
             return false;
         }
 
-        // we check for the blocklist here to prevent having to read the entire 37K file on every /collect request
+        // we check for the blocklist here (during aggregation)
+        // to prevent having to read the entire file into memory
+        // on every HTTP request to /collect
 
         static $blocklist;
         if ($blocklist === null) {
