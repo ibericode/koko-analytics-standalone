@@ -11,7 +11,7 @@ class ReferrerBlocklistTest extends TestCase
 {
     public function test(): void
     {
-        $blocklist = new ReferrerBlocklist;
+        $blocklist = new ReferrerBlocklist();
         @unlink($blocklist->getFilename());
         self::assertEquals([], $blocklist->read(), "non-existing blocklist not empty");
 
