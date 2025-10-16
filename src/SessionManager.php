@@ -50,9 +50,13 @@ class SessionManager
 
     public function getStorageDirectory(): string
     {
-        $session_directory = \dirname(__DIR__, 1) . '/var/sessions';
-        if (!\is_dir($session_directory)) {
-            \mkdir($session_directory, 0755);
+        static $session_directory;
+
+        if ($session_directory === null) {
+            $session_directory = \dirname(__DIR__, 1) . '/var/sessions';
+            if (!\is_dir($session_directory)) {
+                \mkdir($session_directory, 0755);
+            }
         }
 
         return $session_directory;
@@ -70,8 +74,7 @@ class SessionManager
 
     public function getSeedFilename(): string
     {
-        $session_directory = $this->getStorageDirectory();
-        return "{$session_directory}/seed.txt";
+        return "{$this->getStorageDirectory()}/seed.txt";
     }
 
     public function rotateSeed(): void
