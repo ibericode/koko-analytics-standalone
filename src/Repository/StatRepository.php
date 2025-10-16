@@ -207,7 +207,7 @@ abstract class StatRepository
     // The methods below have a database specific implementation
     // @see StatRepositorySqlite
     // @see StatRepositoryMysql
-    // @see config/services.php
+    // @see config/services.yaml
 
     abstract public function createTables(Domain $domain): void;
     abstract public function upsertSiteStats(Domain $domain, SiteStats $stats): void;
