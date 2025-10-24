@@ -20,7 +20,8 @@ class DashboardController extends Controller
     #[Route('/', name: 'app_dashboard_list', methods: ['GET'])]
     public function index(DomainRepository $domainRepository): Response
     {
-        $domains = $domainRepository->getAll();
+        $user = $this->getAuthenticatedUser();
+        $domains = $domainRepository->getAllByUser($user);
 
         // if there is only a single domain, redirect directly to it
         if (count($domains) === 1) {
@@ -35,12 +36,11 @@ class DashboardController extends Controller
     #[Route('/create', name: 'app_dashboard_create', methods: ['GET', 'POST'])]
     public function create(Request $request, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
-        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
-            throw new HttpException(Response::HTTP_FORBIDDEN);
-        }
+        $user = $this->getAuthenticatedUser();
 
         if ($request->getMethod() === Request::METHOD_POST) {
             $domain = new Domain();
+            $domain->user_id = $user->getId();
             $domain->name = trim($request->request->get('name', ''));
 
             // validate domain name
@@ -60,12 +60,9 @@ class DashboardController extends Controller
     #[Route('/{domain}/delete', name: 'app_dashboard_delete', methods: ['POST'])]
     public function delete(string $domain, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
-        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
-            throw new HttpException(Response::HTTP_FORBIDDEN);
-        }
-
+        $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
-        if (!$domain) {
+        if (!$domain || $user->getId() !== $domain->id) {
             $this->createNotFoundException();
         }
         $statRepository->reset($domain);
@@ -82,8 +79,9 @@ class DashboardController extends Controller
         DomainRepository $domainRepository,
         Aggregator $aggregator
     ): Response {
+        $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
-        if (!$domain) {
+        if (!$domain || $user->getId() !== $domain->id) {
             $this->createNotFoundException();
         }
 
@@ -159,12 +157,9 @@ class DashboardController extends Controller
     #[Route('/{domain}/settings', name: 'app_dashboard_settings', methods: ['GET', 'POST'])]
     public function settings(string $domain, Request $request, DomainRepository $domainRepository)
     {
-        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
-            throw new HttpException(Response::HTTP_FORBIDDEN);
-        }
-
+        $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
-        if (!$domain) {
+        if (!$domain || $user->getId() !== $domain->id) {
             $this->createNotFoundException();
         }
 

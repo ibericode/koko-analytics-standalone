@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Database;
 use App\Entity\Domain;
+use App\Entity\User;
 use LogicException;
 
 class DomainRepository
@@ -17,6 +18,7 @@ class DomainRepository
     {
         $domain = new Domain();
         $domain->id = (int) $data['id'];
+        $domain->user_id = (int) $data['user_id'];
         $domain->name = $data['name'];
         $domain->timezone = $data['timezone'];
         $domain->excluded_ip_addresses = array_map('trim', explode("\n", $data['excluded_ip_addresses']));
@@ -31,6 +33,17 @@ class DomainRepository
     {
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains");
         $stmt->execute();
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return array_map([$this, 'hydrate'], $result);
+    }
+
+    /**
+     * @return Domain[]
+     */
+    public function getAllByUser(User $user): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM koko_analytics_domains WHERE user_id = ?");
+        $stmt->execute([$user->getId()]);
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return array_map([$this, 'hydrate'], $result);
     }
@@ -50,15 +63,15 @@ class DomainRepository
         }
 
         $this->db->prepare(
-            "UPDATE koko_analytics_domains SET name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
-        )->execute([$domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses), $domain->id]);
+            "UPDATE koko_analytics_domains SET user_id = ?, name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
+        )->execute([$domain->user_id, $domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses), $domain->id]);
     }
 
     public function insert(Domain $domain): void
     {
         $this->db->prepare(
-            "INSERT INTO koko_analytics_domains (name, timezone, purge_treshold, excluded_ip_addresses) VALUES (?, ?, ?, ?)"
-        )->execute([$domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses)]);
+            "INSERT INTO koko_analytics_domains (user_id, name, timezone, purge_treshold, excluded_ip_addresses) VALUES (?, ?, ?, ?, ?)"
+        )->execute([$domain->user_id, $domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses)]);
         $domain->id = (int) $this->db->lastInsertId();
     }
 
