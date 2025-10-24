@@ -85,7 +85,7 @@ class DashboardController extends Controller
             $this->createNotFoundException();
         }
 
-        $domains = $domainRepository->getAll();
+        $domains = $domainRepository->getAllByUser($user);
 
         // run the aggregator for this domain whenever the dashboard is loaded
         $aggregator->run($domain);
