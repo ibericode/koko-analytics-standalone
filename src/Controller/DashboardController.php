@@ -63,7 +63,7 @@ class DashboardController extends Controller
         $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
         if (!$domain || $user->getId() !== $domain->id) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
         $statRepository->reset($domain);
         $domainRepository->delete($domain);
@@ -82,7 +82,7 @@ class DashboardController extends Controller
         $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
         if (!$domain || $user->getId() !== $domain->id) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         $domains = $domainRepository->getAllByUser($user);
@@ -160,7 +160,7 @@ class DashboardController extends Controller
         $user = $this->getAuthenticatedUser();
         $domain = $domainRepository->getByName($domain);
         if (!$domain || $user->getId() !== $domain->id) {
-            $this->createNotFoundException();
+            throw $this->createNotFoundException();
         }
 
         if ($request->getMethod() == Request::METHOD_POST) {
