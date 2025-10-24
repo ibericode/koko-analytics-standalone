@@ -6,11 +6,13 @@ use App\Aggregator;
 use App\Chart;
 use App\Dates;
 use App\Entity\Domain;
+use App\Entity\User;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends Controller
@@ -33,6 +35,10 @@ class DashboardController extends Controller
     #[Route('/create', name: 'app_dashboard_create', methods: ['GET', 'POST'])]
     public function create(Request $request, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
+        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
+            throw new HttpException(Response::HTTP_FORBIDDEN);
+        }
+
         if ($request->getMethod() === Request::METHOD_POST) {
             $domain = new Domain();
             $domain->name = trim($request->request->get('name', ''));
@@ -54,6 +60,10 @@ class DashboardController extends Controller
     #[Route('/{domain}/delete', name: 'app_dashboard_delete', methods: ['POST'])]
     public function delete(string $domain, DomainRepository $domainRepository, StatRepository $statRepository): Response
     {
+        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
+            throw new HttpException(Response::HTTP_FORBIDDEN);
+        }
+
         $domain = $domainRepository->getByName($domain);
         if (!$domain) {
             $this->createNotFoundException();
@@ -149,6 +159,10 @@ class DashboardController extends Controller
     #[Route('/{domain}/settings', name: 'app_dashboard_settings', methods: ['GET', 'POST'])]
     public function settings(string $domain, Request $request, DomainRepository $domainRepository)
     {
+        if ($this->getAuthenticatedUser()->getRole() !== User::ROLE_ADMIN) {
+            throw new HttpException(Response::HTTP_FORBIDDEN);
+        }
+
         $domain = $domainRepository->getByName($domain);
         if (!$domain) {
             $this->createNotFoundException();

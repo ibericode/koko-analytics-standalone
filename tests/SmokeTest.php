@@ -2,7 +2,6 @@
 
 namespace App\Tests;
 
-use App\Database;
 use App\Entity\Domain;
 use App\Entity\User;
 use App\Repository\DomainRepository;
@@ -11,7 +10,6 @@ use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\BrowserKit\CookieJar;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class SmokeTest extends WebTestCase

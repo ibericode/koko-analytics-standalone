@@ -4,11 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
 use App\Entity\User;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\BrowserKit\CookieJar;
-use Symfony\Component\DomCrawler\Crawler;
 
 class AuthControllerTest extends WebTestCase
 {
@@ -21,8 +17,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertSelectorExists('form button[type="submit"]');
         $this->assertSelectorExists('h1');
 
-        /** @var Crawler */
-        $crawler = $client->submitForm('Log in', [
+        $client->submitForm('Log in', [
             '_username' => 'test@kokoanalytics.com',
             '_password' => '',
         ]);
@@ -37,8 +32,7 @@ class AuthControllerTest extends WebTestCase
         $user->setPassword(\password_hash('password', PASSWORD_DEFAULT));
         $repo->save($user);
 
-       /** @var Crawler */
-        $crawler = $client->submitForm('Log in', [
+        $client->submitForm('Log in', [
             '_username' => 'test@kokoanalytics.com',
             '_password' => 'password',
         ]);
