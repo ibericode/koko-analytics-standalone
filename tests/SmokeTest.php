@@ -48,11 +48,12 @@ class SmokeTest extends WebTestCase
 
         /** @var \App\Repository\UserRepository */
         $userRepository = self::getContainer()->get(UserRepository::class);
-        $userRepository->reset();
-        $user = new User();
-        $user->setEmail('test@kokoanalytics.com');
-        $user->setPassword('');
-        $userRepository->save($user);
+        if (! ($user = $userRepository->getByEmail('test@kokoanalytics.com'))) {
+            $user = new User();
+            $user->setEmail('test@kokoanalytics.com');
+            $user->setPassword('');
+            $userRepository->save($user);
+        }
 
         /** @var DomainRepository */
         $domainRepository = self::getContainer()->get(DomainRepository::class);

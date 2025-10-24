@@ -21,7 +21,7 @@ class DomainRepository
         $domain->user_id = (int) $data['user_id'];
         $domain->name = $data['name'];
         $domain->timezone = $data['timezone'];
-        $domain->excluded_ip_addresses = array_map('trim', explode("\n", $data['excluded_ip_addresses']));
+        $domain->excluded_ip_addresses = array_filter(array_map('trim', explode("\n", trim($data['excluded_ip_addresses']))));
         $domain->purge_treshold =  (int) $data['purge_treshold'];
         return $domain;
     }
