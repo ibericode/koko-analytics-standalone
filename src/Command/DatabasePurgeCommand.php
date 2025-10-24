@@ -2,12 +2,10 @@
 
 namespace App\Command;
 
-use App\Database;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

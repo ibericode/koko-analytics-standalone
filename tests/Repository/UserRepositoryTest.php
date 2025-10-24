@@ -2,7 +2,7 @@
 
 namespace App\Tests\Repository;
 
-use App\Security\User;
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 

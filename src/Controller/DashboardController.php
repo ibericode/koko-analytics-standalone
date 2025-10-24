@@ -3,17 +3,12 @@
 namespace App\Controller;
 
 use App\Aggregator;
-use App\Database;
 use App\Chart;
-use App\Datastore\MysqlStore;
-use App\Datastore\StoreInterface;
 use App\Dates;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use DateTimeImmutable;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

@@ -2,8 +2,6 @@
 
 namespace App\Command;
 
-use App\Aggregator;
-use App\Repository\DomainRepository;
 use App\SessionManager;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

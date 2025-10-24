@@ -23,7 +23,7 @@ class DatabaseMigrateCommand extends Command
         $migration_files = glob("migrations/{$driver}/*-*.php");
         try {
             $version = $this->db->query('SELECT MAX(version) FROM koko_analytics_migrations')->fetchColumn(0);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $this->db->exec(
                 "CREATE TABLE koko_analytics_migrations (
                       version INT UNSIGNED NOT NULL PRIMARY KEY,

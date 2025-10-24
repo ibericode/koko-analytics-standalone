@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Database;
-use App\Security\User;
+use App\Entity\User;
 
 class UserRepository
 {

@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Database;
 use App\Entity\Domain;
 use App\Entity\PageStats;
 use App\Entity\ReferrerStats;
@@ -10,7 +9,7 @@ use App\Entity\SiteStats;
 use App\Repository\UserRepository;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
-use App\Security\User;
+use App\Entity\User;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -78,8 +77,6 @@ class DatabaseSeedCommand extends Command
             $s->pageviews = $s->visitors + random_int(10, 100);
             $s->date = $date_cur;
             $this->statRepository->upsertSiteStats($domain, $s);
-            $visitors = random_int(10, 100);
-
             $date_cur = $date_cur->modify('+1 day');
         }
     }

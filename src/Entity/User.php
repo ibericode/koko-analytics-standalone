@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Security;
+namespace App\Entity;
 
 class User
 {

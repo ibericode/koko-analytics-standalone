@@ -3,7 +3,7 @@
 namespace App\Security;
 
 use App\Repository\UserRepository;
-use App\Security\User;
+use App\Entity\User;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;

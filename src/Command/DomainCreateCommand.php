@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Database;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;

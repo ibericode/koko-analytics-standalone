@@ -3,7 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
-use App\Security\User;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;

@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Repository\UserRepository;
-use App\Security\User;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,6 +27,7 @@ class UserDeleteCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $email = $input->getArgument('email');
+
         $user = $this->userRepository->getByEmail($email);
         if (!$user) {
             $output->writeln("No user with email {$email}");

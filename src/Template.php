@@ -3,7 +3,6 @@
 namespace App;
 
 use Psr\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -45,7 +44,6 @@ class Template
     {
         return $this->container->get('request_stack')->getSession()->getFlashBag()->all();
     }
-
 
     protected function e(string $value): void
     {

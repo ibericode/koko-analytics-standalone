@@ -3,8 +3,6 @@
 namespace App\Tests;
 
 use PHPUnit\Framework\TestCase;
-use DateTimeImmutable;
-use App\Dates;
 use App\ReferrerBlocklist;
 
 class ReferrerBlocklistTest extends TestCase
