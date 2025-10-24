@@ -76,8 +76,6 @@ class DatabaseSeedCommand extends Command
             return $user;
         }
 
-        echo "creating user";
-
         $user = new User();
         $user->setEmail('test@kokoanalytics.com');
         $user->setPassword(password_hash('password', PASSWORD_DEFAULT));

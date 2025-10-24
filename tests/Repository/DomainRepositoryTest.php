@@ -26,6 +26,7 @@ class DomainRepositoryTest extends KernelTestCase
 
         // assert inserting a domain sets the ID
         $domain = new Domain();
+        $domain->user_id = 1;
         $domain->name = ('website.com');
         $domain->timezone = ('Europe/Amsterdam');
         $domain->purge_treshold = (100);
