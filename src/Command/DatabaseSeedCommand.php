@@ -42,13 +42,15 @@ class DatabaseSeedCommand extends Command
         $date_start = new \DateTimeImmutable("-{$months} months", new \DateTimeZone('UTC'));
         $date_now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
+        // TODO: Empty database first? If so, we need to ask for confirmation first.
+
+        $user = $this->seedUsers();
+
         $domain = $this->domainRepository->getByName($domain_name);
         if (!$domain) {
-            $output->writeln("No such domain: {$domain_name}");
-            return Command::FAILURE;
+            $domain = $this->seedDomain($user, $domain_name);
         }
 
-        $this->seedUsers();
         $this->seedSiteStats($domain, $date_start, $date_now);
         $this->seedPageStats($domain, $date_start, $date_now);
         $this->seedReferrerStats($domain, $date_start, $date_now);
@@ -58,12 +60,23 @@ class DatabaseSeedCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function seedUsers(): void
+    private function seedDomain(User $user, string $name): Domain
+    {
+        $domain = new Domain();
+        $domain->user_id = $user->getId();
+        $domain->name = $name;
+        $this->domainRepository->insert($domain);
+        $this->statRepository->createTables($domain);
+        return $domain;
+    }
+
+    private function seedUsers(): User
     {
         $user = new User();
         $user->setEmail('test@kokoanalytics.com');
         $user->setPassword(password_hash('password', PASSWORD_DEFAULT));
         $this->userRepository->save($user);
+        return $user;
     }
 
     private function seedSiteStats(Domain $domain, \DateTimeImmutable $date_start, \DateTimeImmutable $date_now): void

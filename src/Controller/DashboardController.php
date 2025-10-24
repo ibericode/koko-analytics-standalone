@@ -6,13 +6,11 @@ use App\Aggregator;
 use App\Chart;
 use App\Dates;
 use App\Entity\Domain;
-use App\Entity\User;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DashboardController extends Controller

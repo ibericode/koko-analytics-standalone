@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\Domain;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -16,6 +17,7 @@ class DomainCreateCommand extends Command
 {
     public function __construct(
         protected DomainRepository $domainRepository,
+        protected UserRepository $userRepository,
         protected StatRepository $statRepository,
     ) {
         parent::__construct();
@@ -24,13 +26,14 @@ class DomainCreateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('name', InputArgument::REQUIRED, 'Name of the domain (without protocol)');
+            ->addArgument('name', InputArgument::REQUIRED, 'Name of the domain (without HTTP protocol)')
+            ->addArgument('user', InputArgument::REQUIRED, 'Email of the user this domain belongs to')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $name = $input->getArgument('name');
-
         if (strlen($name) < 3 || strlen($name) > 255) {
             $output->writeln("Name must be between 3 and 255 characters in length.");
             return Command::FAILURE;
@@ -41,7 +44,15 @@ class DomainCreateCommand extends Command
             return Command::FAILURE;
         }
 
+        $userEmail = $input->getArgument('user');
+        $user = $this->userRepository->getByEmail($userEmail);
+        if (!$user) {
+            $output->writeln("No user with email {$userEmail}");
+            return Command::FAILURE;
+        }
+
         $domain = new Domain();
+        $domain->user_id = $user->getId();
         $domain->name = $name;
         $this->domainRepository->insert($domain);
         $this->statRepository->createTables($domain);
