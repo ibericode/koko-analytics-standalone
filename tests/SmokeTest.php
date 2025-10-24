@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\DomainRepository;
 use App\Repository\StatRepository;
 use App\Repository\UserRepository;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
@@ -58,6 +59,7 @@ class SmokeTest extends WebTestCase
         /** @var DomainRepository */
         $domainRepository = self::getContainer()->get(DomainRepository::class);
         $domainRepository->reset();
+
         $domain = new Domain();
         $domain->user_id = $user->getId();
         $domain->name = 'smoke-test.com';

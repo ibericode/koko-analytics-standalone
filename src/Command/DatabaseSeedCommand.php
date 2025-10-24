@@ -45,11 +45,7 @@ class DatabaseSeedCommand extends Command
         // TODO: Empty database first? If so, we need to ask for confirmation first.
 
         $user = $this->seedUsers();
-
-        $domain = $this->domainRepository->getByName($domain_name);
-        if (!$domain) {
-            $domain = $this->seedDomain($user, $domain_name);
-        }
+        $domain = $this->seedDomain($user, $domain_name);
 
         $this->seedSiteStats($domain, $date_start, $date_now);
         $this->seedPageStats($domain, $date_start, $date_now);
@@ -62,6 +58,10 @@ class DatabaseSeedCommand extends Command
 
     private function seedDomain(User $user, string $name): Domain
     {
+        if ($domain = $this->domainRepository->getByName($name)) {
+            return $domain;
+        }
+
         $domain = new Domain();
         $domain->user_id = $user->getId();
         $domain->name = $name;
@@ -72,6 +72,12 @@ class DatabaseSeedCommand extends Command
 
     private function seedUsers(): User
     {
+        if ($user = $this->userRepository->getByEmail('test@kokoanalytics.com')) {
+            return $user;
+        }
+
+        echo "creating user";
+
         $user = new User();
         $user->setEmail('test@kokoanalytics.com');
         $user->setPassword(password_hash('password', PASSWORD_DEFAULT));

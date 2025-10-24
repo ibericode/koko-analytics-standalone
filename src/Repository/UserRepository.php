@@ -12,11 +12,22 @@ class UserRepository
     ) {
     }
 
+    private function hydrate(array $data): User
+    {
+        $user = new User();
+        $user->setId((int) $data['id']);
+        $user->setEmail($data['email']);
+        $user->setPassword($data['password']);
+        $user->setRole($data['role']);
+        return $user;
+    }
+
     public function getByEmail(string $email): ?User
     {
         $stmt = $this->db->prepare("SELECT * FROM koko_analytics_users WHERE email = ? LIMIT 1");
         $stmt->execute([ $email ]);
-        return $stmt->fetchObject(User::class) ?: null;
+        $obj = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $obj ? $this->hydrate($obj) : null;
     }
 
     public function save(User $user): void
@@ -24,7 +35,7 @@ class UserRepository
         $this->db
             ->prepare("INSERT INTO koko_analytics_users (email, password) VALUES (?, ?)")
             ->execute([ $user->getEmail(), $user->getPassword() ]);
-        $user->setId($this->db->lastInsertId());
+        $user->setId((int) $this->db->lastInsertId());
     }
 
     public function delete(User $user): void

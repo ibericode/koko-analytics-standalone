@@ -67,6 +67,7 @@ class DomainRepository
         )->execute([$domain->user_id, $domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses), $domain->id]);
     }
 
+    // TODO: Make protected and replace with public save()
     public function insert(Domain $domain): void
     {
         $this->db->prepare(
