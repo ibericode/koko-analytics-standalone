@@ -54,6 +54,23 @@
         </form>
     </div>
 
+    <div class="mb-5">
+        <h3>Tracking snippet</h3>
+        <p>Start recording statistics for this domain by adding the following tracking snippet to your pages.</p>
+        <pre class="bg-dark text-white p-3 rounded"><code>&lt;script&gt;
+(function(o, c) {
+  window[o] = c;
+  var s = document.createElement('script');
+  s.defer = true;
+  s.src = [c.url, '/', o, '.js'].join('');
+  document.body.appendChild(s);
+})('ka', {
+  url: '<?= rtrim($this->generateUrl('app_dashboard_list', [], 0), '/') ?>',
+  domain: '<?= $this->e($domain->name) ?>'
+})
+&lt;/script&gt;</code></pre>
+    </div>
+
 
 </div>
 <?php require __DIR__ . '/_footer.html.php'; ?>
