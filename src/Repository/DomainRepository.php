@@ -56,19 +56,19 @@ class DomainRepository
         return $obj ? $this->hydrate($obj) : null;
     }
 
-    public function update(Domain $domain): void
+    public function save(Domain $domain): void
     {
-        if (!$domain->id) {
-            throw new LogicException("Updating non-existing domain");
-        }
+        $domain->id ? $this->update($domain) : $this->insert($domain);
+    }
 
+    protected function update(Domain $domain): void
+    {
         $this->db->prepare(
             "UPDATE koko_analytics_domains SET user_id = ?, name = ?, timezone = ?, purge_treshold = ?, excluded_ip_addresses = ? WHERE id = ?"
         )->execute([$domain->user_id, $domain->name, $domain->timezone, $domain->purge_treshold, join("\n", $domain->excluded_ip_addresses), $domain->id]);
     }
 
-    // TODO: Make protected and replace with public save()
-    public function insert(Domain $domain): void
+    protected function insert(Domain $domain): void
     {
         $this->db->prepare(
             "INSERT INTO koko_analytics_domains (user_id, name, timezone, purge_treshold, excluded_ip_addresses) VALUES (?, ?, ?, ?, ?)"

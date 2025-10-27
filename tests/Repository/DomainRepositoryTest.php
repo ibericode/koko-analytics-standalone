@@ -31,7 +31,7 @@ class DomainRepositoryTest extends KernelTestCase
         $domain->timezone = ('Europe/Amsterdam');
         $domain->purge_treshold = (100);
         $domain->excluded_ip_addresses = (['127.0.0.1']);
-        $repo->insert($domain);
+        $repo->save($domain);
         self::assertGreaterThan(0, $domain->id);
 
         // assert repository contains 1 item now

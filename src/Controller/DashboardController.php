@@ -46,7 +46,7 @@ class DashboardController extends Controller
                 return $this->render('dashboard-create.html.php', [ 'error' => 'Domain name can not be empty or contain non-alphanumeric characters.' ]);
             }
 
-            $domainRepository->insert($domain);
+            $domainRepository->save($domain);
             $statRepository->createTables($domain);
             $this->addFlash('success', 'Domain created');
             return $this->redirectToRoute('app_dashboard', ['domain' => $domain->name]);
@@ -167,7 +167,7 @@ class DashboardController extends Controller
             $domain->purge_treshold = (int) $posted['purge_treshold'] ?? $domain->purge_treshold;
             $domain->timezone = trim($posted['timezone'] ?? $domain->timezone);
             $domain->excluded_ip_addresses = array_map('trim', explode("\n", trim($posted['excluded_ip_addresses'])));
-            $domainRepository->update($domain);
+            $domainRepository->save($domain);
 
             // write list of ignored ip address to var/domain-ignore
             // we store this in a file so that the /collect endpoint does not have to initiate a database connection on every request

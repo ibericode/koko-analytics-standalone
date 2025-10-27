@@ -62,7 +62,7 @@ class SmokeTest extends WebTestCase
         $domain = new Domain();
         $domain->user_id = $user->getId();
         $domain->name = 'smoke-test.com';
-        $domainRepository->insert($domain);
+        $domainRepository->save($domain);
 
         /** @var StatRepository */
         $statRepository = self::getContainer()->get(StatRepository::class);

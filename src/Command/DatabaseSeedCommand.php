@@ -65,7 +65,7 @@ class DatabaseSeedCommand extends Command
         $domain = new Domain();
         $domain->user_id = $user->getId();
         $domain->name = $name;
-        $this->domainRepository->insert($domain);
+        $this->domainRepository->save($domain);
         $this->statRepository->createTables($domain);
         return $domain;
     }
